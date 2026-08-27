@@ -18,6 +18,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Build Next.js site
+        run: npm run build
       - name: Deploy to Cloudflare Workers
         uses: cloudflare/wrangler-action@v3
         with:
