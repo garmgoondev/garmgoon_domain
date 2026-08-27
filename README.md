@@ -1,15 +1,15 @@
-# garmgoon_domain
+# Garmgoon
 
-Cloudflare Workers에서 호스팅하는 개인 홈페이지입니다.
+`garmgoon.com`에서 운영되는 개인 서비스 포트폴리오이자 빌드 로그입니다.
 
-## 로컬 실행
+## Local development
 
 ```bash
 npm install
 npm run dev
 ```
 
-`main` 브랜치에 push하면 GitHub Actions가 자동으로 빌드 및 배포합니다.
+프로덕션 정적 빌드는 `npm run build`, Cloudflare 로컬 미리보기는 `npm run preview`로 실행합니다. `main` 브랜치에 push하면 GitHub Actions가 빌드 후 Cloudflare Workers에 자동 배포합니다.
 
 GitHub 저장소에는 다음 Actions secrets가 필요합니다.
 

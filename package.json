@@ -3,10 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "dev": "next dev",
+    "build": "next build",
+    "preview": "wrangler dev",
+    "deploy": "npm run build && wrangler deploy"
   },
   "devDependencies": {
     "wrangler": "^4.26.0"
+  },
+  "dependencies": {
+    "next": "^16.3.3",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   }
 }
