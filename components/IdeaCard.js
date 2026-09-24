@@ -59,7 +59,6 @@ export default function IdeaCard({ card, index, keywords = [], authed, scrapped,
 
       <div className="ncardMeta">
         <span className="ncardSource">
-          {card.private ? <span title="로그인한 나만 볼 수 있는 출처">🔒 </span> : null}
           {card.sourceLabel}
           {hasReactions ? (
             <span className="ncardReactions">

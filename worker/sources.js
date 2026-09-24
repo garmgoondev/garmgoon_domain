@@ -22,10 +22,9 @@ export const SOURCES = [
 
 export const GROUP_CAPS = { news: 3 };
 
-// 개인 열람만 허용되는 출처. 공개 페이지(비로그인 메인, 주간 리포트)에 노출하지 않고 30일 뒤 삭제한다.
-// Reddit(API 승인 조건), Indie Hackers(약관: 개인·비상업 용도만 허용)
-export const PRIVATE_SOURCES = ["reddit", "indiehackers"];
-export const PRIVATE_RETENTION_DAYS = 30;
+// 커뮤니티 글은 30일 뒤 삭제한다 (Reddit·Indie Hackers 약관의 데이터 보관 조건)
+export const SHORT_RETENTION_SOURCES = ["reddit", "indiehackers"];
+export const RETENTION_DAYS = 30;
 
 // 아이디어 검증, 니치 수익 사례, 수요 신호가 많이 올라오는 서브레딧
 export const REDDIT_SUBS = [

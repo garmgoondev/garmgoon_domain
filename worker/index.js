@@ -3,7 +3,7 @@ import { cardFromRow, dailyCardCount } from "./ideas.js";
 import { hasLLM, modelName } from "./llm.js";
 import { collectHourOf, tick } from "./pipeline.js";
 import { buildWeeklyReport } from "./report.js";
-import { PRIVATE_SOURCES, SOURCES, sourceAvailability } from "./sources.js";
+import { SOURCES, sourceAvailability } from "./sources.js";
 import { DAY, getState, httpError, json, localDay, localWeekStart, parseJSON, timeZone } from "./util.js";
 import { addChannel, videoFromRow } from "./youtube.js";
 
@@ -18,14 +18,12 @@ async function readBody(request) {
 // ---------- 공개 API ----------
 
 async function getIdeas(env, url, authed) {
-  // Reddit 데이터는 API 약관상 개인 열람용으로만 쓰므로 로그인한 사용자에게만 보여준다
-  const visible = authed ? "" : `AND source NOT IN (${PRIVATE_SOURCES.map((s) => `'${s}'`).join(",")})`;
   const { results: days } = await env.DB.prepare(
-    `SELECT day, COUNT(*) AS count FROM items WHERE status = 'published' ${visible} GROUP BY day ORDER BY day DESC LIMIT 30`,
+    "SELECT day, COUNT(*) AS count FROM items WHERE status = 'published' GROUP BY day ORDER BY day DESC LIMIT 30",
   ).all();
   const day = url.searchParams.get("day") || days[0]?.day || localDay(timeZone(env));
   const [{ results }, pending] = await Promise.all([
-    env.DB.prepare(`SELECT * FROM items WHERE day = ? AND status = 'published' ${visible} ORDER BY rank`).bind(day).all(),
+    env.DB.prepare("SELECT * FROM items WHERE day = ? AND status = 'published' ORDER BY rank").bind(day).all(),
     env.DB.prepare("SELECT COUNT(*) AS n FROM items WHERE day = ? AND status IN ('new', 'scored', 'selected')").bind(day).first(),
   ]);
   const cards = results.map(cardFromRow);
@@ -239,7 +237,7 @@ async function statusApi(env) {
     collectHour: collectHourOf(env),
     timeZone: timeZone(env),
     collectedAt: collected ? Number(collected) : null,
-    sources: SOURCES.map((s) => ({ label: s.label, needs: s.needs || null, private: PRIVATE_SOURCES.includes(s.id) })),
+    sources: SOURCES.map((s) => ({ label: s.label, needs: s.needs || null })),
     integrations: sourceAvailability(env),
     items: toMap(items),
     videos: toMap(videos),

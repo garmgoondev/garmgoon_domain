@@ -1,5 +1,4 @@
 import { chatJSON, hasLLM } from "./llm.js";
-import { PRIVATE_SOURCES } from "./sources.js";
 import { addDays, dayStartMs, log, parseJSON, timeZone } from "./util.js";
 
 // weekStart(월요일, 설정한 시간대 기준)부터 7일 동안의 카드와 영상으로 주간 트렌드 리포트를 만든다.
@@ -10,9 +9,8 @@ export async function buildWeeklyReport(env, weekStart) {
   const endMs = dayStartMs(timeZone(env), addDays(weekStart, 7));
 
   const [{ results: items }, { results: videos }] = await Promise.all([
-    // 공개 페이지이므로 개인 열람용 출처(Reddit)는 넣지 않는다
     env.DB.prepare(
-      `SELECT headline, kind, signal, category, tags, source_label FROM items WHERE status = 'published' AND day BETWEEN ? AND ? AND source NOT IN (${PRIVATE_SOURCES.map((s) => `'${s}'`).join(",")}) ORDER BY score DESC LIMIT 200`,
+      "SELECT headline, kind, signal, category, tags, source_label FROM items WHERE status = 'published' AND day BETWEEN ? AND ? ORDER BY score DESC LIMIT 200",
     )
       .bind(start, end)
       .all(),
