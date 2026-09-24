@@ -1670,6 +1670,87 @@ button {
   margin: 0 auto 16px;
 }
 
+.progressGroup {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.progressBlock {
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: var(--surface-2);
+}
+
+.progressHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.progressHead b {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.progressHead span {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--brand);
+  font-variant-numeric: tabular-nums;
+}
+
+.progressTrack {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand), #ff4f8b);
+  transition: width 0.5s ease;
+}
+
+.progressFill.done {
+  background: var(--ok);
+}
+
+.progressSteps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.progressSteps span {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-3);
+  background: var(--surface);
+}
+
+.progressSteps span.done {
+  color: var(--ok);
+}
+
+.progressSteps span.active {
+  color: #fff;
+  background: var(--brand);
+}
+
+.progressSub {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
 /* ---------- 모바일 ---------- */
 
 @media (max-width: 640px) {

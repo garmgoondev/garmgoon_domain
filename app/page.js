@@ -7,7 +7,7 @@ import IdeaCard from "../components/IdeaCard";
 import VideoCard from "../components/VideoCard";
 import { useApi, useMe, useScrapSet } from "../lib/api";
 import { categoryStyle } from "../lib/categories";
-import { formatDay, matchKeywords, shortDay, todayKst } from "../lib/format";
+import { formatDay, matchKeywords, shortDay, todayLocal } from "../lib/format";
 
 export default function Home() {
   const me = useMe();
@@ -36,7 +36,7 @@ export default function Home() {
   }, [cards]);
   const visible = category === "전체" ? cards : cards.filter((c) => c.category === category);
   const alerts = visible.filter((c) => cardKeywords.get(c.id)?.length);
-  const shownDay = data?.day || todayKst();
+  const shownDay = data?.day || todayLocal();
 
   return (
     <>

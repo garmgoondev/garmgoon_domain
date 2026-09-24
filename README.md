@@ -28,7 +28,7 @@ npx wrangler secret put ADMIN_PASSWORD      # 비공개 페이지 로그인 비�
 npx wrangler secret put OPENROUTER_API_KEY  # AI 요약용 (없으면 원문만 표시)
 ```
 
-`wrangler.jsonc`의 `vars`에서 모델(`OPENROUTER_MODEL`), 하루 카드 수(`DAILY_CARDS`), 수집 시각(`COLLECT_HOUR_KST`)을 바꿀 수 있습니다.
+`wrangler.jsonc`의 `vars`에서 모델(`OPENROUTER_MODEL`), 하루 카드 수(`DAILY_CARDS`), 기준 시간대(`TIMEZONE`, 기본 `America/Denver`), 수집 시각(`COLLECT_HOUR`)을 바꿀 수 있습니다.
 
 GitHub Actions secrets: `CLOUDFLARE_API_TOKEN` (Workers 편집 + D1 편집 권한), `CLOUDFLARE_ACCOUNT_ID`. `main`에 push하면 D1 마이그레이션 후 배포됩니다.
 

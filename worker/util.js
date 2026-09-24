@@ -1,23 +1,58 @@
-const KST_OFFSET = 9 * 60 * 60 * 1000;
 const UA = "Mozilla/5.0 (compatible; garmgoon-bot/1.0; +https://garmgoon.com)";
 
 export const HOUR = 60 * 60 * 1000;
 export const DAY = 24 * HOUR;
 
-// KST 기준 날짜 문자열 (YYYY-MM-DD)
-export function kstDay(ms = Date.now()) {
-  return new Date(ms + KST_OFFSET).toISOString().slice(0, 10);
+// 날짜 경계와 수집 시각의 기준 시간대. 서머타임은 Intl이 알아서 처리한다.
+export function timeZone(env) {
+  return env.TIMEZONE || "America/Denver";
 }
 
-export function kstParts(ms = Date.now()) {
-  const d = new Date(ms + KST_OFFSET);
-  return { hour: d.getUTCHours(), weekday: d.getUTCDay() };
+const formatters = new Map();
+
+// 해당 시간대의 { day: "YYYY-MM-DD", hour, weekday(0=일) }
+export function localParts(tz, ms = Date.now()) {
+  if (!formatters.has(tz)) {
+    formatters.set(
+      tz,
+      new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23", weekday: "short" }),
+    );
+  }
+  const p = Object.fromEntries(formatters.get(tz).formatToParts(new Date(ms)).map((x) => [x.type, x.value]));
+  return {
+    day: `${p.year}-${p.month}-${p.day}`,
+    hour: Number(p.hour),
+    weekday: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(p.weekday),
+  };
 }
 
-// 해당 시각이 속한 주의 월요일 (KST, YYYY-MM-DD)
-export function kstWeekStart(ms = Date.now()) {
-  const { weekday } = kstParts(ms);
-  return kstDay(ms - ((weekday + 6) % 7) * DAY);
+export function localDay(tz, ms = Date.now()) {
+  return localParts(tz, ms).day;
+}
+
+// "YYYY-MM-DD" 문자열에 n일을 더한다 (시간대와 무관한 달력 계산)
+export function addDays(day, n) {
+  const [y, m, d] = day.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10);
+}
+
+// 해당 시각이 속한 주의 월요일 (YYYY-MM-DD)
+export function localWeekStart(tz, ms = Date.now()) {
+  const { day, weekday } = localParts(tz, ms);
+  return addDays(day, -((weekday + 6) % 7));
+}
+
+// 해당 시간대에서 그 날짜가 시작되는 순간(자정)의 epoch ms
+export function dayStartMs(tz, day) {
+  const [y, m, d] = day.split("-").map(Number);
+  let guess = Date.UTC(y, m - 1, d);
+  for (let i = 0; i < 2; i++) {
+    const p = localParts(tz, guess);
+    const [py, pm, pd] = p.day.split("-").map(Number);
+    const shownAsUtc = Date.UTC(py, pm - 1, pd, p.hour);
+    guess -= shownAsUtc - Date.UTC(y, m - 1, d);
+  }
+  return guess;
 }
 
 export function json(data, init = {}) {

@@ -1,10 +1,10 @@
 import { checkPassword, clearCookie, isAuthed, sessionCookie } from "./auth.js";
 import { cardFromRow, dailyCardCount } from "./ideas.js";
 import { hasLLM, modelName } from "./llm.js";
-import { tick } from "./pipeline.js";
+import { collectHourOf, tick } from "./pipeline.js";
 import { buildWeeklyReport } from "./report.js";
 import { SOURCES } from "./sources.js";
-import { DAY, getState, httpError, json, kstDay, kstWeekStart, parseJSON } from "./util.js";
+import { DAY, getState, httpError, json, localDay, localWeekStart, parseJSON, timeZone } from "./util.js";
 import { addChannel, videoFromRow } from "./youtube.js";
 
 const PRIVATE_PAGES = /^\/(tools|scrap|settings)(\/|\.html|\.txt|$)/;
@@ -21,7 +21,7 @@ async function getIdeas(env, url, authed) {
   const { results: days } = await env.DB.prepare(
     "SELECT day, COUNT(*) AS count FROM items WHERE status = 'published' GROUP BY day ORDER BY day DESC LIMIT 30",
   ).all();
-  const day = url.searchParams.get("day") || days[0]?.day || kstDay();
+  const day = url.searchParams.get("day") || days[0]?.day || localDay(timeZone(env));
   const [{ results }, pending] = await Promise.all([
     env.DB.prepare("SELECT * FROM items WHERE day = ? AND status = 'published' ORDER BY rank").bind(day).all(),
     env.DB.prepare("SELECT COUNT(*) AS n FROM items WHERE day = ? AND status IN ('new', 'scored', 'selected')").bind(day).first(),
@@ -220,7 +220,7 @@ async function keywordsApi(env, request, id) {
 }
 
 async function statusApi(env) {
-  const today = kstDay();
+  const today = localDay(timeZone(env));
   const [items, videos, logs, collected] = await Promise.all([
     env.DB.prepare("SELECT status, COUNT(*) AS n FROM items WHERE day = ? GROUP BY status").bind(today).all(),
     env.DB.prepare("SELECT status, COUNT(*) AS n FROM videos GROUP BY status").all(),
@@ -234,7 +234,8 @@ async function statusApi(env) {
     hasPassword: Boolean(env.ADMIN_PASSWORD),
     model: modelName(env),
     dailyCards: dailyCardCount(env),
-    collectHour: Number(env.COLLECT_HOUR_KST ?? 6),
+    collectHour: collectHourOf(env),
+    timeZone: timeZone(env),
     collectedAt: collected ? Number(collected) : null,
     sources: [...new Set(SOURCES.map((s) => s.label))],
     items: toMap(items),
@@ -247,7 +248,7 @@ async function runApi(env, request) {
   const { job } = await readBody(request);
   if (job === "report") {
     // 수동 실행은 이번 주 월요일부터 지금까지를 정리한다
-    const week = kstWeekStart();
+    const week = localWeekStart(timeZone(env));
     const report = await buildWeeklyReport(env, week);
     return json({ result: report ? `주간 리포트 생성: ${week}` : "리포트를 만들 데이터가 아직 없어요." });
   }

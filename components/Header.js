@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useMe } from "../lib/api";
-import { formatDay, todayKst } from "../lib/format";
+import { formatDay, todayLocal } from "../lib/format";
 
 const NAV = [
   { href: "/", label: "오늘의 카드" },
@@ -19,7 +19,7 @@ export default function Header() {
   const pathname = usePathname();
   const me = useMe();
   const [today, setToday] = useState("");
-  useEffect(() => setToday(formatDay(todayKst())), []);
+  useEffect(() => setToday(formatDay(todayLocal())), []);
 
   const isActive = (href) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 

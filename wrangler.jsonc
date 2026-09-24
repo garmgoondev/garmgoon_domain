@@ -35,7 +35,9 @@
   "vars": {
     "OPENROUTER_MODEL": "deepseek/deepseek-v4-flash",
     "DAILY_CARDS": "24",
-    "COLLECT_HOUR_KST": "6"
+    // 날짜 경계와 수집 시각의 기준 (유타, 서머타임 자동 반영)
+    "TIMEZONE": "America/Denver",
+    "COLLECT_HOUR": "6"
   },
   "observability": {
     "enabled": true

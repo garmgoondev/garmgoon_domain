@@ -1,12 +1,12 @@
 import { chatJSON, hasLLM } from "./llm.js";
-import { DAY, kstDay, log, parseJSON } from "./util.js";
+import { addDays, dayStartMs, log, parseJSON, timeZone } from "./util.js";
 
-// weekStart(월요일, KST)부터 7일 동안의 카드와 영상으로 주간 트렌드 리포트를 만든다.
+// weekStart(월요일, 설정한 시간대 기준)부터 7일 동안의 카드와 영상으로 주간 트렌드 리포트를 만든다.
 export async function buildWeeklyReport(env, weekStart) {
   const start = weekStart;
-  const end = kstDay(Date.parse(`${weekStart}T00:00:00+09:00`) + 6 * DAY);
-  const startMs = Date.parse(`${start}T00:00:00+09:00`);
-  const endMs = startMs + 7 * DAY;
+  const end = addDays(weekStart, 6);
+  const startMs = dayStartMs(timeZone(env), start);
+  const endMs = dayStartMs(timeZone(env), addDays(weekStart, 7));
 
   const [{ results: items }, { results: videos }] = await Promise.all([
     env.DB.prepare("SELECT headline, category, tags, source_label FROM items WHERE status = 'published' AND day BETWEEN ? AND ? ORDER BY score DESC LIMIT 200")

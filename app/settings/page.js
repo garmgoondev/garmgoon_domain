@@ -1,11 +1,102 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api, resetMe, useApi } from "../../lib/api";
 import { timeAgo } from "../../lib/format";
 
-const ITEM_STATUS = { new: "수집됨", scored: "채점됨", selected: "선정됨", published: "카드 완료", skipped: "제외", failed: "실패" };
-const VIDEO_STATUS = { new: "요약 대기", done: "요약 완료", failed: "실패" };
+const TICK_MINUTES = 10;
+const TZ_LABELS = { "America/Denver": "유타 시간", "Asia/Seoul": "한국 시간" };
+
+function eta(ticks) {
+  const min = ticks * TICK_MINUTES;
+  return min >= 60 ? `약 ${Math.floor(min / 60)}시간 ${min % 60 ? `${min % 60}분` : ""}`.trim() : `약 ${min}분`;
+}
+
+// 오늘 카드뉴스가 수집 → 채점 → 선정 → 카드 생성 중 어디까지 왔는지 계산한다
+function cardProgress(data) {
+  const n = (k) => data.items[k] || 0;
+  const total = Object.values(data.items).reduce((a, b) => a + b, 0);
+  const [fresh, scored, selected, published] = [n("new"), n("scored"), n("selected"), n("published")];
+  const batches = (count, size) => Math.ceil(count / size);
+  const when = `${TZ_LABELS[data.timeZone] || data.timeZone} 오전 ${data.collectHour}시`;
+
+  if (!data.collectedAt && !total) return { step: 0, pct: 0, label: "수집 대기 중", sub: `${when}에 자동으로 시작해요` };
+  if (fresh) {
+    const done = total - fresh;
+    return {
+      step: 1,
+      pct: 10 + (40 * done) / total,
+      label: `AI 채점 ${done} / ${total}건`,
+      ticks: batches(fresh, 60) + 1 + batches(data.dailyCards, 5),
+    };
+  }
+  if (scored) return { step: 2, pct: 50, label: "오늘의 카드 선정 대기", ticks: 1 + batches(Math.min(scored, data.dailyCards), 5) };
+  if (selected) {
+    const cards = published + selected;
+    return { step: 3, pct: 60 + (40 * published) / cards, label: `카드뉴스 ${published} / ${cards}장 완성`, ticks: batches(selected, 5) };
+  }
+  if (published) return { step: 4, pct: 100, label: `오늘 카드 ${published}장 완성 ✓` };
+  return { step: 4, pct: 100, label: "오늘은 새 글이 없어요" };
+}
+
+const CARD_STEPS = ["수집", "AI 채점", "카드 선정", "카드 생성"];
+
+function Progress({ label, pct, sub, steps, step }) {
+  return (
+    <div className="progressBlock">
+      <div className="progressHead">
+        <b>{label}</b>
+        <span>{Math.round(pct)}%</span>
+      </div>
+      <div className="progressTrack" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} aria-label={label}>
+        <div className={`progressFill${pct >= 100 ? " done" : ""}`} style={{ width: `${pct}%` }} />
+      </div>
+      {steps ? (
+        <div className="progressSteps">
+          {steps.map((s, i) => (
+            <span key={s} className={i < step ? "done" : i === step ? "active" : ""}>
+              {i < step ? "✓ " : ""}
+              {s}
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {sub ? <p className="progressSub">{sub}</p> : null}
+    </div>
+  );
+}
+
+function PipelineProgress({ data }) {
+  const card = cardProgress(data);
+  const pending = data.videos.new || 0;
+  const done = data.videos.done || 0;
+  const failed = data.videos.failed || 0;
+  const cardsBusy = card.step > 0 && card.step < 4;
+  return (
+    <div className="progressGroup">
+      <Progress
+        label={card.label}
+        pct={card.pct}
+        steps={CARD_STEPS}
+        step={card.step}
+        sub={card.sub || (card.ticks ? `자동 진행 시 ${eta(card.ticks)} 남음 · '다음 단계 실행'으로 바로 진행할 수 있어요` : null)}
+      />
+      {pending + done + failed ? (
+        <Progress
+          label={pending ? `영상 요약 ${done} / ${done + pending}개` : `영상 ${done}개 요약 완료 ✓`}
+          pct={(100 * done) / Math.max(1, done + pending)}
+          sub={
+            pending
+              ? `대기 ${pending}개 · ${cardsBusy ? "카드 작업이 끝나면 시작해요" : `자동 진행 시 ${eta(Math.ceil(pending / 2))} 남음`}${failed ? ` · 실패 ${failed}개` : ""}`
+              : failed
+                ? `실패 ${failed}개`
+                : null
+          }
+        />
+      ) : null}
+    </div>
+  );
+}
 
 function Channels() {
   const { data, error, reload } = useApi("/api/p/channels");
@@ -119,6 +210,12 @@ function Keywords() {
 function Status() {
   const { data, error, reload } = useApi("/api/p/status");
   const [running, setRunning] = useState("");
+
+  // 크론이 진행하는 상황을 보여주기 위해 30초마다 새로고침한다
+  useEffect(() => {
+    const t = setInterval(reload, 30000);
+    return () => clearInterval(t);
+  }, [reload]);
   const [result, setResult] = useState("");
 
   async function run(job) {
@@ -142,7 +239,7 @@ function Status() {
     <section className="panel">
       <h2 className="panelTitle">⚙️ 수집 상태</h2>
       <p className="panelDesc">
-        매일 오전 {data.collectHour}시(KST)에 수집을 시작하고, 10분마다 한 단계씩 처리해요. 출처: {data.sources.join(", ")}
+        매일 {TZ_LABELS[data.timeZone] || data.timeZone} 오전 {data.collectHour}시에 수집을 시작하고, 10분마다 한 단계씩 처리해요. 출처: {data.sources.join(", ")}
       </p>
       {!data.hasKey ? <div className="banner">⚠️ OPENROUTER_API_KEY가 없어서 AI 요약 없이 원문만 보여줘요.</div> : null}
       <div className="statGrid">
@@ -154,19 +251,8 @@ function Status() {
           <small>오늘 수집</small>
           <b style={{ fontSize: 14 }}>{data.collectedAt ? timeAgo(data.collectedAt) : "아직"}</b>
         </div>
-        {Object.entries(data.items).map(([k, v]) => (
-          <div key={k} className="stat">
-            <small>오늘 · {ITEM_STATUS[k] || k}</small>
-            <b>{v}</b>
-          </div>
-        ))}
-        {Object.entries(data.videos).map(([k, v]) => (
-          <div key={k} className="stat">
-            <small>영상 · {VIDEO_STATUS[k] || k}</small>
-            <b>{v}</b>
-          </div>
-        ))}
       </div>
+      <PipelineProgress data={data} />
       <div className="row" style={{ flexWrap: "wrap", marginTop: 16 }}>
         <button type="button" className="btn small" onClick={() => run("tick")} disabled={!!running}>
           {running === "tick" ? "처리 중…" : "▶ 다음 단계 실행"}
