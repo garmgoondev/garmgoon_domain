@@ -13,7 +13,6 @@ export const SOURCES = [
   { id: "acquire", label: "Acquire", type: "rss", url: "https://blog.acquire.com/feed/", limit: 5, cap: 3, browserUA: true },
   { id: "trendsvc", label: "Trends.vc", type: "rss", url: "https://trends.vc/feed/", limit: 5, cap: 3 },
   { id: "geeknews", label: "GeekNews", type: "rss", url: "https://news.hada.io/rss/news", limit: 20, cap: 4 },
-  { id: "naver", label: "네이버", type: "naver", needs: "naver", cap: 6 },
   { id: "techcrunch", label: "TechCrunch", type: "rss", url: "https://techcrunch.com/category/startups/feed/", limit: 8, group: "news" },
   { id: "platum", label: "플래텀", type: "rss", url: "https://platum.kr/feed", limit: 8, group: "news" },
   { id: "venturesquare", label: "벤처스퀘어", type: "rss", url: "https://www.venturesquare.net/feed", limit: 8, group: "news" },
@@ -35,18 +34,6 @@ export const REDDIT_SUBS = [
   "startups",
 ];
 
-// 국내 니치 창업·수익 사례를 찾는 네이버 검색어
-export const NAVER_QUERIES = [
-  { type: "cafearticle", query: "월매출 인증" },
-  { type: "cafearticle", query: "창업 아이템 검증" },
-  { type: "cafearticle", query: "무인매장 수익" },
-  { type: "blog", query: "소자본 창업 월매출" },
-  { type: "blog", query: "틈새시장 사업 아이디어" },
-  { type: "news", query: "틈새시장 창업" },
-  { type: "news", query: "1인 창업 매출" },
-];
-
-const NAVER_LABELS = { cafearticle: "네이버 카페", blog: "네이버 블로그", news: "네이버 뉴스" };
 const MAX_AGE = 48 * HOUR;
 const REDDIT_UA = "web:garmgoon-dashboard:1.0 (personal idea feed)";
 // 봇 User-Agent를 막는 사이트용
@@ -55,7 +42,6 @@ const BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 export function sourceAvailability(env) {
   return {
     reddit: Boolean(env.REDDIT_CLIENT_ID && env.REDDIT_CLIENT_SECRET),
-    naver: Boolean(env.NAVER_CLIENT_ID && env.NAVER_CLIENT_SECRET),
   };
 }
 
@@ -145,34 +131,9 @@ async function fetchReddit(env) {
   return results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
 }
 
-function naverDate(item) {
-  if (item.pubDate) return Date.parse(item.pubDate) || null;
-  const m = item.postdate?.match(/^(\d{4})(\d{2})(\d{2})$/);
-  return m ? Date.parse(`${m[1]}-${m[2]}-${m[3]}T12:00:00+09:00`) : null;
-}
-
-async function fetchNaver(env) {
-  const headers = { "X-Naver-Client-Id": env.NAVER_CLIENT_ID, "X-Naver-Client-Secret": env.NAVER_CLIENT_SECRET };
-  const results = await Promise.allSettled(
-    NAVER_QUERIES.map(async ({ type, query }) => {
-      const text = await fetchText(`https://openapi.naver.com/v1/search/${type}.json?query=${encodeURIComponent(query)}&display=10&sort=date`, { headers });
-      return JSON.parse(text).items.map((it) => ({
-        title: stripHtml(it.title),
-        url: it.originallink || it.link,
-        snippet: stripHtml(it.description || ""),
-        publishedAt: naverDate(it),
-        label: NAVER_LABELS[type],
-      }));
-    }),
-  );
-  if (results.every((r) => r.status === "rejected")) throw new Error(results[0].reason?.message);
-  return results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
-}
-
 function fetchSource(env, src) {
   if (src.type === "hn") return fetchHN(src);
   if (src.type === "reddit") return fetchReddit(env);
-  if (src.type === "naver") return fetchNaver(env);
   return fetchRss(src);
 }
 

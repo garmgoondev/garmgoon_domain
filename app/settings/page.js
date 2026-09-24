@@ -5,7 +5,7 @@ import { api, resetMe, useApi } from "../../lib/api";
 import { timeAgo } from "../../lib/format";
 
 const TICK_MINUTES = 10;
-const KEY_NAMES = { reddit: "REDDIT_CLIENT_ID · REDDIT_CLIENT_SECRET", naver: "NAVER_CLIENT_ID · NAVER_CLIENT_SECRET" };
+const KEY_NAMES = { reddit: "REDDIT_CLIENT_ID · REDDIT_CLIENT_SECRET" };
 const TZ_LABELS = { "America/Denver": "유타 시간", "Asia/Seoul": "한국 시간" };
 
 function eta(ticks) {

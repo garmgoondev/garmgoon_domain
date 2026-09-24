@@ -140,13 +140,11 @@ export async function selectIdeas(env, day) {
 }
 
 async function articleText(item) {
-  // 커뮤니티 글은 수집할 때 본문을 이미 받았고, 네이버 카페는 로그인이 필요하다
-  const collected = /news\.ycombinator\.com|reddit\.com|cafe\.naver\.com/.test(item.url);
+  // 커뮤니티 글은 수집할 때 본문을 이미 받았다
+  const collected = /news\.ycombinator\.com|reddit\.com/.test(item.url);
   if ((item.snippet || "").length >= 500 || collected) return item.snippet || "";
   try {
-    // 네이버 블로그는 PC 페이지가 iframe이라 모바일 페이지에서 본문을 읽는다
-    const url = item.url.replace("://blog.naver.com/", "://m.blog.naver.com/");
-    const html = await fetchText(url, { timeout: 8000, maxBytes: 400_000 });
+    const html = await fetchText(item.url, { timeout: 8000, maxBytes: 400_000 });
     const body = html.match(/<article[\s\S]*?<\/article>/i)?.[0] || html.match(/<main[\s\S]*?<\/main>/i)?.[0] || html;
     const text = stripHtml(body);
     return `${item.snippet || ""}\n\n${text}`.slice(0, 6000);
