@@ -38,6 +38,8 @@ export async function chatJSON(env, { system, user, maxTokens = 1500, temperatur
         { role: "user", content: user },
       ],
       response_format: { type: "json_object" },
+      // 추론 모델이 thinking에 토큰을 다 써서 본문이 비는 것을 막는다. 요약·채점에는 추론이 필요 없다.
+      reasoning: { enabled: false },
       max_tokens: maxTokens,
       temperature,
     }),
@@ -45,7 +47,13 @@ export async function chatJSON(env, { system, user, maxTokens = 1500, temperatur
   });
   if (!res.ok) throw new Error(`OpenRouter ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const data = await res.json();
-  const text = data.choices?.[0]?.message?.content;
-  if (!text) throw new Error(`OpenRouter 빈 응답: ${JSON.stringify(data).slice(0, 200)}`);
+  const choice = data.choices?.[0];
+  const text = choice?.message?.content;
+  if (!text) {
+    const reasoning = choice?.message?.reasoning?.length || 0;
+    throw new Error(
+      `OpenRouter 빈 응답 (finish_reason: ${choice?.finish_reason || data.error?.message || "?"}, 추론 ${reasoning}자, 출력 토큰 ${data.usage?.completion_tokens ?? "?"}/${maxTokens}, ${data.provider || ""})`,
+    );
+  }
   return extractJSON(text);
 }

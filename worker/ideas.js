@@ -44,7 +44,8 @@ export async function scoreIdeas(env, day) {
       system:
         "당신은 1인 창업가를 돕는 비즈니스 리서처입니다. 각 글이 '사업 아이디어·수익 모델·시장 기회·창업 사례' 관점에서 얼마나 가치 있는지 0~10점으로 평가하세요. 새로운 제품/서비스, 돈을 버는 구체적 방법, 사람들이 겪는 불편(문제), 성장 사례는 높게, 단순 기술 뉴스·정치·연예·광고성 글은 낮게 주세요.",
       user: `다음 글들을 평가하세요. 형식: id | 출처 | 제목 | 내용\n\n${list}\n\nJSON으로만 답하세요: {"scores":[{"id":숫자,"s":점수}]}`,
-      maxTokens: 2500,
+      // 60건 × {"id":..,"s":..} 는 약 1,500토큰. 여유를 둔다.
+      maxTokens: 4000,
       temperature: 0.1,
     }).catch(async (e) => {
       // 세 번까지는 다음 실행에서 다시 시도하고, 그 뒤로는 기본 점수로 넘어간다
@@ -130,7 +131,7 @@ ${text || "(본문 없음, 제목으로 판단)"}
   "category": "${CATEGORY_NAMES.join(" | ")} 중 하나",
   "tags": ["키워드1", "키워드2", "키워드3"]
 }`,
-    maxTokens: 900,
+    maxTokens: 1500,
   });
   return {
     headline: truncate(String(out.headline || item.title), 60),
