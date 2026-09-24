@@ -5,6 +5,7 @@ import { api, resetMe, useApi } from "../../lib/api";
 import { timeAgo } from "../../lib/format";
 
 const TICK_MINUTES = 10;
+const KEY_NAMES = { reddit: "REDDIT_CLIENT_ID · REDDIT_CLIENT_SECRET", naver: "NAVER_CLIENT_ID · NAVER_CLIENT_SECRET" };
 const TZ_LABELS = { "America/Denver": "유타 시간", "Asia/Seoul": "한국 시간" };
 
 function eta(ticks) {
@@ -239,8 +240,19 @@ function Status() {
     <section className="panel">
       <h2 className="panelTitle">⚙️ 수집 상태</h2>
       <p className="panelDesc">
-        매일 {TZ_LABELS[data.timeZone] || data.timeZone} 오전 {data.collectHour}시에 수집을 시작하고, 10분마다 한 단계씩 처리해요. 출처: {data.sources.join(", ")}
+        매일 {TZ_LABELS[data.timeZone] || data.timeZone} 오전 {data.collectHour}시에 수집을 시작하고, 10분마다 한 단계씩 처리해요.
       </p>
+      <div className="sourceChips">
+        {data.sources.map((s) => {
+          const off = s.needs && !data.integrations[s.needs];
+          return (
+            <span key={s.label} className={off ? "off" : ""} title={off ? `${KEY_NAMES[s.needs]} 필요` : "수집 중"}>
+              {off ? "🔑" : "●"} {s.label}
+              {off ? " · 키 필요" : ""}
+            </span>
+          );
+        })}
+      </div>
       {!data.hasKey ? <div className="banner">⚠️ OPENROUTER_API_KEY가 없어서 AI 요약 없이 원문만 보여줘요.</div> : null}
       <div className="statGrid">
         <div className="stat">

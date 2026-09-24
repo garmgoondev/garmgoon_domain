@@ -656,14 +656,60 @@ button {
   opacity: 0.8;
 }
 
+.ncardChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.kindChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--c-fg);
+  color: var(--c-bg);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ncardSignal {
+  margin: -2px 0 0;
+  align-self: flex-start;
+  padding: 5px 11px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--c-fg) 92%, transparent);
+  color: var(--c-bg);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
 .ncardPoint {
-  margin: 0;
   padding: 10px 12px;
   border-radius: 14px;
   background: color-mix(in srgb, var(--c-fg) 14%, transparent);
   font-size: 13px;
-  font-weight: 600;
   line-height: 1.55;
+}
+
+.ncardPoint b {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0.85;
+  margin-bottom: 2px;
+}
+
+.ncardPoint p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.ncardReactions {
+  font-weight: 800;
 }
 
 .ncardMeta {
@@ -1610,6 +1656,70 @@ button {
   color: var(--text-2);
 }
 
+.sourceChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: -6px 0 16px;
+}
+
+.sourceChips span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ok);
+}
+
+.sourceChips span.off {
+  color: var(--text-3);
+}
+
+.kindTabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 10px;
+}
+
+.kindTabs button {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 132px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  text-align: left;
+}
+
+.kindTabs button b {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.kindTabs button small {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3);
+}
+
+.kindTabs button.on {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+
+.kindTabs button.on small {
+  color: inherit;
+  opacity: 0.7;
+}
+
 /* ---------- 모바일 ---------- */
 
 @media (max-width: 640px) {
@@ -1667,4 +1777,9 @@ button {
     animation: none !important;
     transition: none !important;
   }
+}
+
+.kindTabs button:disabled {
+  opacity: 0.45;
+  cursor: default;
 }

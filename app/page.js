@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import IdeaCard from "../components/IdeaCard";
 import VideoCard from "../components/VideoCard";
 import { useApi, useMe, useScrapSet } from "../lib/api";
-import { categoryStyle } from "../lib/categories";
+import { categoryStyle, KIND_NAMES, KINDS } from "../lib/categories";
 import { formatDay, matchKeywords, shortDay, todayLocal } from "../lib/format";
 
 export default function Home() {
@@ -13,6 +13,7 @@ export default function Home() {
   const authed = Boolean(me?.authed);
   const [day, setDay] = useState(null);
   const [category, setCategory] = useState("전체");
+  const [kind, setKind] = useState("전체");
 
   const ideas = useApi(`/api/ideas${day ? `?day=${day}` : ""}`);
   const videos = useApi("/api/videos");
@@ -27,12 +28,18 @@ export default function Home() {
     () => new Map(cards.map((c) => [c.id, matchKeywords([c.headline, c.title, ...c.summary, c.point, ...c.tags].join(" "), keywords)])),
     [cards, keywords],
   );
+  const kindCounts = useMemo(() => {
+    const counts = {};
+    for (const c of cards) if (c.kind) counts[c.kind] = (counts[c.kind] || 0) + 1;
+    return counts;
+  }, [cards]);
+  const byKind = kind === "전체" ? cards : cards.filter((c) => c.kind === kind);
   const categories = useMemo(() => {
     const counts = {};
-    for (const c of cards) counts[c.category] = (counts[c.category] || 0) + 1;
+    for (const c of byKind) counts[c.category] = (counts[c.category] || 0) + 1;
     return Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  }, [cards]);
-  const visible = category === "전체" ? cards : cards.filter((c) => c.category === category);
+  }, [byKind]);
+  const visible = category === "전체" ? byKind : byKind.filter((c) => c.category === category);
   const alerts = visible.filter((c) => cardKeywords.get(c.id)?.length);
   const shownDay = data?.day || todayLocal();
 
@@ -42,7 +49,7 @@ export default function Home() {
         <div>
           <div className="eyebrow">☀️ {formatDay(shownDay)}</div>
           <h1 className="pageTitle">오늘의 비즈니스 카드</h1>
-          <p className="pageDesc">여러 사이트에서 모은 글 중 AI가 사업 아이디어로 가치 있는 것만 골라 요약했어요. 카드를 누르면 원문이 열려요.</p>
+          <p className="pageDesc">니치 수익 사례, 새로운 사업 형태, 호응 큰 아이디어 검증 글을 AI가 골라 요약했어요. 카드를 누르면 원문이 열려요.</p>
         </div>
       </div>
 
@@ -63,9 +70,34 @@ export default function Home() {
       ) : null}
 
       {cards.length ? (
+        <div className="kindTabs" role="tablist" aria-label="카드 유형">
+          <button type="button" role="tab" aria-selected={kind === "전체"} className={kind === "전체" ? "on" : ""} onClick={() => { setKind("전체"); setCategory("전체"); }}>
+            <b>전체 {cards.length}</b>
+            <small>오늘 고른 모든 카드</small>
+          </button>
+          {KIND_NAMES.map((k) => (
+            <button
+              key={k}
+              type="button"
+              role="tab"
+              aria-selected={kind === k}
+              className={kind === k ? "on" : ""}
+              disabled={!kindCounts[k]}
+              onClick={() => { setKind(k); setCategory("전체"); }}
+            >
+              <b>
+                {KINDS[k].emoji} {k} {kindCounts[k] || 0}
+              </b>
+              <small>{KINDS[k].short}</small>
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      {byKind.length ? (
         <div className="chips" style={{ marginBottom: 18 }}>
           <button type="button" className={`chip${category === "전체" ? " on" : ""}`} onClick={() => setCategory("전체")}>
-            전체 <span className="count">{cards.length}</span>
+            전체 <span className="count">{byKind.length}</span>
           </button>
           {categories.map(([name, count]) => (
             <button key={name} type="button" className={`chip${category === name ? " on" : ""}`} onClick={() => setCategory(name)}>

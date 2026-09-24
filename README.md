@@ -4,7 +4,7 @@
 
 | 페이지 | 공개 | 내용 |
 | --- | --- | --- |
-| `/` 오늘의 카드 | 공개 | 여러 사이트에서 모은 글 중 AI가 고른 요약 카드 갤러리 (카테고리, 제목, 3줄 요약, 사업 포인트). 누르면 원문 |
+| `/` 오늘의 카드 | 공개 | 니치 수익 사례·새로운 사업 형태·호응 큰 아이디어 검증 글을 AI가 골라 요약한 카드 갤러리 (유형, 검증 신호, 3줄 요약, 응용 아이디어). 누르면 원문 |
 | `/youtube` | 공개 | 등록한 채널의 새 영상 요약 (자막 기반, 실패하면 설명란 기반) |
 | `/trends` | 공개 | 매주 일요일 18시 이후 생성되는 주간 트렌드 리포트 |
 | `/tools` | 로그인 | 직접 만든 SaaS 도구 모음 (`app/tools/page.js`의 `TOOLS`에 추가) |
@@ -26,7 +26,13 @@ Cloudflare Worker secrets:
 ```bash
 npx wrangler secret put ADMIN_PASSWORD      # 비공개 페이지 로그인 비밀번호
 npx wrangler secret put OPENROUTER_API_KEY  # AI 요약용 (없으면 원문만 표시)
+npx wrangler secret put REDDIT_CLIENT_ID      # 선택: Reddit 공식 API (script 앱)
+npx wrangler secret put REDDIT_CLIENT_SECRET
+npx wrangler secret put NAVER_CLIENT_ID       # 선택: 네이버 검색 API (카페·블로그·뉴스)
+npx wrangler secret put NAVER_CLIENT_SECRET
 ```
+
+수집 출처와 하루 상한은 `worker/sources.js`의 `SOURCES`, 서브레딧은 `REDDIT_SUBS`, 네이버 검색어는 `NAVER_QUERIES`에서 바꿉니다.
 
 `wrangler.jsonc`의 `vars`에서 모델(`OPENROUTER_MODEL`), 하루 카드 수(`DAILY_CARDS`), 기준 시간대(`TIMEZONE`, 기본 `America/Denver`), 수집 시각(`COLLECT_HOUR`)을 바꿀 수 있습니다.
 

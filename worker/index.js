@@ -3,7 +3,7 @@ import { cardFromRow, dailyCardCount } from "./ideas.js";
 import { hasLLM, modelName } from "./llm.js";
 import { collectHourOf, tick } from "./pipeline.js";
 import { buildWeeklyReport } from "./report.js";
-import { SOURCES } from "./sources.js";
+import { SOURCES, sourceAvailability } from "./sources.js";
 import { DAY, getState, httpError, json, localDay, localWeekStart, parseJSON, timeZone } from "./util.js";
 import { addChannel, videoFromRow } from "./youtube.js";
 
@@ -237,7 +237,8 @@ async function statusApi(env) {
     collectHour: collectHourOf(env),
     timeZone: timeZone(env),
     collectedAt: collected ? Number(collected) : null,
-    sources: [...new Set(SOURCES.map((s) => s.label))],
+    sources: SOURCES.map((s) => ({ label: s.label, needs: s.needs || null })),
+    integrations: sourceAvailability(env),
     items: toMap(items),
     videos: toMap(videos),
     logs: logs.results,

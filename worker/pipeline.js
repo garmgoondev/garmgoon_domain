@@ -32,7 +32,7 @@ export async function tick(env, { forceCollect = false } = {}) {
     },
     async () => {
       const row = await env.DB.prepare("SELECT day FROM items WHERE status = 'selected' ORDER BY day DESC LIMIT 1").first();
-      return row ? `카드뉴스 생성: ${await summarizeIdeas(env, row.day)}건` : null;
+      return row ? `카드 생성: ${await summarizeIdeas(env, row.day)}건` : null;
     },
     async () => ((await checkChannels(env)) ? "유튜브 새 영상 확인" : null),
     async () => {
