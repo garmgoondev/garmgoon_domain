@@ -1,6 +1,6 @@
 import { CATEGORY_NAMES, KIND_NAMES, KINDS } from "../lib/categories.js";
 import { chatJSON, hasLLM } from "./llm.js";
-import { collectAll, GROUP_CAPS, SOURCES } from "./sources.js";
+import { collectAll, GROUP_CAPS, PRIVATE_SOURCES, SOURCES } from "./sources.js";
 import { fetchText, log, parseJSON, stripHtml, truncate } from "./util.js";
 
 const SCORE_BATCH = 60;
@@ -235,6 +235,7 @@ export function cardFromRow(r) {
     url: r.url,
     source: r.source,
     sourceLabel: r.source_label,
+    private: PRIVATE_SOURCES.includes(r.source),
     title: r.title,
     headline: r.headline || r.title,
     summary: parseJSON(r.summary, []),

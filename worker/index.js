@@ -239,7 +239,7 @@ async function statusApi(env) {
     collectHour: collectHourOf(env),
     timeZone: timeZone(env),
     collectedAt: collected ? Number(collected) : null,
-    sources: SOURCES.map((s) => ({ label: s.label, needs: s.needs || null })),
+    sources: SOURCES.map((s) => ({ label: s.label, needs: s.needs || null, private: PRIVATE_SOURCES.includes(s.id) })),
     integrations: sourceAvailability(env),
     items: toMap(items),
     videos: toMap(videos),

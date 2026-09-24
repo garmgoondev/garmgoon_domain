@@ -246,8 +246,9 @@ function Status() {
         {data.sources.map((s) => {
           const off = s.needs && !data.integrations[s.needs];
           return (
-            <span key={s.label} className={off ? "off" : ""} title={off ? `${KEY_NAMES[s.needs]} 필요` : "수집 중"}>
+            <span key={s.label} className={off ? "off" : ""} title={off ? `${KEY_NAMES[s.needs]} 필요` : s.private ? "수집 중 · 로그인한 나만 보이고 30일 뒤 삭제" : "수집 중"}>
               {off ? "🔑" : "●"} {s.label}
+              {s.private ? " 🔒" : ""}
               {off ? " · 키 필요" : ""}
             </span>
           );

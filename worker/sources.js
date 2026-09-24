@@ -7,6 +7,8 @@ import { fetchText, getState, HOUR, parseJSON, setState, stripHtml } from "./uti
 // - needs: 해당 API 키가 있을 때만 수집한다
 export const SOURCES = [
   { id: "reddit", label: "Reddit", type: "reddit", needs: "reddit", cap: 10 },
+  // 창업자들이 아이디어·고민을 올리고 댓글로 검증받는 게시판. 최신 글과 주간 인기 글을 읽는다.
+  { id: "indiehackers", label: "Indie Hackers", type: "indiehackers", minReactions: 6, maxAgeHours: 24 * 8, cap: 6 },
   { id: "showhn", label: "Show HN", type: "hn", tag: "show_hn", minPoints: 15, limit: 25, cap: 6 },
   { id: "askhn", label: "Ask HN", type: "hn", tag: "ask_hn", minPoints: 20, limit: 15, cap: 4 },
   { id: "producthunt", label: "Product Hunt", type: "rss", url: "https://www.producthunt.com/feed", limit: 15, cap: 4 },
@@ -21,7 +23,8 @@ export const SOURCES = [
 export const GROUP_CAPS = { news: 3 };
 
 // 개인 열람만 허용되는 출처. 공개 페이지(비로그인 메인, 주간 리포트)에 노출하지 않고 30일 뒤 삭제한다.
-export const PRIVATE_SOURCES = ["reddit"];
+// Reddit(API 승인 조건), Indie Hackers(약관: 개인·비상업 용도만 허용)
+export const PRIVATE_SOURCES = ["reddit", "indiehackers"];
 export const PRIVATE_RETENTION_DAYS = 30;
 
 // 아이디어 검증, 니치 수익 사례, 수요 신호가 많이 올라오는 서브레딧
@@ -135,9 +138,37 @@ async function fetchReddit(env) {
   return results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
 }
 
+// Indie Hackers는 RSS/API가 없어 게시판 HTML에서 제목·추천·댓글 수만 읽는다 (하루 2회 요청)
+async function fetchIndieHackers(src) {
+  const base = "https://www.indiehackers.com";
+  const newest = await fetchText(`${base}/newest`);
+  const weeklyPath = newest.match(/href="(\/top\/week-of-[\d-]+)"/)?.[1];
+  const pages = [newest, weeklyPath ? await fetchText(base + weeklyPath).catch(() => "") : ""];
+  const posts = new Map();
+  for (const html of pages) {
+    for (const block of html.split('<div class="feed-item">').slice(1)) {
+      const link = block.match(/class="feed-item__title-link" href="(\/post\/[^"]+)">([\s\S]*?)<\/a>/);
+      if (!link) continue;
+      const date = block.match(/class="feed-item__date"[^>]*title="([^"]+)"/)?.[1];
+      // "Thursday, September 24th 2026 (8:32 pm)" → "September 24 2026 8:32 pm"
+      const ts = date ? Date.parse(date.replace(/^\w+,\s*/, "").replace(/(\d+)(st|nd|rd|th)/, "$1").replace(/[()]/g, "")) : NaN;
+      posts.set(link[1], {
+        title: stripHtml(link[2]),
+        url: base + link[1],
+        snippet: "",
+        publishedAt: Number.isFinite(ts) ? ts : null,
+        points: Number(block.match(/feed-item__likes-count">(\d+)</)?.[1] ?? 0),
+        comments: Number(block.match(/reply-count__number-count">(\d+)</)?.[1] ?? 0),
+      });
+    }
+  }
+  return [...posts.values()].filter((p) => p.points + p.comments >= src.minReactions);
+}
+
 function fetchSource(env, src) {
   if (src.type === "hn") return fetchHN(src);
   if (src.type === "reddit") return fetchReddit(env);
+  if (src.type === "indiehackers") return fetchIndieHackers(src);
   return fetchRss(src);
 }
 
@@ -157,7 +188,7 @@ export async function collectAll(env) {
     }
     r.value
       .filter((e) => e.title && /^https?:\/\//.test(e.url))
-      .filter((e) => !e.publishedAt || now - e.publishedAt < MAX_AGE)
+      .filter((e) => !e.publishedAt || now - e.publishedAt < (src.maxAgeHours ? src.maxAgeHours * HOUR : MAX_AGE))
       .slice(0, src.limit ?? Infinity)
       .forEach((e) =>
         items.push({
