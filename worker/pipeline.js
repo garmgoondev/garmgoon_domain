@@ -1,5 +1,6 @@
 import { collectIdeas, scoreIdeas, selectIdeas, summarizeIdeas } from "./ideas.js";
 import { buildWeeklyReport } from "./report.js";
+import { PRIVATE_RETENTION_DAYS, PRIVATE_SOURCES } from "./sources.js";
 import { DAY, getState, localParts, localWeekStart, log, setState, timeZone } from "./util.js";
 import { checkChannels, summarizeVideos } from "./youtube.js";
 
@@ -38,6 +39,18 @@ export async function tick(env, { forceCollect = false } = {}) {
     async () => {
       const n = await summarizeVideos(env);
       return n ? `유튜브 요약: ${n}건` : null;
+    },
+    async () => {
+      // 하루 한 번, 보관 기간이 지난 개인 열람용 데이터(Reddit)를 지운다. 스크랩한 글은 남긴다.
+      if (await getState(env, `cleanup:${today}`)) return null;
+      await setState(env, `cleanup:${today}`, now);
+      const res = await env.DB.prepare(
+        `DELETE FROM items WHERE source IN (${PRIVATE_SOURCES.map((s) => `'${s}'`).join(",")}) AND collected_at < ?
+         AND CAST(id AS TEXT) NOT IN (SELECT ref_id FROM scraps WHERE kind = 'item')`,
+      )
+        .bind(now - PRIVATE_RETENTION_DAYS * DAY)
+        .run();
+      return res.meta.changes ? `보관 기간 지난 Reddit 글 ${res.meta.changes}건 삭제` : null;
     },
     async () => {
       // 일요일 18시 이후엔 이번 주, 그 외엔 지난주 리포트가 없으면 만든다
