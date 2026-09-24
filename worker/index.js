@@ -1,10 +1,10 @@
 import { checkPassword, clearCookie, isAuthed, sessionCookie } from "./auth.js";
 import { cardFromRow, dailyCardCount } from "./ideas.js";
 import { hasLLM, modelName } from "./llm.js";
-import { collectHourOf, tick } from "./pipeline.js";
+import { collectHourOf, collectIntervalOf, collectSlot, tick } from "./pipeline.js";
 import { buildWeeklyReport } from "./report.js";
 import { SOURCES, sourceAvailability } from "./sources.js";
-import { DAY, getState, httpError, json, localDay, localWeekStart, parseJSON, timeZone } from "./util.js";
+import { DAY, getState, httpError, json, localDay, localParts, localWeekStart, parseJSON, timeZone } from "./util.js";
 import { addChannel, videoFromRow } from "./youtube.js";
 
 const PRIVATE_PAGES = /^\/(tools|scrap|settings)(\/|\.html|\.txt|$)/;
@@ -23,7 +23,8 @@ async function getIdeas(env, url, authed) {
   ).all();
   const day = url.searchParams.get("day") || days[0]?.day || localDay(timeZone(env));
   const [{ results }, pending] = await Promise.all([
-    env.DB.prepare("SELECT * FROM items WHERE day = ? AND status = 'published' ORDER BY rank").bind(day).all(),
+    // 가장 최근 수집분이 위로 오고, 같은 수집분 안에서는 점수 순서
+    env.DB.prepare("SELECT * FROM items WHERE day = ? AND status = 'published' ORDER BY collected_at DESC, rank").bind(day).all(),
     env.DB.prepare("SELECT COUNT(*) AS n FROM items WHERE day = ? AND status IN ('new', 'scored', 'selected')").bind(day).first(),
   ]);
   const cards = results.map(cardFromRow);
@@ -220,12 +221,12 @@ async function keywordsApi(env, request, id) {
 }
 
 async function statusApi(env) {
-  const today = localDay(timeZone(env));
+  const { day: today, hour } = localParts(timeZone(env));
   const [items, videos, logs, collected] = await Promise.all([
     env.DB.prepare("SELECT status, COUNT(*) AS n FROM items WHERE day = ? GROUP BY status").bind(today).all(),
     env.DB.prepare("SELECT status, COUNT(*) AS n FROM videos GROUP BY status").all(),
     env.DB.prepare("SELECT at, level, message FROM logs ORDER BY id DESC LIMIT 40").all(),
-    getState(env, `collected:${today}`),
+    getState(env, "collected:last"),
   ]);
   const toMap = (rows) => Object.fromEntries(rows.results.map((r) => [r.status, r.n]));
   return json({
@@ -235,6 +236,8 @@ async function statusApi(env) {
     model: modelName(env),
     dailyCards: dailyCardCount(env),
     collectHour: collectHourOf(env),
+    collectInterval: collectIntervalOf(env),
+    nextCollectHour: collectSlot(env, today, hour).nextHour,
     timeZone: timeZone(env),
     collectedAt: collected ? Number(collected) : null,
     sources: SOURCES.map((s) => ({ label: s.label, needs: s.needs || null })),

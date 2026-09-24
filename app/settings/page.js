@@ -5,6 +5,13 @@ import { api, resetMe, useApi } from "../../lib/api";
 import { timeAgo } from "../../lib/format";
 
 const TICK_MINUTES = 10;
+const BATCH_CARDS = 8;
+
+function collectHours(data) {
+  const hours = [];
+  for (let h = data.collectHour; hours.length < 24 / data.collectInterval; h = (h + data.collectInterval) % 24) hours.push(h);
+  return hours.sort((a, b) => a - b);
+}
 const KEY_NAMES = { reddit: "REDDIT_CLIENT_ID · REDDIT_CLIENT_SECRET" };
 const TZ_LABELS = { "America/Denver": "유타 시간", "Asia/Seoul": "한국 시간" };
 
@@ -19,25 +26,26 @@ function cardProgress(data) {
   const total = Object.values(data.items).reduce((a, b) => a + b, 0);
   const [fresh, scored, selected, published] = [n("new"), n("scored"), n("selected"), n("published")];
   const batches = (count, size) => Math.ceil(count / size);
-  const when = `${TZ_LABELS[data.timeZone] || data.timeZone} 오전 ${data.collectHour}시`;
+  const next = `다음 업데이트: ${TZ_LABELS[data.timeZone] || data.timeZone} ${data.nextCollectHour}시`;
+  const perBatch = Math.min(BATCH_CARDS, data.dailyCards);
 
-  if (!data.collectedAt && !total) return { step: 0, pct: 0, label: "수집 대기 중", sub: `${when}에 자동으로 시작해요` };
+  if (!data.collectedAt && !total) return { step: 0, pct: 0, label: "수집 대기 중", sub: next };
   if (fresh) {
     const done = total - fresh;
     return {
       step: 1,
       pct: 10 + (40 * done) / total,
       label: `AI 채점 ${done} / ${total}건`,
-      ticks: batches(fresh, 60) + 1 + batches(data.dailyCards, 5),
+      ticks: batches(fresh, 60) + 1 + batches(perBatch, 5),
     };
   }
-  if (scored) return { step: 2, pct: 50, label: "오늘의 카드 선정 대기", ticks: 1 + batches(Math.min(scored, data.dailyCards), 5) };
+  if (scored) return { step: 2, pct: 50, label: "새 카드 선정 대기", ticks: 1 + batches(Math.min(scored, perBatch), 5) };
   if (selected) {
     const cards = published + selected;
     return { step: 3, pct: 60 + (40 * published) / cards, label: `카드뉴스 ${published} / ${cards}장 완성`, ticks: batches(selected, 5) };
   }
-  if (published) return { step: 4, pct: 100, label: `오늘 카드 ${published}장 완성 ✓` };
-  return { step: 4, pct: 100, label: "오늘은 새 글이 없어요" };
+  if (published) return { step: 4, pct: 100, label: `오늘 카드 ${published} / 최대 ${data.dailyCards}장 ✓`, sub: next };
+  return { step: 4, pct: 100, label: "오늘은 아직 새 카드가 없어요", sub: next };
 }
 
 const CARD_STEPS = ["수집", "AI 채점", "카드 선정", "카드 생성"];
@@ -240,7 +248,8 @@ function Status() {
     <section className="panel">
       <h2 className="panelTitle">⚙️ 수집 상태</h2>
       <p className="panelDesc">
-        매일 {TZ_LABELS[data.timeZone] || data.timeZone} 오전 {data.collectHour}시에 수집을 시작하고, 10분마다 한 단계씩 처리해요.
+        {TZ_LABELS[data.timeZone] || data.timeZone} 기준 {collectHours(data).join("·")}시, {data.collectInterval}시간마다 새 글을 모아 좋은 글만
+        카드로 추가해요 (한 번에 최대 {BATCH_CARDS}장, 하루 최대 {data.dailyCards}장). 처리는 10분마다 한 단계씩 진행돼요.
       </p>
       <div className="sourceChips">
         {data.sources.map((s) => {
@@ -260,7 +269,7 @@ function Status() {
           <b style={{ fontSize: 13 }}>{data.model}</b>
         </div>
         <div className="stat">
-          <small>오늘 수집</small>
+          <small>마지막 수집</small>
           <b style={{ fontSize: 14 }}>{data.collectedAt ? timeAgo(data.collectedAt) : "아직"}</b>
         </div>
       </div>

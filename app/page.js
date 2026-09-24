@@ -42,6 +42,9 @@ export default function Home() {
   const visible = category === "전체" ? byKind : byKind.filter((c) => c.category === category);
   const alerts = visible.filter((c) => cardKeywords.get(c.id)?.length);
   const shownDay = data?.day || todayLocal();
+  // 가장 최근 수집분(4시간 이내)에 새로 추가된 카드
+  const latestBatch = Math.max(0, ...cards.map((c) => c.collectedAt || 0));
+  const isNew = (c) => c.collectedAt === latestBatch && Date.now() - latestBatch < 4 * 3600 * 1000;
 
   return (
     <>
@@ -49,7 +52,7 @@ export default function Home() {
         <div>
           <div className="eyebrow">☀️ {formatDay(shownDay)}</div>
           <h1 className="pageTitle">오늘의 비즈니스 카드</h1>
-          <p className="pageDesc">니치 수익 사례, 새로운 사업 형태, 호응 큰 아이디어 검증 글을 AI가 골라 요약했어요. 카드를 누르면 원문이 열려요.</p>
+          <p className="pageDesc">니치 수익 사례, 새로운 사업 형태, 호응 큰 아이디어 검증 글을 AI가 4시간마다 골라 요약해요. 카드를 누르면 원문이 열려요.</p>
         </div>
       </div>
 
@@ -145,6 +148,7 @@ export default function Home() {
               card={c}
               index={cards.indexOf(c)}
               keywords={cardKeywords.get(c.id) || []}
+              isNew={isNew(c)}
               authed={authed}
               scrapped={scrapped.has(c.id)}
               onToggleScrap={() => toggleScrap(c.id)}

@@ -6,6 +6,8 @@ import { fetchText, log, parseJSON, stripHtml, truncate } from "./util.js";
 const SCORE_BATCH = 60;
 const SUMMARY_BATCH = 5;
 const DEFAULT_CAP = 5;
+// 한 번 수집할 때 추가하는 최대 카드 수. 하루 전체 상한은 DAILY_CARDS.
+const BATCH_CARDS = 8;
 
 const SOURCE_BY_ID = Object.fromEntries(SOURCES.map((s) => [s.id, s]));
 
@@ -18,7 +20,12 @@ const GOAL = `사용자는 카드를 보며 현재 트렌드를 파악하고, �
 4. 새로 생기는 수요와 시장 변화의 초기 신호`;
 
 export function dailyCardCount(env) {
-  return Number(env.DAILY_CARDS) || 24;
+  return Number(env.DAILY_CARDS) || 30;
+}
+
+// 이 점수(AI 점수 + 호응·키워드 가산점) 미만인 글은 카드로 만들지 않는다
+function minCardScore(env) {
+  return Number(env.MIN_CARD_SCORE ?? 6);
 }
 
 function engagement(r) {
@@ -99,12 +106,13 @@ ${GOAL}
   return results.length;
 }
 
-// 점수 + 호응 가산점 + 관심 키워드 가산점으로 오늘의 카드를 고른다.
-// 한 출처가 도배하지 않도록 출처별 상한을 두고, 투자 뉴스는 그룹 상한으로 몇 장만 남긴다.
+// 이번 수집분에서 점수 + 호응 가산점 + 관심 키워드 가산점이 높은 글을 카드로 고른다.
+// 출처별·그룹별 상한과 하루 상한은 그날 이미 뽑힌 카드까지 합쳐서 센다.
 export async function selectIdeas(env, day) {
-  const [{ results: items }, { results: kws }] = await Promise.all([
+  const [{ results: items }, { results: kws }, { results: already }] = await Promise.all([
     env.DB.prepare("SELECT id, source, title, snippet, score, points, comments FROM items WHERE day = ? AND status = 'scored'").bind(day).all(),
     env.DB.prepare("SELECT word FROM keywords").all(),
+    env.DB.prepare("SELECT source, rank FROM items WHERE day = ? AND status IN ('selected', 'published')").bind(day).all(),
   ]);
   const words = kws.map((k) => k.word.toLowerCase());
   const ranked = items
@@ -117,12 +125,19 @@ export async function selectIdeas(env, day) {
     })
     .sort((a, b) => b.total - a.total);
 
-  const limit = dailyCardCount(env);
+  const limit = Math.max(0, Math.min(BATCH_CARDS, dailyCardCount(env) - already.length));
+  const minScore = minCardScore(env);
   const perSource = {};
   const perGroup = {};
+  for (const a of already) {
+    perSource[a.source] = (perSource[a.source] || 0) + 1;
+    const group = SOURCE_BY_ID[a.source]?.group;
+    if (group) perGroup[group] = (perGroup[group] || 0) + 1;
+  }
+  const startRank = Math.max(0, ...already.map((a) => a.rank || 0)) + 1;
   const chosen = [];
   for (const it of ranked) {
-    if (chosen.length >= limit) break;
+    if (chosen.length >= limit || it.total < minScore) break;
     const src = SOURCE_BY_ID[it.source] || {};
     if ((perSource[it.source] || 0) >= (src.cap ?? DEFAULT_CAP)) continue;
     if (src.group && (perGroup[src.group] || 0) >= (GROUP_CAPS[src.group] ?? Infinity)) continue;
@@ -132,10 +147,10 @@ export async function selectIdeas(env, day) {
   }
   const chosenIds = new Set(chosen.map((c) => c.id));
   await env.DB.batch([
-    ...chosen.map((c, i) => env.DB.prepare("UPDATE items SET status = 'selected', rank = ? WHERE id = ?").bind(i + 1, c.id)),
+    ...chosen.map((c, i) => env.DB.prepare("UPDATE items SET status = 'selected', rank = ? WHERE id = ?").bind(startRank + i, c.id)),
     ...items.filter((it) => !chosenIds.has(it.id)).map((it) => env.DB.prepare("UPDATE items SET status = 'skipped' WHERE id = ?").bind(it.id)),
   ]);
-  await log(env, "info", `[${day}] ${items.length}건 중 ${chosen.length}건을 카드로 선정`);
+  await log(env, "info", `[${day}] 새 글 ${items.length}건 중 ${chosen.length}건을 카드로 선정 (오늘 ${already.length + chosen.length}/${dailyCardCount(env)}장)`);
   return chosen.length;
 }
 
@@ -247,6 +262,7 @@ export function cardFromRow(r) {
     tags: parseJSON(r.tags, []),
     rank: r.rank,
     day: r.day,
+    collectedAt: r.collected_at,
     publishedAt: r.published_at,
   };
 }

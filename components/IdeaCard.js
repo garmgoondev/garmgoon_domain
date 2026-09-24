@@ -12,7 +12,7 @@ function compact(n) {
 }
 
 // 요약을 카드 안에 모두 보여주는 갤러리 카드. 카드 어디를 눌러도 원문이 새 탭으로 열린다.
-export default function IdeaCard({ card, index, keywords = [], authed, scrapped, onToggleScrap }) {
+export default function IdeaCard({ card, index, keywords = [], isNew, authed, scrapped, onToggleScrap }) {
   const c = categoryStyle(card.category);
   const kind = card.kind ? KINDS[card.kind] : null;
   const hasReactions = card.points != null || card.comments != null;
@@ -30,7 +30,7 @@ export default function IdeaCard({ card, index, keywords = [], authed, scrapped,
             {c.emoji} {card.category}
           </span>
         </span>
-        <span className="ncardNum">{String(index + 1).padStart(2, "0")}</span>
+        {isNew ? <span className="newBadge">NEW</span> : <span className="ncardNum">{String(index + 1).padStart(2, "0")}</span>}
       </div>
 
       <h3 className="ncardHeadline">

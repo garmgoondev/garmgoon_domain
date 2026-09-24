@@ -34,10 +34,12 @@
   },
   "vars": {
     "OPENROUTER_MODEL": "deepseek/deepseek-v4-flash",
-    "DAILY_CARDS": "24",
+    "DAILY_CARDS": "30",
     // 날짜 경계와 수집 시각의 기준 (유타, 서머타임 자동 반영)
     "TIMEZONE": "America/Denver",
-    "COLLECT_HOUR": "6"
+    "COLLECT_HOUR": "6",
+    // COLLECT_HOUR부터 이 간격(시간)마다 새 글을 모은다
+    "COLLECT_INTERVAL_HOURS": "4"
   },
   "observability": {
     "enabled": true
