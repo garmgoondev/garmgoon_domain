@@ -1,66 +1,177 @@
-const projects = [
-  { number: "01", name: "Automation Lab", description: "반복되는 일을 덜어내는 개인 자동화 워크플로와 실험들.", href: "https://n8n.garmgoon.com", status: "운영 중", tone: "lime" },
-  { number: "02", name: "Home Console", description: "집의 환경과 기기들을 한눈에 보고 연결하는 홈 대시보드.", href: "https://ha.garmgoon.com", status: "운영 중", tone: "blue" },
-  { number: "03", name: "Next Small Thing", description: "쓸모 있는 작은 아이디어를 다음 서비스로 만드는 중입니다.", status: "준비 중", tone: "orange" },
-];
+"use client";
 
-const logs = [
-  { date: "2026.08", tag: "BUILD", title: "새로운 집을 만들었습니다", copy: "서비스와 기록이 흩어지지 않도록 garmgoon.com을 열었습니다." },
-  { date: "NOW", tag: "WORK", title: "자동화를 생활의 도구로", copy: "매일 반복되는 작은 불편을 발견하고 연결하는 작업을 계속합니다." },
-  { date: "NEXT", tag: "IDEA", title: "다음 프로젝트를 찾는 중", copy: "완벽한 계획보다 빠른 프로토타입으로 가능성을 확인합니다." },
-];
-
-const Arrow = () => <span aria-hidden="true">↗</span>;
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import CardViewer from "../components/CardViewer";
+import IdeaCard from "../components/IdeaCard";
+import VideoCard from "../components/VideoCard";
+import { useApi, useMe, useScrapSet } from "../lib/api";
+import { categoryStyle } from "../lib/categories";
+import { formatDay, matchKeywords, shortDay, todayKst } from "../lib/format";
 
 export default function Home() {
+  const me = useMe();
+  const authed = Boolean(me?.authed);
+  const [day, setDay] = useState(null);
+  const [category, setCategory] = useState("전체");
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const ideas = useApi(`/api/ideas${day ? `?day=${day}` : ""}`);
+  const videos = useApi("/api/videos");
+  const kw = useApi(authed ? "/api/p/keywords" : null);
+  const [scrapped, toggleScrap] = useScrapSet("item", ideas.data?.scrapped);
+  const [videoScrapped, toggleVideoScrap] = useScrapSet("video", videos.data?.scrapped);
+
+  const data = ideas.data;
+  const cards = data?.cards || [];
+  const keywords = kw.data?.keywords || [];
+  const cardKeywords = useMemo(
+    () => new Map(cards.map((c) => [c.id, matchKeywords([c.headline, c.title, ...c.summary, c.point, ...c.tags].join(" "), keywords)])),
+    [cards, keywords],
+  );
+  const categories = useMemo(() => {
+    const counts = {};
+    for (const c of cards) counts[c.category] = (counts[c.category] || 0) + 1;
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  }, [cards]);
+  const visible = category === "전체" ? cards : cards.filter((c) => c.category === category);
+  const alerts = visible.filter((c) => cardKeywords.get(c.id)?.length);
+  const shownDay = data?.day || todayKst();
+
   return (
-    <main>
-      <nav className="nav wrap">
-        <a className="brand" href="#top" aria-label="Garmgoon 홈">G<span>/</span>G</a>
-        <div className="navLinks"><a href="#projects">Projects</a><a href="#log">Log</a><a href="mailto:hello@garmgoon.com">Contact</a></div>
-      </nav>
-
-      <header className="hero wrap" id="top">
-        <div className="eyebrow"><i /> BUILDING IN PUBLIC · DENVER / SEOUL</div>
-        <h1>작게 만들고,<br /><em>꾸준히 운영합니다.</em></h1>
-        <div className="heroBottom">
-          <p>아이디어를 실제 서비스로 만들고,<br />직접 운영하며 배운 것을 기록합니다.</p>
-          <a className="circleLink" href="#projects" aria-label="프로젝트 보기">↓</a>
+    <>
+      <div className="pageHead">
+        <div>
+          <div className="eyebrow">☀️ {formatDay(shownDay)}</div>
+          <h1 className="pageTitle">오늘의 비즈니스 카드</h1>
+          <p className="pageDesc">여러 사이트에서 모은 글 중 AI가 사업 아이디어로 가치 있는 것만 골랐어요.</p>
         </div>
-      </header>
+      </div>
 
-      <section className="marquee" aria-label="소개 문구"><div>DESIGN · CODE · AUTOMATE · SHIP · LEARN · REPEAT · DESIGN · CODE · AUTOMATE · SHIP · LEARN · REPEAT ·&nbsp;</div></section>
-
-      <section className="section wrap" id="projects">
-        <div className="sectionHead"><p>SELECTED PROJECTS</p><span>01 — 03</span></div>
-        <div className="projectGrid">
-          {projects.map((project) => {
-            const Tag = project.href ? "a" : "article";
+      {data?.days?.length > 1 ? (
+        <div className="chips" style={{ marginBottom: 10 }}>
+          {data.days.map((d) => {
+            const s = shortDay(d.day);
             return (
-              <Tag className={`projectCard ${project.tone}`} href={project.href} target={project.href ? "_blank" : undefined} rel={project.href ? "noreferrer" : undefined} key={project.name}>
-                <div className="projectTop"><span>{project.number}</span><b>{project.status}</b></div>
-                <div className="projectMark">{project.name.charAt(0)}</div>
-                <div><h2>{project.name} {project.href && <Arrow />}</h2><p>{project.description}</p></div>
-              </Tag>
+              <button key={d.day} type="button" className={`chip dayChip${d.day === shownDay ? " on" : ""}`} onClick={() => setDay(d.day)}>
+                <b>{s.label}</b>
+                <small>
+                  {s.weekday} · {d.count}장
+                </small>
+              </button>
             );
           })}
         </div>
-      </section>
+      ) : null}
 
-      <section className="section logSection" id="log">
-        <div className="wrap">
-          <div className="sectionHead light"><p>FIELD NOTES</p><span>MAKING / LEARNING / LIVING</span></div>
-          <div className="logIntro"><h2>만드는 과정도<br /><em>결과만큼 중요하니까.</em></h2><p>완성된 서비스뿐 아니라 시행착오, 생각의 변화,<br />일상의 작은 발견까지 남깁니다.</p></div>
-          <div className="logList">
-            {logs.map((log) => <article className="logItem" key={log.date}><span>{log.date}</span><b>{log.tag}</b><h3>{log.title}</h3><p>{log.copy}</p></article>)}
-          </div>
+      {cards.length ? (
+        <div className="chips" style={{ marginBottom: 18 }}>
+          <button type="button" className={`chip${category === "전체" ? " on" : ""}`} onClick={() => setCategory("전체")}>
+            전체 <span className="count">{cards.length}</span>
+          </button>
+          {categories.map(([name, count]) => (
+            <button key={name} type="button" className={`chip${category === name ? " on" : ""}`} onClick={() => setCategory(name)}>
+              <span className="dot" style={{ background: categoryStyle(name).bg }} />
+              {name} <span className="count">{count}</span>
+            </button>
+          ))}
         </div>
+      ) : null}
+
+      {data?.pending ? (
+        <div className="banner">
+          <span className="spinner" /> AI가 카드를 만드는 중이에요 · 남은 글 {data.pending}건
+        </div>
+      ) : null}
+
+      {alerts.length ? (
+        <div className="kwStrip">
+          {alerts.map((c) => (
+            <button key={c.id} type="button" className="kwItem" onClick={() => setOpenIndex(visible.indexOf(c))}>
+              <span className="kw">🔔 관심 키워드 · {cardKeywords.get(c.id).join(", ")}</span>
+              <b>{c.headline}</b>
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      {ideas.loading && !data ? (
+        <div className="cardGrid">
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className="skeleton" style={{ aspectRatio: "4 / 5" }} />
+          ))}
+        </div>
+      ) : ideas.error ? (
+        <div className="empty">
+          <span className="emoji">⚠️</span>
+          <b>카드를 불러오지 못했어요</b>
+          <span>{ideas.error.message}</span>
+        </div>
+      ) : visible.length ? (
+        <div className="cardGrid">
+          {visible.map((c, i) => (
+            <IdeaCard
+              key={c.id}
+              card={c}
+              index={cards.indexOf(c)}
+              keywords={cardKeywords.get(c.id) || []}
+              scrapped={scrapped.has(c.id)}
+              onOpen={() => setOpenIndex(i)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="empty">
+          <span className="emoji">🗞️</span>
+          <b>아직 오늘의 카드가 없어요</b>
+          <span>매일 아침 새 글을 모아 카드뉴스로 만들어요.</span>
+        </div>
+      )}
+
+      <section className="section">
+        <div className="sectionHead">
+          <h2 className="sectionTitle">📺 새 유튜브 요약</h2>
+          <Link href="/youtube" className="moreLink">
+            전체 보기 →
+          </Link>
+        </div>
+        {videos.data?.videos?.length ? (
+          <div className="videoGrid">
+            {videos.data.videos.slice(0, 3).map((v) => (
+              <VideoCard key={v.id} video={v} authed={authed} scrapped={videoScrapped.has(v.id)} onToggleScrap={() => toggleVideoScrap(v.id)} />
+            ))}
+          </div>
+        ) : (
+          <div className="empty">
+            <span className="emoji">📺</span>
+            <b>요약된 영상이 아직 없어요</b>
+            <span>
+              {authed ? (
+                <>
+                  <Link href="/settings" style={{ textDecoration: "underline" }}>
+                    설정
+                  </Link>
+                  에서 유튜브 채널을 추가해 주세요.
+                </>
+              ) : (
+                "채널이 추가되면 여기에 표시돼요."
+              )}
+            </span>
+          </div>
+        )}
       </section>
 
-      <footer className="footer wrap">
-        <div><p>새로운 아이디어와<br />재미있는 협업은 언제나 환영합니다.</p><a href="mailto:hello@garmgoon.com">LET&apos;S TALK <Arrow /></a></div>
-        <div className="footerMeta"><span>© 2026 GARMGOON</span><span>MADE WITH CURIOSITY</span></div>
-      </footer>
-    </main>
+      {openIndex != null ? (
+        <CardViewer
+          cards={visible}
+          index={openIndex}
+          onIndex={setOpenIndex}
+          onClose={() => setOpenIndex(null)}
+          authed={authed}
+          scrapped={scrapped}
+          onToggleScrap={(c) => toggleScrap(c.id)}
+        />
+      ) : null}
+    </>
   );
 }
