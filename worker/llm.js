@@ -43,7 +43,8 @@ export async function chatJSON(env, { system, user, maxTokens = 1500, temperatur
       max_tokens: maxTokens,
       temperature,
     }),
-    signal: AbortSignal.timeout(90000),
+    // 긴 자막을 요약할 때 응답이 오래 걸릴 수 있다
+    signal: AbortSignal.timeout(120000),
   });
   if (!res.ok) throw new Error(`OpenRouter ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const data = await res.json();
