@@ -1,5 +1,5 @@
 import { checkPassword, clearCookie, isAuthed, sessionCookie } from "./auth.js";
-import { cardFromRow, dailyCardCount } from "./ideas.js";
+import { backfillIdeas, cardFromRow, dailyCardCount } from "./ideas.js";
 import { hasLLM, modelName } from "./llm.js";
 import { collectHourOf, collectIntervalOf, collectSlot, tick } from "./pipeline.js";
 import { buildWeeklyReport } from "./report.js";
@@ -255,6 +255,10 @@ async function runApi(env, request) {
     const week = localWeekStart(timeZone(env));
     const report = await buildWeeklyReport(env, week);
     return json({ result: report ? `주간 리포트 생성: ${week}` : "리포트를 만들 데이터가 아직 없어요." });
+  }
+  if (job === "backfill") {
+    const { found, inserted } = await backfillIdeas(env, 7);
+    return json({ result: `지난 7일치 ${found}건 수집, 새 글 ${inserted}건 저장` });
   }
   const result = await tick(env, { forceCollect: job === "collect" });
   return json({ result: result || "지금 처리할 작업이 없어요." });

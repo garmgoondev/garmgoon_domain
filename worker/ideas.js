@@ -1,7 +1,7 @@
 import { CATEGORY_NAMES, KIND_NAMES, KINDS } from "../lib/categories.js";
 import { chatJSON, hasLLM } from "./llm.js";
-import { collectAll, GROUP_CAPS, SOURCES } from "./sources.js";
-import { fetchText, log, parseJSON, stripHtml, truncate } from "./util.js";
+import { collectAll, collectBackfill, GROUP_CAPS, SOURCES } from "./sources.js";
+import { fetchText, localDay, log, parseJSON, stripHtml, timeZone, truncate } from "./util.js";
 
 const SCORE_BATCH = 60;
 const SUMMARY_BATCH = 5;
@@ -35,22 +35,42 @@ function engagement(r) {
   return parts.join(" ");
 }
 
-export async function collectIdeas(env, day) {
-  const { items, errors } = await collectAll(env);
+async function insertItems(env, items, dayOf) {
   const now = Date.now();
   const stmts = items.map((it) =>
     env.DB.prepare(
       "INSERT OR IGNORE INTO items (url, source, source_label, title, snippet, published_at, collected_at, day, points, comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-    ).bind(it.url, it.source, it.sourceLabel, truncate(it.title, 300), it.snippet, it.publishedAt, now, day, it.points, it.comments),
+    ).bind(it.url, it.source, it.sourceLabel, truncate(it.title, 300), it.snippet, it.publishedAt, now, dayOf(it), it.points, it.comments),
   );
   let inserted = 0;
   for (let i = 0; i < stmts.length; i += 50) {
     const res = await env.DB.batch(stmts.slice(i, i + 50));
     inserted += res.reduce((n, r) => n + (r.meta.changes || 0), 0);
   }
+  return inserted;
+}
+
+export async function collectIdeas(env, day) {
+  const { items, errors } = await collectAll(env);
+  const inserted = await insertItems(env, items, () => day);
   if (errors.length) await log(env, "warn", `수집 실패 출처: ${errors.join(" / ")}`);
   await log(env, "info", `[${day}] 아이디어 ${items.length}건 수집, 새 글 ${inserted}건 저장`);
   return inserted;
+}
+
+// 지난 며칠치를 모아 글이 올라온 날짜별로 저장한다. 날짜별로 따로 채점·선정된다.
+export async function backfillIdeas(env, days) {
+  const tz = timeZone(env);
+  const today = localDay(tz);
+  const { items, errors } = await collectBackfill(env, days);
+  const dayOf = (it) => (it.publishedAt ? localDay(tz, it.publishedAt) : today);
+  const inserted = await insertItems(env, items, dayOf);
+  const perDay = {};
+  for (const it of items) perDay[dayOf(it)] = (perDay[dayOf(it)] || 0) + 1;
+  if (errors.length) await log(env, "warn", `지난 ${days}일 수집 실패 출처: ${errors.join(" / ")}`);
+  const summary = Object.entries(perDay).sort().map(([d, n]) => `${d.slice(5)} ${n}건`).join(", ");
+  await log(env, "info", `지난 ${days}일치 ${items.length}건 수집, 새 글 ${inserted}건 저장 (${summary})`);
+  return { found: items.length, inserted, perDay };
 }
 
 // 사용자 목적에 비춘 가치를 0~10점으로 매긴다. 한 번에 SCORE_BATCH개씩.
@@ -125,7 +145,9 @@ export async function selectIdeas(env, day) {
     })
     .sort((a, b) => b.total - a.total);
 
-  const limit = Math.max(0, Math.min(BATCH_CARDS, dailyCardCount(env) - already.length));
+  // 지난 날짜(한꺼번에 모은 과거 글)는 나눠 받을 일이 없으니 하루 몫을 한 번에 고른다
+  const isPast = day < localDay(timeZone(env));
+  const limit = Math.max(0, Math.min(isPast ? dailyCardCount(env) : BATCH_CARDS, dailyCardCount(env) - already.length));
   const minScore = minCardScore(env);
   const perSource = {};
   const perGroup = {};

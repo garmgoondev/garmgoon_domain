@@ -1,5 +1,5 @@
 import { parseFeed } from "./feed.js";
-import { fetchText, getState, HOUR, parseJSON, setState, stripHtml } from "./util.js";
+import { addDays, DAY, fetchText, getState, HOUR, parseJSON, setState, stripHtml } from "./util.js";
 
 // 비즈니스 아이디어 수집 출처.
 // - cap: 하루 카드 중 이 출처가 차지할 수 있는 최대 장수
@@ -76,10 +76,11 @@ async function fetchRss(src) {
 }
 
 // 호응(점수)이 일정 이상인 Show HN / Ask HN. 링크는 토론 페이지로 건다 (댓글이 곧 검증 신호).
-async function fetchHN(src) {
-  const since = Math.floor((Date.now() - MAX_AGE) / 1000);
+async function fetchHN(src, { from = Date.now() - MAX_AGE, until = Date.now() } = {}) {
+  const since = Math.floor(from / 1000);
+  const before = Math.floor(until / 1000);
   const text = await fetchText(
-    `https://hn.algolia.com/api/v1/search?tags=${src.tag}&numericFilters=created_at_i>${since},points>=${src.minPoints}&hitsPerPage=${src.limit}`,
+    `https://hn.algolia.com/api/v1/search?tags=${src.tag}&numericFilters=created_at_i>${since},created_at_i<=${before},points>=${src.minPoints}&hitsPerPage=${src.limit}`,
   );
   return JSON.parse(text).hits.map((h) => ({
     title: h.title.replace(/^(Show|Ask) HN:\s*/i, ""),
@@ -138,11 +139,14 @@ async function fetchReddit(env) {
 }
 
 // Indie Hackers는 RSS/API가 없어 게시판 HTML에서 제목·추천·댓글 수만 읽는다 (하루 2회 요청)
-async function fetchIndieHackers(src) {
+async function fetchIndieHackers(src, { weeks = 1 } = {}) {
   const base = "https://www.indiehackers.com";
   const newest = await fetchText(`${base}/newest`);
   const weeklyPath = newest.match(/href="(\/top\/week-of-[\d-]+)"/)?.[1];
-  const pages = [newest, weeklyPath ? await fetchText(base + weeklyPath).catch(() => "") : ""];
+  // 이번 주 인기 글, 지난 주들이 필요하면 week-of-날짜를 7일씩 거슬러 올라간다
+  const weekStart = weeklyPath?.match(/week-of-([\d-]+)/)?.[1];
+  const weekPaths = weekStart ? Array.from({ length: weeks }, (_, i) => `/top/week-of-${addDays(weekStart, -7 * i)}`) : [];
+  const pages = [newest, ...(await Promise.all(weekPaths.map((p) => fetchText(base + p).catch(() => ""))))];
   const posts = new Map();
   for (const html of pages) {
     for (const block of html.split('<div class="feed-item">').slice(1)) {
@@ -169,6 +173,42 @@ function fetchSource(env, src) {
   if (src.type === "reddit") return fetchReddit(env);
   if (src.type === "indiehackers") return fetchIndieHackers(src);
   return fetchRss(src);
+}
+
+// 지난 며칠치를 한 번에 모은다. 날짜 범위를 지원하는 출처(HN, Indie Hackers 주간 인기)는 기간 전체를,
+// RSS는 피드에 남아 있는 만큼 가져온다. Reddit은 "오늘의 인기"만 제공해서 제외한다.
+export async function collectBackfill(env, days) {
+  const now = Date.now();
+  const since = now - days * DAY;
+  const jobs = [];
+  for (const src of SOURCES) {
+    if (src.type === "hn") {
+      // 하루씩 나눠야 날마다 인기 글이 고르게 들어온다
+      for (let d = 0; d < days; d++) jobs.push([src, fetchHN(src, { from: now - (d + 1) * DAY, until: now - d * DAY })]);
+    } else if (src.type === "indiehackers") {
+      jobs.push([src, fetchIndieHackers(src, { weeks: Math.ceil(days / 7) + 1 })]);
+    } else if (src.type === "rss") {
+      jobs.push([src, fetchRss(src)]);
+    }
+  }
+  const results = await Promise.allSettled(jobs.map(([, p]) => p));
+  const items = [];
+  const errors = [];
+  results.forEach((r, i) => {
+    const src = jobs[i][0];
+    if (r.status === "rejected") {
+      errors.push(`${src.label}: ${r.reason?.message || r.reason}`);
+      return;
+    }
+    r.value
+      .filter((e) => e.title && /^https?:\/\//.test(e.url))
+      .filter((e) => !e.publishedAt || e.publishedAt >= since)
+      .filter((e) => src.type !== "indiehackers" || e.points + e.comments >= src.minReactions)
+      .forEach((e) =>
+        items.push({ ...e, url: cleanUrl(e.url), source: src.id, sourceLabel: e.label || src.label, points: e.points ?? null, comments: e.comments ?? null }),
+      );
+  });
+  return { items, errors };
 }
 
 // 모든 출처를 병렬로 가져온다. 일부 출처가 실패해도 나머지는 계속 진행한다.

@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api, resetMe, useApi } from "../../lib/api";
 import { timeAgo } from "../../lib/format";
 
 const TICK_MINUTES = 10;
+const IDLE = "지금 처리할 작업이 없어요.";
+const MAX_AUTO_STEPS = 200;
 const BATCH_CARDS = 8;
 
 function collectHours(data) {
@@ -241,6 +243,37 @@ function Status() {
     }
   }
 
+  // 크론(10분에 한 단계)을 기다리지 않고, 할 일이 없을 때까지 한 단계씩 연달아 실행한다.
+  // 요청마다 Worker 실행 한도가 따로 적용되므로 한 번에 몰아서 처리하는 것보다 안전하다.
+  const stopRef = useRef(false);
+  async function runAll(firstJob) {
+    stopRef.current = false;
+    setRunning("auto");
+    let steps = 0;
+    let errors = 0;
+    try {
+      if (firstJob) {
+        const res = await api("/api/p/run", { method: "POST", body: { job: firstJob } });
+        setResult(res.result);
+      }
+      while (!stopRef.current && steps < MAX_AUTO_STEPS) {
+        const res = await api("/api/p/run", { method: "POST", body: { job: "tick" } });
+        steps++;
+        reload();
+        if (res.result === IDLE) break;
+        errors = res.result.startsWith("오류") ? errors + 1 : 0;
+        if (errors >= 5) throw new Error(`오류가 계속돼서 멈췄어요: ${res.result}`);
+        setResult(`자동 처리 중 (${steps}단계): ${res.result}`);
+      }
+      setResult(stopRef.current ? `중지했어요 (${steps}단계 처리)` : `모두 처리했어요 (${steps}단계)`);
+    } catch (err) {
+      setResult(err.message);
+    } finally {
+      setRunning("");
+      reload();
+    }
+  }
+
   if (error) return <p className="error">{error.message}</p>;
   if (!data) return <div className="skeleton" style={{ height: 300 }} />;
 
@@ -284,6 +317,20 @@ function Status() {
         <button type="button" className="btn small ghost" onClick={() => run("report")} disabled={!!running}>
           {running === "report" ? "생성 중…" : "주간 리포트 생성"}
         </button>
+        {running === "auto" ? (
+          <button type="button" className="btn small brand" onClick={() => (stopRef.current = true)}>
+            ■ 자동 처리 중지
+          </button>
+        ) : (
+          <>
+            <button type="button" className="btn small ghost" onClick={() => runAll(null)} disabled={!!running}>
+              ⏩ 끝날 때까지 자동 처리
+            </button>
+            <button type="button" className="btn small ghost" onClick={() => runAll("backfill")} disabled={!!running}>
+              📅 최근 7일 수집
+            </button>
+          </>
+        )}
       </div>
       {result ? <p className="saveHint">{result}</p> : null}
       <ul className="logList">
