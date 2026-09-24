@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import CardViewer from "../components/CardViewer";
 import IdeaCard from "../components/IdeaCard";
 import VideoCard from "../components/VideoCard";
 import { useApi, useMe, useScrapSet } from "../lib/api";
@@ -14,7 +13,6 @@ export default function Home() {
   const authed = Boolean(me?.authed);
   const [day, setDay] = useState(null);
   const [category, setCategory] = useState("전체");
-  const [openIndex, setOpenIndex] = useState(null);
 
   const ideas = useApi(`/api/ideas${day ? `?day=${day}` : ""}`);
   const videos = useApi("/api/videos");
@@ -44,7 +42,7 @@ export default function Home() {
         <div>
           <div className="eyebrow">☀️ {formatDay(shownDay)}</div>
           <h1 className="pageTitle">오늘의 비즈니스 카드</h1>
-          <p className="pageDesc">여러 사이트에서 모은 글 중 AI가 사업 아이디어로 가치 있는 것만 골랐어요.</p>
+          <p className="pageDesc">여러 사이트에서 모은 글 중 AI가 사업 아이디어로 가치 있는 것만 골라 요약했어요. 카드를 누르면 원문이 열려요.</p>
         </div>
       </div>
 
@@ -87,10 +85,10 @@ export default function Home() {
       {alerts.length ? (
         <div className="kwStrip">
           {alerts.map((c) => (
-            <button key={c.id} type="button" className="kwItem" onClick={() => setOpenIndex(visible.indexOf(c))}>
+            <a key={c.id} className="kwItem" href={c.url} target="_blank" rel="noreferrer">
               <span className="kw">🔔 관심 키워드 · {cardKeywords.get(c.id).join(", ")}</span>
               <b>{c.headline}</b>
-            </button>
+            </a>
           ))}
         </div>
       ) : null}
@@ -98,7 +96,7 @@ export default function Home() {
       {ideas.loading && !data ? (
         <div className="cardGrid">
           {Array.from({ length: 8 }, (_, i) => (
-            <div key={i} className="skeleton" style={{ aspectRatio: "4 / 5" }} />
+            <div key={i} className="skeleton" style={{ height: 380 }} />
           ))}
         </div>
       ) : ideas.error ? (
@@ -109,14 +107,15 @@ export default function Home() {
         </div>
       ) : visible.length ? (
         <div className="cardGrid">
-          {visible.map((c, i) => (
+          {visible.map((c) => (
             <IdeaCard
               key={c.id}
               card={c}
               index={cards.indexOf(c)}
               keywords={cardKeywords.get(c.id) || []}
+              authed={authed}
               scrapped={scrapped.has(c.id)}
-              onOpen={() => setOpenIndex(i)}
+              onToggleScrap={() => toggleScrap(c.id)}
             />
           ))}
         </div>
@@ -160,18 +159,6 @@ export default function Home() {
           </div>
         )}
       </section>
-
-      {openIndex != null ? (
-        <CardViewer
-          cards={visible}
-          index={openIndex}
-          onIndex={setOpenIndex}
-          onClose={() => setOpenIndex(null)}
-          authed={authed}
-          scrapped={scrapped}
-          onToggleScrap={(c) => toggleScrap(c.id)}
-        />
-      ) : null}
     </>
   );
 }

@@ -525,12 +525,13 @@ button {
   }
 }
 
-/* ---------- 카드뉴스 ---------- */
+/* ---------- 요약 카드 갤러리 ---------- */
 
 .cardGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 16px;
+  align-items: stretch;
 }
 
 .ncard {
@@ -538,7 +539,7 @@ button {
   --c-fg: #fff;
   --c-accent: #fff;
   position: relative;
-  aspect-ratio: 4 / 5;
+  min-height: 340px;
   border-radius: 24px;
   padding: 20px;
   background: var(--c-bg);
@@ -546,9 +547,7 @@ button {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  text-align: left;
-  border: none;
-  width: 100%;
+  gap: 12px;
   isolation: isolate;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -564,30 +563,22 @@ button {
   box-shadow: 0 14px 30px color-mix(in srgb, var(--c-bg) 45%, transparent);
 }
 
+.ncard:focus-within {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
+}
+
 .ncard::before {
   content: "";
   position: absolute;
   z-index: -1;
-  width: 78%;
+  width: 70%;
   aspect-ratio: 1;
-  right: -26%;
-  bottom: -18%;
+  right: -28%;
+  top: -22%;
   border-radius: 50%;
   background: var(--c-accent);
-  opacity: 0.22;
-}
-
-.ncard::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  width: 34%;
-  aspect-ratio: 1;
-  right: 22%;
-  bottom: 30%;
-  border-radius: 50%;
-  border: 3px solid var(--c-accent);
-  opacity: 0.18;
+  opacity: 0.2;
 }
 
 .ncardTop {
@@ -616,32 +607,116 @@ button {
 }
 
 .ncardHeadline {
-  margin: auto 0 0;
-  font-size: 22px;
+  margin: 4px 0 0;
+  font-size: 20px;
   font-weight: 800;
-  line-height: 1.34;
+  line-height: 1.35;
   letter-spacing: -0.035em;
-  display: -webkit-box;
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+}
+
+.ncardLink {
+  outline: none;
+}
+
+/* 제목 링크가 카드 전체를 덮어서 어디를 눌러도 원문으로 간다 */
+.ncardLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.ncardSummary {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.ncardSummary li {
+  position: relative;
+  padding-left: 14px;
+  opacity: 0.95;
+}
+
+.ncardSummary li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 0.62em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.8;
+}
+
+.ncardPoint {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--c-fg) 14%, transparent);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.55;
 }
 
 .ncardMeta {
-  margin-top: 14px;
+  margin-top: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  padding-top: 4px;
   font-size: 12px;
   font-weight: 600;
-  opacity: 0.85;
 }
 
-.ncardTags {
+.ncardSource {
+  min-width: 0;
+  opacity: 0.85;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.ncardActions {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ncardOpen {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--c-fg);
+  color: var(--c-bg);
+  font-weight: 800;
+}
+
+/* 스크랩 버튼은 카드 링크 위에 떠 있어야 눌린다 */
+.ncardScrap {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--c-fg) 18%, transparent);
+  color: inherit;
+  font-size: 15px;
+}
+
+.ncardScrap:hover {
+  background: color-mix(in srgb, var(--c-fg) 30%, transparent);
 }
 
 .kwBadge {
@@ -649,6 +724,7 @@ button {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
+  max-width: 70%;
   padding: 3px 10px;
   border-radius: 0 0 10px 10px;
   background: #fff;
@@ -656,13 +732,8 @@ button {
   font-size: 11px;
   font-weight: 800;
   white-space: nowrap;
-}
-
-.scrapMark {
-  position: absolute;
-  right: 16px;
-  bottom: 44px;
-  font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .kwStrip {
@@ -700,224 +771,6 @@ button {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-/* ---------- 카드뉴스 뷰어 ---------- */
-
-.viewer {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  place-items: center;
-  padding: 16px;
-  background: rgba(8, 10, 14, 0.78);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  animation: fadeIn 0.18s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-}
-
-.viewerInner {
-  /* 화면 높이에 맞춰 4:5 카드가 잘리지 않도록 너비를 정한다 */
-  width: min(100%, 460px, calc((100dvh - 150px) * 0.8));
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.viewerTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.viewerTop .iconBtn {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.stage {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  width: 100%;
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow: var(--shadow-lg);
-  touch-action: pan-y;
-}
-
-.track {
-  display: flex;
-  height: 100%;
-  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.slide {
-  flex: 0 0 100%;
-  height: 100%;
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  scrollbar-width: thin;
-}
-
-.slide.ncard {
-  aspect-ratio: auto;
-  border-radius: 0;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-.slideCover .ncardHeadline {
-  font-size: clamp(26px, 7vw, 32px);
-  -webkit-line-clamp: unset;
-}
-
-.slideOrigin {
-  margin-top: 12px;
-  font-size: 13px;
-  opacity: 0.8;
-  line-height: 1.45;
-}
-
-.slideLabel {
-  font-size: 13px;
-  font-weight: 800;
-  opacity: 0.75;
-  margin-bottom: 6px;
-}
-
-.slideTitle {
-  margin: 0 0 20px;
-  font-size: 24px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-}
-
-.summaryList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 12px;
-}
-
-.summaryList li {
-  display: flex;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--c-fg) 13%, transparent);
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.5;
-}
-
-.summaryList .n {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--c-fg);
-  color: var(--c-bg);
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.pointBox {
-  padding: 18px;
-  border-radius: 20px;
-  background: color-mix(in srgb, var(--c-fg) 13%, transparent);
-  font-size: 17px;
-  font-weight: 600;
-  line-height: 1.6;
-}
-
-.tagRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 16px;
-}
-
-.tag {
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--c-fg) 16%, transparent);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.slideActions {
-  margin-top: auto;
-  padding-top: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.slideActions .btn {
-  background: var(--c-fg);
-  color: var(--c-bg);
-}
-
-.slideActions .btn.ghost {
-  background: color-mix(in srgb, var(--c-fg) 16%, transparent);
-  color: var(--c-fg);
-}
-
-.viewerNav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.viewerNav .iconBtn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-}
-
-.viewerNav .iconBtn:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-
-.dots {
-  display: flex;
-  gap: 6px;
-}
-
-.dots button {
-  width: 8px;
-  height: 8px;
-  padding: 0;
-  border: none;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.35);
-  transition: width 0.2s, background 0.2s;
-}
-
-.dots button.on {
-  width: 22px;
-  background: #fff;
 }
 
 /* ---------- 유튜브 카드 ---------- */
@@ -1378,6 +1231,12 @@ button {
   justify-content: space-between;
 }
 
+.scrapThumb.ncard {
+  min-height: 0;
+  padding: 12px;
+  gap: 0;
+}
+
 .scrapThumb .catChip {
   align-self: flex-start;
 }
@@ -1766,31 +1625,18 @@ button {
   }
 
   .cardGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
   }
 
   .ncard {
-    padding: 14px;
-    border-radius: 18px;
+    min-height: 0;
+    padding: 18px;
+    border-radius: 20px;
   }
 
   .ncardHeadline {
-    font-size: 16px;
-    -webkit-line-clamp: 6;
-  }
-
-  .ncardMeta .ncardTags {
-    display: none;
-  }
-
-  .catChip {
-    padding: 3px 8px;
-    font-size: 11px;
-  }
-
-  .slide {
-    padding: 22px;
+    font-size: 18px;
   }
 
   .videoGrid {
