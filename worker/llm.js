@@ -21,8 +21,15 @@ function extractJSON(text) {
 }
 
 // OpenRouter에 JSON 응답을 요청한다. 키가 없으면 null을 반환하고 호출부가 대체 동작을 한다.
-export async function chatJSON(env, { system, user, maxTokens = 1500, temperature = 0.4 }) {
+// videoUrl을 주면 영상(유튜브 링크)을 함께 보내고, model/provider로 영상을 받는 모델과 경로를 고정한다.
+export async function chatJSON(env, { system, user, videoUrl, model, provider, maxTokens = 1500, temperature = 0.4 }) {
   if (!hasLLM(env)) return null;
+  const userContent = videoUrl
+    ? [
+        { type: "text", text: user },
+        { type: "video_url", video_url: { url: videoUrl } },
+      ]
+    : user;
   const res = await fetch(`${env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1"}/chat/completions`, {
     method: "POST",
     headers: {
@@ -32,11 +39,12 @@ export async function chatJSON(env, { system, user, maxTokens = 1500, temperatur
       "X-Title": "garmgoon",
     },
     body: JSON.stringify({
-      model: modelName(env),
+      model: model || modelName(env),
       messages: [
         { role: "system", content: system },
-        { role: "user", content: user },
+        { role: "user", content: userContent },
       ],
+      ...(provider ? { provider } : {}),
       response_format: { type: "json_object" },
       // 추론 모델이 thinking에 토큰을 다 써서 본문이 비는 것을 막는다. 요약·채점에는 추론이 필요 없다.
       reasoning: { enabled: false },

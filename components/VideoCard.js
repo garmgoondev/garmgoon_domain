@@ -4,7 +4,7 @@ import { CATEGORIES } from "../lib/categories";
 import { timeAgo } from "../lib/format";
 
 const PALETTE = Object.values(CATEGORIES).map((c) => c.bg);
-const BASIS = { transcript: "자막 기반 요약", description: "설명란 기반 요약", title: "제목만으로 요약", none: "원문 설명" };
+const BASIS = { transcript: "자막 기반 요약", video: "영상 분석 요약", description: "설명란 기반 요약", title: "제목만으로 요약", none: "원문 설명" };
 
 // 채널마다 고정된 색을 준다
 export function channelColor(id = "") {

@@ -91,8 +91,8 @@ export async function checkChannels(env) {
   return true;
 }
 
-async function fetchTranscript(videoId) {
-  // 안드로이드 앱 클라이언트로 자막 목록을 받는다. 유튜브가 서버 요청을 막으면 실패한다.
+// 안드로이드 앱 클라이언트로 영상 정보(길이, 자막 목록)를 받는다. 유튜브가 서버 요청을 막으면 실패한다.
+async function fetchPlayer(videoId) {
   const res = await fetch("https://www.youtube.com/youtubei/v1/player?prettyPrint=false", {
     method: "POST",
     headers: { "content-type": "application/json", "user-agent": "com.google.android.youtube/20.10.38 (Linux; U; Android 14)" },
@@ -103,8 +103,11 @@ async function fetchTranscript(videoId) {
     signal: AbortSignal.timeout(10000),
   });
   if (!res.ok) throw new Error(`player ${res.status}`);
-  const data = await res.json();
-  const tracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
+  return res.json();
+}
+
+async function fetchTranscript(player) {
+  const tracks = player?.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
   if (!tracks.length) throw new Error("자막 없음");
   const pick =
     tracks.find((t) => t.languageCode === "ko" && t.kind !== "asr") ||
@@ -121,37 +124,92 @@ async function fetchTranscript(videoId) {
   return text.slice(0, 30000);
 }
 
-async function summarizeVideo(env, v, channelTitle) {
-  let basis = "description";
-  let source = v.description || "";
-  try {
-    source = await fetchTranscript(v.id);
-    basis = "transcript";
-  } catch (e) {
-    console.log(`자막 실패 ${v.id}: ${e.message}`);
-  }
-  if (basis === "description" && source.length < 40) basis = "title";
-
-  if (!hasLLM(env)) {
-    return { basis: "none", oneLiner: "", summary: v.description ? [truncate(v.description, 280)] : [], points: [], tags: [] };
-  }
-  const out = await chatJSON(env, {
-    system:
-      "당신은 바쁜 창업가를 위해 유튜브 영상을 요약해 주는 에디터입니다. 반드시 한국어로, 영상에서 실제로 다룬 내용만 정리하세요. 근거가 설명란이나 제목뿐이면 추측하지 말고 확인 가능한 범위에서만 짧게 쓰세요.",
-    user: `채널: ${channelTitle}
-영상 제목: ${v.title}
-근거 자료(${basis === "transcript" ? "자막" : basis === "description" ? "영상 설명란" : "제목만 있음"}):
-${source || "(없음)"}
-
-JSON으로만 답하세요.
+const SUMMARY_FORMAT = `JSON으로만 답하세요.
 {
   "one_liner": "이 영상을 한 문장으로 (40자 이내)",
   "summary": ["요약 1", "요약 2", "요약 3"],
   "points": ["기억할 핵심 포인트나 실행 아이디어 (최대 5개)"],
   "tags": ["키워드1", "키워드2", "키워드3"]
-}`,
+}`;
+const SUMMARY_SYSTEM =
+  "당신은 바쁜 창업가를 위해 유튜브 영상을 요약해 주는 에디터입니다. 반드시 한국어로, 영상에서 실제로 다룬 내용만 정리하세요. 근거가 설명란이나 제목뿐이면 추측하지 말고 확인 가능한 범위에서만 짧게 쓰세요.";
+
+// 영상을 직접 보는 모델. OpenRouter에서는 Google AI Studio 경로만 유튜브 링크를 받는다.
+function videoModel(env) {
+  return env.VIDEO_MODEL || "google/gemini-2.5-flash-lite";
+}
+
+function videoMaxSeconds(env) {
+  return Number(env.VIDEO_MAX_MINUTES ?? 60) * 60;
+}
+
+async function summarizeWithVideo(env, v, channelTitle) {
+  return chatJSON(env, {
+    model: videoModel(env),
+    provider: { only: ["google-ai-studio"], allow_fallbacks: false },
+    system: SUMMARY_SYSTEM,
+    user: `채널: ${channelTitle}\n영상 제목: ${v.title}\n\n첨부한 유튜브 영상을 직접 보고(음성·화면 포함) 요약하세요.\n\n${SUMMARY_FORMAT}`,
+    videoUrl: `https://www.youtube.com/watch?v=${v.id}`,
     maxTokens: 2000,
   });
+}
+
+async function summarizeWithText(env, v, channelTitle, basis, source) {
+  return chatJSON(env, {
+    system: SUMMARY_SYSTEM,
+    user: `채널: ${channelTitle}
+영상 제목: ${v.title}
+근거 자료(${basis === "transcript" ? "자막" : basis === "description" ? "영상 설명란" : "제목만 있음"}):
+${source || "(없음)"}
+
+${SUMMARY_FORMAT}`,
+    maxTokens: 2000,
+  });
+}
+
+// 자막 → (막히면) Gemini가 영상 직접 분석 → (그것도 안 되면) 설명란 순서로 요약한다.
+async function summarizeVideo(env, v, channelTitle) {
+  if (!hasLLM(env)) {
+    return { basis: "none", oneLiner: "", summary: v.description ? [truncate(v.description, 280)] : [], points: [], tags: [] };
+  }
+
+  let player = null;
+  try {
+    player = await fetchPlayer(v.id);
+  } catch (e) {
+    console.log(`영상 정보 실패 ${v.id}: ${e.message}`);
+  }
+
+  let basis = null;
+  let out = null;
+  try {
+    const transcript = await fetchTranscript(player);
+    out = await summarizeWithText(env, v, channelTitle, "transcript", transcript);
+    basis = "transcript";
+  } catch (e) {
+    console.log(`자막 실패 ${v.id}: ${e.message}`);
+  }
+
+  if (!out) {
+    const seconds = Number(player?.videoDetails?.lengthSeconds) || 0;
+    if (seconds > videoMaxSeconds(env)) {
+      console.log(`영상이 길어 영상 분석 건너뜀 ${v.id}: ${Math.round(seconds / 60)}분`);
+    } else {
+      try {
+        out = await summarizeWithVideo(env, v, channelTitle);
+        basis = "video";
+      } catch (e) {
+        await log(env, "warn", `영상 분석 실패, 설명란으로 요약 (${v.title}): ${e.message}`);
+      }
+    }
+  }
+
+  if (!out) {
+    const description = v.description || "";
+    basis = description.length < 40 ? "title" : "description";
+    out = await summarizeWithText(env, v, channelTitle, basis, description);
+  }
+
   return {
     basis,
     oneLiner: String(out.one_liner || ""),
