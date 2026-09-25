@@ -26,13 +26,16 @@ Cloudflare Worker secrets:
 ```bash
 npx wrangler secret put ADMIN_PASSWORD      # 비공개 페이지 로그인 비밀번호
 npx wrangler secret put OPENROUTER_API_KEY  # AI 요약용 (없으면 원문만 표시)
-npx wrangler secret put REDDIT_CLIENT_ID      # 선택: Reddit 공식 API (script 앱)
+npx wrangler secret put HUB_API_KEY         # 맥미니 Residential Hub 자막 API 인증 키
+npx wrangler secret put REDDIT_CLIENT_ID    # 선택: Reddit 공식 API (script 앱)
 npx wrangler secret put REDDIT_CLIENT_SECRET
 ```
 
+- **맥미니 Residential Hub**: 유튜브 데이터센터 IP 차단 우회 및 AI 비디오 과금 방지를 위해 맥미니 집 인터넷 회선을 Cloudflare Tunnel(`hub.garmgoon.com`)로 연결해 자막을 수집합니다. 자세한 구조와 신규 기능 확장 방법은 [docs/RESIDENTIAL_HUB.md](docs/RESIDENTIAL_HUB.md)를 참고하세요.
+
 수집 출처와 하루 상한은 `worker/sources.js`의 `SOURCES`, 서브레딧은 `REDDIT_SUBS`에서 바꿉니다. 네이버 검색 API는 약관(2026-09-07 개정)이 저장·AI 입력을 금지해 쓰지 않습니다.
 
-`wrangler.jsonc`의 `vars`에서 모델(`OPENROUTER_MODEL`), 하루 카드 수(`DAILY_CARDS`), 기준 시간대(`TIMEZONE`, 기본 `America/Denver`), 수집 기준 시각(`COLLECT_HOUR`)과 간격(`COLLECT_INTERVAL_HOURS`, 기본 4시간)을 바꿀 수 있습니다.
+`wrangler.jsonc`의 `vars`에서 모델(`OPENROUTER_MODEL`), 허브 주소(`HUB_BASE_URL`), 하루 카드 수(`DAILY_CARDS`), 기준 시간대(`TIMEZONE`, 기본 `America/Denver`), 수집 기준 시각(`COLLECT_HOUR`)과 간격(`COLLECT_INTERVAL_HOURS`, 기본 4시간)을 바꿀 수 있습니다.
 
 GitHub Actions secrets: `CLOUDFLARE_API_TOKEN` (Workers 편집 + D1 편집 권한), `CLOUDFLARE_ACCOUNT_ID`. `main`에 push하면 D1 마이그레이션 후 배포됩니다.
 
