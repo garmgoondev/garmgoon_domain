@@ -134,26 +134,6 @@ const SUMMARY_FORMAT = `JSON으로만 답하세요.
 const SUMMARY_SYSTEM =
   "당신은 바쁜 창업가를 위해 유튜브 영상을 요약해 주는 에디터입니다. 반드시 한국어로, 영상에서 실제로 다룬 내용만 정리하세요. 근거가 설명란이나 제목뿐이면 추측하지 말고 확인 가능한 범위에서만 짧게 쓰세요.";
 
-// 영상을 직접 보는 모델. OpenRouter에서는 Google AI Studio 경로만 유튜브 링크를 받는다.
-function videoModel(env) {
-  return env.VIDEO_MODEL || "google/gemini-2.5-flash-lite";
-}
-
-function videoMaxSeconds(env) {
-  return Number(env.VIDEO_MAX_MINUTES ?? 60) * 60;
-}
-
-async function summarizeWithVideo(env, v, channelTitle) {
-  return chatJSON(env, {
-    model: videoModel(env),
-    provider: { only: ["google-ai-studio"], allow_fallbacks: false },
-    system: SUMMARY_SYSTEM,
-    user: `채널: ${channelTitle}\n영상 제목: ${v.title}\n\n첨부한 유튜브 영상을 직접 보고(음성·화면 포함) 요약하세요.\n\n${SUMMARY_FORMAT}`,
-    videoUrl: `https://www.youtube.com/watch?v=${v.id}`,
-    maxTokens: 2000,
-  });
-}
-
 async function summarizeWithText(env, v, channelTitle, basis, source) {
   return chatJSON(env, {
     system: SUMMARY_SYSTEM,
