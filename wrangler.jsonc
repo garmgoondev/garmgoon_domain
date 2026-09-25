@@ -33,7 +33,7 @@
     "crons": ["*/10 * * * *"]
   },
   "vars": {
-    "OPENROUTER_MODEL": "deepseek/deepseek-v4-flash",
+    "OPENROUTER_MODEL": "deepseek/deepseek-v4.1-flash",
     // 맥미니 Residential Hub (집 회선 자막 추출 마이크로서비스)
     "HUB_BASE_URL": "https://hub.garmgoon.com",
     "DAILY_CARDS": "30",

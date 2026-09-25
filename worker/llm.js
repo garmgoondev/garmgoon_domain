@@ -1,4 +1,4 @@
-const DEFAULT_MODEL = "deepseek/deepseek-v4-flash";
+const DEFAULT_MODEL = "deepseek/deepseek-v4.1-flash";
 
 export function hasLLM(env) {
   return Boolean(env.OPENROUTER_API_KEY);
