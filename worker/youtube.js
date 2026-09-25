@@ -167,7 +167,25 @@ ${SUMMARY_FORMAT}`,
   });
 }
 
-// 자막 → (막히면) Gemini가 영상 직접 분석 → (그것도 안 되면) 설명란 순서로 요약한다.
+async function fetchTranscriptHub(env, videoId) {
+  const baseUrl = env.HUB_BASE_URL || "https://hub.garmgoon.com";
+  const key = env.HUB_API_KEY || "Dbt3AYTcoPx9jR0EyNC8mhwIzvQiqJdk";
+  try {
+    const res = await fetch(`${baseUrl}/v1/youtube/transcript?v=${encodeURIComponent(videoId)}`, {
+      headers: { "X-Hub-Key": key },
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.ok || !data.text || data.text.length < 100) return null;
+    return data.text.slice(0, 30000);
+  } catch (e) {
+    console.log(`Hub 자막 실패 ${videoId}: ${e.message}`);
+    return null;
+  }
+}
+
+// 자막(직접/맥미니 허브) → 설명란 순서로 요약한다. (Gemini 비디오 유료 분석 완전 차단)
 async function summarizeVideo(env, v, channelTitle) {
   if (!hasLLM(env)) {
     return { basis: "none", oneLiner: "", summary: v.description ? [truncate(v.description, 280)] : [], points: [], tags: [] };
@@ -182,28 +200,29 @@ async function summarizeVideo(env, v, channelTitle) {
 
   let basis = null;
   let out = null;
+  // 1차: 유튜브 플레이어 직접 자막 시도
   try {
     const transcript = await fetchTranscript(player);
     out = await summarizeWithText(env, v, channelTitle, "transcript", transcript);
     basis = "transcript";
   } catch (e) {
-    console.log(`자막 실패 ${v.id}: ${e.message}`);
+    console.log(`자막 직접 수집 실패 ${v.id}: ${e.message}`);
   }
 
+  // 2차: 맥미니 Residential Hub (집 인터넷 회선 경유) 자막 시도
   if (!out) {
-    const seconds = Number(player?.videoDetails?.lengthSeconds) || 0;
-    if (seconds > videoMaxSeconds(env)) {
-      console.log(`영상이 길어 영상 분석 건너뜀 ${v.id}: ${Math.round(seconds / 60)}분`);
-    } else {
-      try {
-        out = await summarizeWithVideo(env, v, channelTitle);
-        basis = "video";
-      } catch (e) {
-        await log(env, "warn", `영상 분석 실패, 설명란으로 요약 (${v.title}): ${e.message}`);
+    try {
+      const hubTranscript = await fetchTranscriptHub(env, v.id);
+      if (hubTranscript) {
+        out = await summarizeWithText(env, v, channelTitle, "transcript", hubTranscript);
+        basis = "transcript";
       }
+    } catch (e) {
+      console.log(`Hub 자막 실패 ${v.id}: ${e.message}`);
     }
   }
 
+  // 3차: 자막이 아예 없는 영상이면 설명란/제목으로 요약 (유료 Gemini 영상 직접 분석 방지)
   if (!out) {
     const description = v.description || "";
     basis = description.length < 40 ? "title" : "description";
