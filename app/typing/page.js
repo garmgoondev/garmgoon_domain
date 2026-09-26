@@ -48,11 +48,21 @@ export default function TypingPage() {
   // Bot interval for Solo Mode
   const botIntervalRef = useRef(null);
 
-  // Load saved nickname and audio preference
+  // Load saved nickname and audio preference, and check URL for room invite
   useEffect(() => {
     const savedName = localStorage.getItem("typing_nickname");
     if (savedName) setNickname(savedName);
     setSoundMuted(isMuted());
+
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const roomParam = params.get("room");
+      if (roomParam) {
+        setGameMode("multi");
+        setMultiRole("join");
+        setInputRoomCode(roomParam.toUpperCase());
+      }
+    }
   }, []);
 
   // Update nickname and persist
@@ -179,7 +189,8 @@ export default function TypingPage() {
   };
 
   const handleJoinRoom = async () => {
-    if (!inputRoomCode.trim()) {
+    const code = inputRoomCode.trim().toUpperCase();
+    if (!code) {
       setMultiError("방 코드를 입력해주세요.");
       return;
     }
@@ -202,10 +213,14 @@ export default function TypingPage() {
         },
       });
 
-      await pm.joinRoom(inputRoomCode.trim(), nickname || "Guest");
       setPeerManager(pm);
-      setRoomCode(inputRoomCode.trim().toUpperCase());
+      setRoomCode(code);
+
+      await pm.joinRoom(code, nickname || "Guest");
       myIdRef.current = pm.myId;
+      if (pm.players && pm.players.length) {
+        setPlayers([...pm.players]);
+      }
     } catch (err) {
       setMultiError("방 참가에 실패했습니다: " + err.message);
     } finally {
@@ -498,15 +513,27 @@ export default function TypingPage() {
                         </span>
                         <span className="roomCodeValue">{roomCode}</span>
                       </div>
-                      <button
-                        className="btnSecondary"
-                        onClick={() => {
-                          navigator.clipboard.writeText(roomCode);
-                          alert("방 코드가 클립보드에 복사되었습니다: " + roomCode);
-                        }}
-                      >
-                        코드 복사 📋
-                      </button>
+                      <div style={{ display: "flex", gap: "8px" }}>
+                        <button
+                          className="btnSecondary"
+                          onClick={() => {
+                            const inviteUrl = `${window.location.origin}/typing?room=${roomCode}`;
+                            navigator.clipboard.writeText(inviteUrl);
+                            alert("초대 링크가 복사되었습니다! 새 탭이나 다른 브라우저에 붙여넣으세요:\n" + inviteUrl);
+                          }}
+                        >
+                          초대 링크 복사 🔗
+                        </button>
+                        <button
+                          className="btnSecondary"
+                          onClick={() => {
+                            navigator.clipboard.writeText(roomCode);
+                            alert("방 코드가 클립보드에 복사되었습니다: " + roomCode);
+                          }}
+                        >
+                          코드 복사 📋
+                        </button>
+                      </div>
                     </div>
 
                     <div>
