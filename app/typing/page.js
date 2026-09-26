@@ -62,6 +62,8 @@ export default function TypingPage() {
     setSoundMuted(isMuted());
     setLang(getInitialLang());
 
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
       const modeParam = params.get("mode");
       if (modeParam === "fighter") {
         setGameCategory("fighter");
