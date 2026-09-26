@@ -15,8 +15,13 @@ import {
 } from "../../lib/typingAudio";
 import { RacePeerManager, generateRoomCode } from "../../lib/webrtcRace";
 import { TRANSLATIONS, getInitialLang } from "../../lib/typingI18n";
+import "./fighter.css";
+import FighterMode from "../../components/typing/FighterMode";
 
 export default function TypingPage() {
+  // Game Category: 'race' | 'fighter'
+  const [gameCategory, setGameCategory] = useState("race");
+
   // Page / Game States: 'LOBBY' | 'COUNTDOWN' | 'RACING' | 'RESULT'
   const [gameState, setGameState] = useState("LOBBY");
   const [gameMode, setGameMode] = useState("solo"); // 'solo' | 'multi'
@@ -57,8 +62,10 @@ export default function TypingPage() {
     setSoundMuted(isMuted());
     setLang(getInitialLang());
 
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
+      const modeParam = params.get("mode");
+      if (modeParam === "fighter") {
+        setGameCategory("fighter");
+      }
       const roomParam = params.get("room");
       if (roomParam) {
         setGameMode("multi");
@@ -369,8 +376,12 @@ export default function TypingPage() {
       {/* Header & Controls */}
       <div className="typingHero">
         <div>
-          <h1 className="heroTitle">{t.heroTitle}</h1>
-          <p className="heroSubtitle">{t.heroSubtitle}</p>
+          <h1 className="heroTitle">
+            {gameCategory === "fighter" ? (t?.fighterHeroTitle || "🥊 타이핑 파이터 (Typing Fighter)") : t.heroTitle}
+          </h1>
+          <p className="heroSubtitle">
+            {gameCategory === "fighter" ? (t?.fighterHeroSubtitle || "단어와 문장을 빠르게 타이핑해 상대를 타격하고, 콤보를 모아 필살기로 K.O. 시키세요!") : t.heroSubtitle}
+          </p>
         </div>
 
         <div className="heroActions">
@@ -386,21 +397,41 @@ export default function TypingPage() {
         </div>
       </div>
 
-      {/* Racetrack (Visible during Countdown, Racing, and Result) */}
-      {gameState !== "LOBBY" && (
-        <div style={{ position: "relative" }}>
-          <RaceTrack players={players} myId={myIdRef.current} t={t} />
+      {/* Game Mode Category Switcher (Race vs Fighter) */}
+      <div className="gameCategoryBar">
+        <button
+          className={`categoryTabBtn ${gameCategory === "race" ? "active" : ""}`}
+          onClick={() => setGameCategory("race")}
+        >
+          {t?.gameModeRace || "🏎️ 타자 레이스 (Race)"}
+        </button>
+        <button
+          className={`categoryTabBtn ${gameCategory === "fighter" ? "active" : ""}`}
+          onClick={() => setGameCategory("fighter")}
+        >
+          {t?.gameModeFighter || "🥊 타이핑 파이터 (Fighter)"}
+        </button>
+      </div>
 
-          {/* Countdown Overlay */}
-          {gameState === "COUNTDOWN" && (
-            <div className="countdownOverlay">
-              <span className={`countdownNumber ${countdownNum === "GO!" ? "go" : ""}`}>
-                {countdownNum}
-              </span>
+      {gameCategory === "fighter" ? (
+        <FighterMode nickname={nickname} t={t} />
+      ) : (
+        <>
+          {/* Racetrack (Visible during Countdown, Racing, and Result) */}
+          {gameState !== "LOBBY" && (
+            <div style={{ position: "relative" }}>
+              <RaceTrack players={players} myId={myIdRef.current} t={t} />
+
+              {/* Countdown Overlay */}
+              {gameState === "COUNTDOWN" && (
+                <div className="countdownOverlay">
+                  <span className={`countdownNumber ${countdownNum === "GO!" ? "go" : ""}`}>
+                    {countdownNum}
+                  </span>
+                </div>
+              )}
             </div>
           )}
-        </div>
-      )}
 
       {/* LOBBY STATE */}
       {gameState === "LOBBY" && (
@@ -650,6 +681,8 @@ export default function TypingPage() {
             </button>
           </div>
         </div>
+      )}
+      </>
       )}
 
       {/* Global Leaderboard Modal */}
