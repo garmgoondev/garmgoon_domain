@@ -109,6 +109,60 @@
   font-size: 54px;
 }
 
+.gameArt.volley {
+  background: linear-gradient(180deg, #6ec3ff 0%, #d4f1ff 58%, #ffe6b0 58%, #f2c77e 100%);
+}
+
+.volleySea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 44%;
+  height: 14%;
+  background: linear-gradient(180deg, #3fa9e6, #86dcf6);
+}
+
+.volleyNet {
+  position: absolute;
+  left: calc(50% - 4px);
+  bottom: 12%;
+  width: 8px;
+  height: 44%;
+  border-radius: 4px;
+  background: repeating-linear-gradient(180deg, #fffaf2 0 10px, #ff7a7a 10px 16px);
+  box-shadow: 0 -6px 0 2px #ffcf3f;
+}
+
+.volleyBall {
+  position: absolute;
+  left: calc(50% + 34px);
+  top: 16%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #4a3b2a;
+  background: radial-gradient(circle at 35% 30%, #fff 0 20%, transparent 21%), linear-gradient(160deg, #ffd23f 0 34%, #fffaf0 34% 66%, #5ab4ff 66%);
+  animation: volleyArc 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes volleyArc {
+  from {
+    transform: translate(-120px, 40px) rotate(0deg);
+  }
+  50% {
+    transform: translate(-40px, -6px) rotate(180deg);
+  }
+  to {
+    transform: translate(30px, 30px) rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .volleyBall {
+    animation: none;
+  }
+}
+
 .soonArt {
   display: grid;
   place-items: center;

@@ -51,6 +51,20 @@ const GAMES = [
       tags: ["Typing", "Multiplayer"],
     },
   },
+  {
+    href: "/games/volley",
+    art: "volley",
+    ko: {
+      title: "말랑 배구",
+      desc: "피카츄 배구의 물리와 조작감을 그대로 옮긴 배구 게임. 귀여운 캐릭터에 내 사진을 얼굴로 붙일 수 있어요.",
+      tags: ["스포츠", "컴퓨터·2인·온라인", "키보드·터치"],
+    },
+    en: {
+      title: "Mallang Volley",
+      desc: "Pikachu Volleyball's physics and controls, rebuilt with cute characters. Put your own photo on a character's face.",
+      tags: ["Sports", "CPU · 2P · Online", "Keyboard & touch"],
+    },
+  },
 ];
 
 export default function GamesPage() {
@@ -78,6 +92,12 @@ export default function GamesPage() {
                     <span className="orbit" />
                     <span className="planet fire" />
                     <span className="planet ice" />
+                  </>
+                ) : g.art === "volley" ? (
+                  <>
+                    <span className="volleySea" />
+                    <span className="volleyNet" />
+                    <span className="volleyBall" />
                   </>
                 ) : (
                   <span className="typingArt">⌨️ 🏎️</span>

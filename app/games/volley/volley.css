@@ -1,0 +1,902 @@
+/* 말랑 배구: 게임 화면은 사이트 테마와 상관없이 밝은 해변 */
+
+.vb {
+  --vb-ink: #23263b;
+  --vb-ink-2: #5d6380;
+  --vb-glass: rgba(255, 255, 255, 0.96);
+  --vb-line: rgba(35, 38, 59, 0.12);
+  --vb-pink: #ff6b8b;
+  --vb-orange: #ff9d2e;
+  --vb-sky: #3fa9e6;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 432 / 304;
+  min-height: min(460px, calc(100svh - 20px));
+  max-height: calc(100svh - 200px);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #9fdcff;
+  color: var(--vb-ink);
+  box-shadow: var(--shadow-lg);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vb.isPlay {
+  touch-action: none;
+}
+
+.vb.isFull {
+  width: 100vw;
+  height: 100vh;
+  min-height: 0;
+  max-height: none;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+
+.vbCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---------- 버튼과 입력 ---------- */
+
+.vbBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: 1.5px solid var(--vb-line);
+  background: #fff;
+  color: var(--vb-ink);
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.15s, box-shadow 0.15s;
+}
+
+.vbBtn:hover {
+  background: #f4f6fb;
+}
+
+.vbBtn:active {
+  transform: scale(0.96);
+}
+
+.vbBtn:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+}
+
+.vbBtn.primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--vb-pink), var(--vb-orange));
+  color: #fff;
+  box-shadow: 0 4px 0 #d9486a;
+}
+
+.vbBtn.primary:hover {
+  filter: brightness(1.06);
+}
+
+.vbBtn.primary:active {
+  box-shadow: 0 1px 0 #d9486a;
+  transform: translateY(3px);
+}
+
+.vbBtn.big {
+  height: 48px;
+  padding: 0 26px;
+  font-size: 16px;
+}
+
+.vbBtn.small {
+  height: 32px;
+  padding: 0 11px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.vbBtn.ghost {
+  border-color: transparent;
+  background: rgba(35, 38, 59, 0.06);
+}
+
+.vbBtn:focus-visible,
+.vbChips button:focus-visible,
+.vbChars button:focus-visible,
+.vbMode:focus-visible {
+  outline: 3px solid var(--vb-sky);
+  outline-offset: 2px;
+}
+
+.vbRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.vbRow.tight {
+  margin-top: 8px;
+  gap: 6px;
+}
+
+.vbCol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.vbInput {
+  width: 100%;
+  height: 38px;
+  margin-top: 8px;
+  padding: 0 12px;
+  border-radius: 11px;
+  border: 1.5px solid var(--vb-line);
+  background: #fff;
+  color: var(--vb-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.vbInput:focus {
+  outline: none;
+  border-color: var(--vb-sky);
+}
+
+.vbInput.code::placeholder {
+  font-family: inherit;
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+.vbInput.code {
+  width: 120px;
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 17px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.vbChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.vbChips button {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--vb-line);
+  background: #fff;
+  color: var(--vb-ink-2);
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.vbChips button.on {
+  border-color: var(--vb-sky);
+  background: #e3f4ff;
+  color: #0f6aa6;
+}
+
+.vbChips button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.vbChips button.on:disabled {
+  opacity: 1;
+}
+
+/* ---------- 겹쳐 뜨는 판 ---------- */
+
+.vbOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-y: auto;
+  padding: 16px;
+  background: rgba(40, 70, 120, 0.18);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  scrollbar-width: thin;
+}
+
+.vbOverlay.dim {
+  background: rgba(28, 36, 72, 0.38);
+}
+
+.vbPanel {
+  width: 100%;
+  max-width: 660px;
+  margin: auto;
+  padding: 20px 22px;
+  border-radius: 24px;
+  background: var(--vb-glass);
+  box-shadow: 0 12px 40px rgba(20, 40, 90, 0.25);
+  text-align: center;
+  animation: vbPop 0.22s ease-out;
+}
+
+.vbPanel.menu {
+  max-width: 560px;
+}
+
+.vbPanel.small {
+  max-width: 300px;
+}
+
+.vbPanel.result {
+  max-width: 380px;
+}
+
+.vbPanel h2 {
+  margin: 0 0 14px;
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+@keyframes vbPop {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.vbLogo {
+  font-size: clamp(32px, 6vw, 44px) !important;
+  line-height: 1.1;
+  margin-bottom: 6px !important;
+  background: linear-gradient(135deg, var(--vb-pink) 10%, var(--vb-orange) 55%, #f2bf00 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 0 rgba(35, 38, 59, 0.15));
+}
+
+.vbTagline {
+  margin: 0 0 18px;
+  color: var(--vb-ink-2);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.vbModes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.vbMode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 16px 8px 14px;
+  border-radius: 18px;
+  border: 1.5px solid var(--vb-line);
+  background: #fff;
+  color: var(--vb-ink);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.vbMode:hover {
+  transform: translateY(-3px);
+  border-color: var(--vb-pink);
+  box-shadow: 0 8px 20px rgba(255, 107, 139, 0.2);
+}
+
+.vbModeIcon {
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.vbMode b {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.vbMode small {
+  color: var(--vb-ink-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------- 선수 카드 ---------- */
+
+.vbVs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 10px;
+}
+
+.vbVsMark {
+  align-self: center;
+  color: var(--vb-pink);
+  font-size: 20px;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.vbCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding: 12px 10px 12px;
+  border-radius: 18px;
+  border: 1.5px solid var(--vb-line);
+  border-top: 5px solid var(--c, var(--vb-sky));
+  background: #fff;
+}
+
+.vbCard.waiting {
+  justify-content: center;
+  border-style: dashed;
+  border-top-style: dashed;
+  border-top-width: 1.5px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.vbCardLabel {
+  align-self: stretch;
+  color: var(--vb-ink-2);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.vbPreview {
+  display: block;
+  flex: none;
+}
+
+.vbCardName {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.vbCardDesc {
+  color: var(--vb-ink-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.vbChars {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.vbChars button {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: #f3f5fa;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.vbChars button:hover {
+  transform: scale(1.08);
+}
+
+.vbChars button.on {
+  border-color: var(--c);
+  background: #fff;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent);
+}
+
+.vbOpts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 22px;
+  margin-top: 14px;
+}
+
+.vbOpt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.vbOpts .vbOpt {
+  margin-top: 0;
+}
+
+.vbOpt > span {
+  color: var(--vb-ink-2);
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+/* ---------- 온라인 ---------- */
+
+.vbJoin {
+  grid-column: 2 / span 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+}
+
+.vbOr {
+  color: var(--vb-ink-2);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.vbJoinRow {
+  display: flex;
+  gap: 6px;
+}
+
+.vbRoomHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: -4px 0 12px;
+  color: var(--vb-ink-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.vbCode {
+  padding: 3px 12px;
+  border-radius: 10px;
+  background: #fff3c4;
+  color: #7a5a00;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 20px;
+  letter-spacing: 0.16em;
+}
+
+.vbPing {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #e5f7ec;
+  color: #16804a;
+  font-size: 12px;
+}
+
+.vbWaitDot {
+  display: flex;
+  gap: 6px;
+  margin: 26px 0 14px;
+}
+
+.vbWaitDot span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--vb-sky);
+  animation: vbBlink 1s infinite ease-in-out;
+}
+
+.vbWaitDot span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.vbWaitDot span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes vbBlink {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-5px);
+  }
+}
+
+.vbError {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #ffe8ec;
+  color: #c0203f;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.vbMuted {
+  margin: 0;
+  color: var(--vb-ink-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.vbMuted.small {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+/* ---------- 결과 ---------- */
+
+.vbPanel.result .vbPreview {
+  margin: -4px auto 0;
+}
+
+.vbResultTitle {
+  margin: 4px 0 2px !important;
+  font-size: 30px !important;
+  background: linear-gradient(135deg, var(--vb-pink), var(--vb-orange));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.vbFinal {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 38px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.vbFinal i {
+  color: var(--vb-ink-2);
+  font-style: normal;
+  font-size: 26px;
+}
+
+/* ---------- 경기 중 ---------- */
+
+.vbHudBtns {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  display: flex;
+  gap: 6px;
+  transform: translateX(-50%);
+}
+
+.vbIcon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  border: none;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--vb-ink);
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+.vbIcon:hover {
+  background: #fff;
+}
+
+.vbToast {
+  position: absolute;
+  left: 50%;
+  top: 52px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(28, 36, 72, 0.8);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* ---------- 터치 조작 ---------- */
+
+.vbTouch {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.vbStickZone {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 50%;
+  height: 70%;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.vbStick {
+  position: absolute;
+  width: 104px;
+  height: 104px;
+  margin: -52px 0 0 -52px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.vbKnob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+}
+
+.vbPadBtns {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.vbPadBtn {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  touch-action: none;
+  opacity: 0.85;
+}
+
+.vbPadBtn.jump {
+  width: 58px;
+  height: 58px;
+  margin-bottom: 26px;
+  background: rgba(63, 169, 230, 0.8);
+}
+
+.vbPadBtn.smash {
+  width: 70px;
+  height: 70px;
+  background: rgba(255, 107, 139, 0.85);
+}
+
+.vbPadBtn.on {
+  opacity: 1;
+  transform: scale(0.92);
+}
+
+/* ---------- 창 ---------- */
+
+.vbModal {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  overflow-y: auto;
+  padding: 16px;
+  background: rgba(20, 26, 50, 0.5);
+}
+
+.vbModalBox {
+  width: 100%;
+  max-width: 380px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  animation: vbPop 0.2s ease-out;
+}
+
+.vbModalBox h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.vbCrop {
+  display: block;
+  margin: 12px auto 4px;
+  border-radius: 16px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.vbCrop:active {
+  cursor: grabbing;
+}
+
+.vbSlider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  color: var(--vb-ink-2);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.vbSlider span {
+  flex: none;
+  width: 70px;
+  text-align: left;
+}
+
+.vbSlider input {
+  flex: 1;
+  accent-color: var(--vb-pink);
+}
+
+/* ---------- 조작법 ---------- */
+
+.vbHelp {
+  margin-top: 16px;
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.vbHelp h2 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.vbHelp dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 8px 18px;
+  margin: 0;
+}
+
+.vbHelp dl div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.vbHelp dt {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.vbHelp dd {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+/* ---------- 좁은 화면 ---------- */
+
+@media (max-width: 640px) {
+  .vb {
+    min-height: 520px;
+  }
+
+  .vbOverlay {
+    padding: 10px;
+  }
+
+  .vbPanel {
+    padding: 16px 12px;
+  }
+
+  .vbModes {
+    grid-template-columns: 1fr;
+  }
+
+  .vbMode {
+    flex-direction: row;
+    flex-wrap: wrap;
+    column-gap: 10px;
+    padding: 12px 14px;
+    text-align: left;
+  }
+
+  .vbModeIcon {
+    font-size: 24px;
+  }
+
+  .vbMode small {
+    flex-basis: 100%;
+    padding-left: 38px;
+    margin-top: -4px;
+  }
+
+  .vbVs {
+    gap: 6px;
+  }
+
+  .vbVsMark {
+    font-size: 14px;
+  }
+
+  .vbChars button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .vbJoin {
+    grid-column: 1 / -1;
+  }
+
+}
+
+@media (max-width: 640px) {
+  .vbVs:has(.vbJoin) {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vbPanel,
+  .vbModalBox {
+    animation: none;
+  }
+
+  .vbWaitDot span {
+    animation: none;
+    opacity: 0.7;
+  }
+}
