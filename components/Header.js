@@ -10,6 +10,7 @@ const NAV = [
   { href: "/", label: "오늘의 카드" },
   { href: "/youtube", label: "유튜브" },
   { href: "/trends", label: "주간 트렌드" },
+  { href: "/typing", label: "타자 레이스 🏎️" },
   { href: "/tools", label: "SaaS 도구", private: true },
   { href: "/scrap", label: "스크랩·노트", private: true },
   { href: "/settings", label: "설정", private: true },

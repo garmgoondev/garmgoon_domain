@@ -76,6 +76,69 @@ async function getReports(env) {
   return json({ reports: results.map((r) => ({ week: r.week, ...parseJSON(r.content, {}) })) });
 }
 
+async function getTypingLeaderboard(env, url) {
+  const period = url.searchParams.get("period") || "all";
+  const limit = Math.min(Number(url.searchParams.get("limit")) || 30, 100);
+  const currentWeek = localWeekStart(timeZone(env));
+
+  let query = "SELECT id, nickname, wpm, accuracy, time_seconds, text_length, mode, created_at FROM typing_scores ";
+  let params = [];
+  if (period === "week") {
+    query += "WHERE week = ? ";
+    params.push(currentWeek);
+  }
+  query += "ORDER BY wpm DESC, accuracy DESC LIMIT ?";
+  params.push(limit);
+
+  const [scoresRes, statsRes] = await Promise.all([
+    env.DB.prepare(query).bind(...params).all(),
+    env.DB.prepare("SELECT COUNT(*) AS total_runs, MAX(wpm) AS max_wpm FROM typing_scores").first(),
+  ]);
+
+  return json({
+    period,
+    currentWeek,
+    scores: scoresRes.results || [],
+    stats: {
+      totalRuns: statsRes?.total_runs || 0,
+      maxWpm: statsRes?.max_wpm ? Math.round(statsRes.max_wpm) : 0,
+    },
+  });
+}
+
+async function submitTypingScore(env, request) {
+  const body = await readBody(request);
+  const nickname = String(body.nickname || "익명 레이서").trim().slice(0, 20) || "익명 레이서";
+  const wpm = Number(body.wpm);
+  const accuracy = Number(body.accuracy);
+  const timeSeconds = Number(body.timeSeconds);
+  const textLength = Number(body.textLength);
+  const mode = String(body.mode || "race").slice(0, 20);
+
+  if (isNaN(wpm) || wpm < 1 || wpm > 350) return httpError(400, "유효하지 않은 WPM 기록입니다.");
+  if (isNaN(accuracy) || accuracy < 0 || accuracy > 100) return httpError(400, "유효하지 않은 정확도입니다.");
+  if (isNaN(timeSeconds) || timeSeconds <= 0) return httpError(400, "유효하지 않은 시간입니다.");
+
+  const week = localWeekStart(timeZone(env));
+  const now = Date.now();
+
+  const insertRes = await env.DB.prepare(
+    "INSERT INTO typing_scores (nickname, wpm, accuracy, time_seconds, text_length, mode, week, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
+  )
+    .bind(nickname, Math.round(wpm * 10) / 10, Math.round(accuracy * 10) / 10, Math.round(timeSeconds * 10) / 10, textLength, mode, week, now)
+    .first();
+
+  const rankRes = await env.DB.prepare(
+    "SELECT COUNT(*) + 1 AS rank FROM typing_scores WHERE wpm > ?",
+  ).bind(wpm).first();
+
+  return json({
+    ok: true,
+    id: insertRes?.id,
+    rank: rankRes?.rank || 1,
+  });
+}
+
 // ---------- 비공개 API ----------
 
 async function scrapsApi(env, request, id) {
@@ -281,6 +344,8 @@ async function handleApi(request, env, url) {
   if (path === "/api/ideas") return getIdeas(env, url, authed);
   if (path === "/api/videos") return getVideos(env, url, authed);
   if (path === "/api/reports") return getReports(env);
+  if (path === "/api/typing/leaderboard") return getTypingLeaderboard(env, url);
+  if (path === "/api/typing/scores" && request.method === "POST") return submitTypingScore(env, request);
 
   const m = path.match(/^\/api\/p\/([a-z]+)(?:\/([^/]+))?$/);
   if (!m) return httpError(404, "없는 API");
