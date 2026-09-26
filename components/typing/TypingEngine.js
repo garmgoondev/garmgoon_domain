@@ -7,6 +7,7 @@ export default function TypingEngine({
   text = "",
   isActive = false,
   startTime = null,
+  t = null,
   onProgress = () => {},
   onFinish = () => {},
 }) {
@@ -150,25 +151,25 @@ export default function TypingEngine({
         spellCheck="false"
         onKeyDown={handleKeyDown}
         readOnly={!isActive || isFinished}
-        aria-label="타이핑 입력 영역"
+        aria-label="typing input"
       />
 
       {/* Real-time Status Header */}
       <div className="typingEngineStatsHeader">
         <div className="statItem">
-          <span className="statLabel">WPM</span>
+          <span className="statLabel">{t?.statWpm || "WPM"}</span>
           <span className="statValue statWpm">{currentMetrics.wpm}</span>
         </div>
         <div className="statItem">
-          <span className="statLabel">정확도 (ACC)</span>
+          <span className="statLabel">{t?.statAcc || "ACC"}</span>
           <span className="statValue statAcc">{currentMetrics.accuracy}%</span>
         </div>
         <div className="statItem">
-          <span className="statLabel">진행률</span>
+          <span className="statLabel">{t?.statProg || "Progress"}</span>
           <span className="statValue statProg">{Math.round(currentMetrics.progress)}%</span>
         </div>
         <div className="statItem modeIndicator">
-          <span className="strictBadge">🛡️ 엄격 모드 (Strict)</span>
+          <span className="strictBadge">{t?.strictBadge || "🛡️ Strict Mode"}</span>
         </div>
       </div>
 
@@ -202,12 +203,16 @@ export default function TypingEngine({
       <div className="typingHelpBar">
         {currentMistake !== null ? (
           <span className="helpErrorMsg">
-            ⚠️ 오타가 발생했습니다! <b>Backspace</b> 키를 눌러 지운 후 계속 진행해주세요.
+            {t?.helpError || "⚠️ Typo detected! Press Backspace to delete it before continuing."}
           </span>
         ) : !isActive ? (
-          <span className="helpReadyMsg">카운트다운이 끝나면 타이핑이 시작됩니다. 준비하세요!</span>
+          <span className="helpReadyMsg">
+            {t?.helpReady || "Get ready! Typing starts when the countdown finishes."}
+          </span>
         ) : (
-          <span className="helpTypingMsg">정확하고 빠르게 입력하세요! (화면을 클릭하면 포커스 유지)</span>
+          <span className="helpTypingMsg">
+            {t?.helpTyping || "Type fast and accurately! (Click anywhere to focus)"}
+          </span>
         )}
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export default function LeaderboardModal({ isOpen, onClose }) {
+export default function LeaderboardModal({ isOpen, onClose, t = null }) {
   const [period, setPeriod] = useState("all");
   const [scores, setScores] = useState([]);
   const [stats, setStats] = useState({ totalRuns: 0, maxWpm: 0 });
@@ -39,8 +39,8 @@ export default function LeaderboardModal({ isOpen, onClose }) {
       <div className="modalCard leaderboardModal" onClick={(e) => e.stopPropagation()}>
         <div className="modalHeader">
           <div>
-            <h2 className="modalTitle">🏆 명예의 전당 (Leaderboard)</h2>
-            <p className="modalDesc">최고의 타자 레이서 순위를 확인하세요.</p>
+            <h2 className="modalTitle">{t?.modalTitle || "🏆 명예의 전당 (Leaderboard)"}</h2>
+            <p className="modalDesc">{t?.modalSubtitle || "최고의 타자 레이서 순위를 확인하세요."}</p>
           </div>
           <button className="closeBtn" onClick={onClose} aria-label="닫기">
             ✕
@@ -50,11 +50,11 @@ export default function LeaderboardModal({ isOpen, onClose }) {
         {/* Quick Stats Pill */}
         <div className="leaderboardStatsSummary">
           <div className="summaryPill">
-            <span className="summaryLabel">총 레이스 완주</span>
-            <span className="summaryVal">{stats.totalRuns}회</span>
+            <span className="summaryLabel">{t?.totalRuns || "총 레이스 완주"}</span>
+            <span className="summaryVal">{stats.totalRuns}{t?.runsUnit || "회"}</span>
           </div>
           <div className="summaryPill">
-            <span className="summaryLabel">역대 최고 속도</span>
+            <span className="summaryLabel">{t?.maxSpeed || "역대 최고 속도"}</span>
             <span className="summaryVal summaryHighlight">{stats.maxWpm} WPM</span>
           </div>
         </div>
@@ -65,31 +65,31 @@ export default function LeaderboardModal({ isOpen, onClose }) {
             className={`tabItem ${period === "all" ? "active" : ""}`}
             onClick={() => setPeriod("all")}
           >
-            전체 랭킹 (All-Time)
+            {t?.allTimeTab || "전체 랭킹 (All-Time)"}
           </button>
           <button
             className={`tabItem ${period === "week" ? "active" : ""}`}
             onClick={() => setPeriod("week")}
           >
-            이번 주 랭킹 (Weekly)
+            {t?.weeklyTab || "이번 주 랭킹 (Weekly)"}
           </button>
         </div>
 
         {/* Leaderboard Table */}
         <div className="leaderboardTableWrapper">
           {loading ? (
-            <div className="tableLoading">랭킹 데이터를 불러오는 중...</div>
+            <div className="tableLoading">{t?.loadingRankings || "랭킹 데이터를 불러오는 중..."}</div>
           ) : scores.length === 0 ? (
-            <div className="tableEmpty">아직 등록된 기록이 없습니다. 첫 레이서가 되어보세요!</div>
+            <div className="tableEmpty">{t?.emptyRankings || "아직 등록된 기록이 없습니다. 첫 레이서가 되어보세요!"}</div>
           ) : (
             <table className="leaderboardTable">
               <thead>
                 <tr>
-                  <th style={{ width: "60px" }}>순위</th>
-                  <th>레이서</th>
-                  <th style={{ textAlign: "right" }}>WPM</th>
-                  <th style={{ textAlign: "right" }}>정확도</th>
-                  <th style={{ textAlign: "right" }}>소요시간</th>
+                  <th style={{ width: "60px" }}>{t?.rankCol || "순위"}</th>
+                  <th>{t?.racerCol || "레이서"}</th>
+                  <th style={{ textAlign: "right" }}>{t?.wpmCol || "WPM"}</th>
+                  <th style={{ textAlign: "right" }}>{t?.accCol || "정확도"}</th>
+                  <th style={{ textAlign: "right" }}>{t?.timeCol || "소요시간"}</th>
                 </tr>
               </thead>
               <tbody>
@@ -112,7 +112,7 @@ export default function LeaderboardModal({ isOpen, onClose }) {
                         {Math.round(s.accuracy)}%
                       </td>
                       <td style={{ textAlign: "right" }} className="dimCell">
-                        {Math.round(s.time_seconds)}초
+                        {Math.round(s.time_seconds)}{t?.secondsSuffix || "s"}
                       </td>
                     </tr>
                   );

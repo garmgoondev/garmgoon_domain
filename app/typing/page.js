@@ -14,11 +14,13 @@ import {
   playVictoryFanfare,
 } from "../../lib/typingAudio";
 import { RacePeerManager, generateRoomCode } from "../../lib/webrtcRace";
+import { TRANSLATIONS, getInitialLang } from "../../lib/typingI18n";
 
 export default function TypingPage() {
   // Page / Game States: 'LOBBY' | 'COUNTDOWN' | 'RACING' | 'RESULT'
   const [gameState, setGameState] = useState("LOBBY");
   const [gameMode, setGameMode] = useState("solo"); // 'solo' | 'multi'
+  const [lang, setLang] = useState("ko");
 
   // User Profile
   const [nickname, setNickname] = useState("Racer");
@@ -48,11 +50,12 @@ export default function TypingPage() {
   // Bot interval for Solo Mode
   const botIntervalRef = useRef(null);
 
-  // Load saved nickname and audio preference, and check URL for room invite
+  // Load saved nickname, audio preference, language, and check URL for room invite
   useEffect(() => {
     const savedName = localStorage.getItem("typing_nickname");
     if (savedName) setNickname(savedName);
     setSoundMuted(isMuted());
+    setLang(getInitialLang());
 
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -75,6 +78,14 @@ export default function TypingPage() {
     const next = toggleMute();
     setSoundMuted(next);
   };
+
+  const handleToggleLang = () => {
+    const nextLang = lang === "ko" ? "en" : "ko";
+    setLang(nextLang);
+    localStorage.setItem("typing_lang", nextLang);
+  };
+
+  const t = TRANSLATIONS[lang] || TRANSLATIONS.ko;
 
   // Cleanup WebRTC and timers on unmount
   useEffect(() => {
@@ -358,16 +369,19 @@ export default function TypingPage() {
       {/* Header & Controls */}
       <div className="typingHero">
         <div>
-          <h1 className="heroTitle">🏎️ 타자 레이스 (Typing Race)</h1>
-          <p className="heroSubtitle">실시간으로 경쟁하며 타자 속도(WPM)와 정확도를 겨뤄보세요.</p>
+          <h1 className="heroTitle">{t.heroTitle}</h1>
+          <p className="heroSubtitle">{t.heroSubtitle}</p>
         </div>
 
         <div className="heroActions">
+          <button className="iconButton" onClick={handleToggleLang} title="언어 변경 / Switch Language">
+            {lang === "ko" ? "🇺🇸 English" : "🇰🇷 한국어"}
+          </button>
           <button className="iconButton" onClick={handleToggleSound} title="효과음 켜기/끄기">
-            {soundMuted ? "🔇 음소거됨" : "🔊 효과음 ON"}
+            {soundMuted ? t.soundMuted : t.soundOn}
           </button>
           <button className="iconButton" onClick={() => setIsLeaderboardOpen(true)}>
-            🏆 명예의 전당
+            {t.leaderboardBtn}
           </button>
         </div>
       </div>
@@ -375,7 +389,7 @@ export default function TypingPage() {
       {/* Racetrack (Visible during Countdown, Racing, and Result) */}
       {gameState !== "LOBBY" && (
         <div style={{ position: "relative" }}>
-          <RaceTrack players={players} myId={myIdRef.current} />
+          <RaceTrack players={players} myId={myIdRef.current} t={t} />
 
           {/* Countdown Overlay */}
           {gameState === "COUNTDOWN" && (
@@ -402,26 +416,26 @@ export default function TypingPage() {
                 setRoomCode("");
               }}
             >
-              🚀 싱글 연습 (Solo AI Race)
+              {t.soloTab}
             </button>
             <button
               className={`modeTabBtn ${gameMode === "multi" ? "active" : ""}`}
               onClick={() => setGameMode("multi")}
             >
-              👥 실시간 멀티 (WebRTC P2P)
+              {t.multiTab}
             </button>
           </div>
 
           <div className="lobbyFormSection">
             {/* Nickname Input */}
             <div className="inputGroup">
-              <label>레이서 닉네임</label>
+              <label>{t.nicknameLabel}</label>
               <input
                 type="text"
                 className="textInput"
                 value={nickname}
                 maxLength={20}
-                placeholder="닉네임을 입력하세요"
+                placeholder={t.nicknamePlaceholder}
                 onChange={(e) => handleNicknameChange(e.target.value)}
               />
             </div>
@@ -430,10 +444,10 @@ export default function TypingPage() {
             {gameMode === "solo" && (
               <div>
                 <p style={{ color: "var(--text-2)", fontSize: "14px", marginBottom: "20px" }}>
-                  가상 AI 레이서(Bot Turbo)와 함께 1:1 레이스를 펼칩니다. 완주 후 기록을 명예의 전당에 바로 등록할 수 있습니다.
+                  {t.soloDesc}
                 </p>
                 <button className="btnPrimary" onClick={startSoloRace} style={{ width: "100%" }}>
-                  레이스 시작하기 🏁
+                  {t.startSoloBtn}
                 </button>
               </div>
             )}
@@ -449,21 +463,21 @@ export default function TypingPage() {
                         style={{ flex: 1, borderColor: multiRole === "host" ? "var(--brand)" : undefined }}
                         onClick={() => setMultiRole("host")}
                       >
-                        방 만들기 (Host)
+                        {t.hostTab}
                       </button>
                       <button
                         className={`btnSecondary ${multiRole === "join" ? "active" : ""}`}
                         style={{ flex: 1, borderColor: multiRole === "join" ? "var(--brand)" : undefined }}
                         onClick={() => setMultiRole("join")}
                       >
-                        방 참가하기 (Join)
+                        {t.joinTab}
                       </button>
                     </div>
 
                     {multiRole === "host" ? (
                       <div>
                         <p style={{ color: "var(--text-2)", fontSize: "14px", marginBottom: "16px" }}>
-                          방을 생성하면 초대 코드가 발급됩니다. 친구에게 코드를 공유해 함께 실시간 레이스를 즐기세요.
+                          {t.hostDesc}
                         </p>
                         <button
                           className="btnPrimary"
@@ -471,17 +485,17 @@ export default function TypingPage() {
                           disabled={connecting}
                           style={{ width: "100%" }}
                         >
-                          {connecting ? "방 개설 중..." : "방 만들기 & 대기실 입장"}
+                          {connecting ? t.creatingRoom : t.createRoomBtn}
                         </button>
                       </div>
                     ) : (
                       <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                         <div className="inputGroup">
-                          <label>참가할 방 코드 (6자리)</label>
+                          <label>{t.joinCodeLabel}</label>
                           <input
                             type="text"
                             className="textInput"
-                            placeholder="예: ABC123"
+                            placeholder={t.joinPlaceholder}
                             value={inputRoomCode}
                             maxLength={8}
                             onChange={(e) => setInputRoomCode(e.target.value.toUpperCase())}
@@ -492,7 +506,7 @@ export default function TypingPage() {
                           onClick={handleJoinRoom}
                           disabled={connecting || !inputRoomCode.trim()}
                         >
-                          {connecting ? "방 접속 중..." : "방 입장하기 🚀"}
+                          {connecting ? t.joiningRoom : t.joinRoomBtn}
                         </button>
                       </div>
                     )}
@@ -509,7 +523,7 @@ export default function TypingPage() {
                     <div className="roomCodeBox">
                       <div>
                         <span style={{ fontSize: "12px", color: "var(--text-2)", display: "block" }}>
-                          방 초대 코드
+                          {t.roomCodeTitle}
                         </span>
                         <span className="roomCodeValue">{roomCode}</span>
                       </div>
@@ -519,33 +533,33 @@ export default function TypingPage() {
                           onClick={() => {
                             const inviteUrl = `${window.location.origin}/typing?room=${roomCode}`;
                             navigator.clipboard.writeText(inviteUrl);
-                            alert("초대 링크가 복사되었습니다! 새 탭이나 다른 브라우저에 붙여넣으세요:\n" + inviteUrl);
+                            alert(t.linkCopiedAlert + inviteUrl);
                           }}
                         >
-                          초대 링크 복사 🔗
+                          {t.copyLinkBtn}
                         </button>
                         <button
                           className="btnSecondary"
                           onClick={() => {
                             navigator.clipboard.writeText(roomCode);
-                            alert("방 코드가 클립보드에 복사되었습니다: " + roomCode);
+                            alert(t.codeCopiedAlert + roomCode);
                           }}
                         >
-                          코드 복사 📋
+                          {t.copyCodeBtn}
                         </button>
                       </div>
                     </div>
 
                     <div>
                       <span style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-2)", display: "block", marginBottom: "8px" }}>
-                        대기 중인 레이서 ({players.length}명)
+                        {t.waitingRacers(players.length)}
                       </span>
                       <div className="playerListGrid">
                         {players.map((p) => (
                           <div key={p.id} className="playerBadge">
                             <span className="playerColorDot" style={{ background: p.color }} />
                             <span>{p.nickname}</span>
-                            {p.isHost && <span style={{ fontSize: "11px", color: "var(--brand)" }}>(방장)</span>}
+                            {p.isHost && <span style={{ fontSize: "11px", color: "var(--brand)" }}>{t.hostBadge}</span>}
                           </div>
                         ))}
                       </div>
@@ -557,11 +571,11 @@ export default function TypingPage() {
                         onClick={handleStartMultiRace}
                         style={{ marginTop: "10px" }}
                       >
-                        모두 모였으면 레이스 시작! 🚦
+                        {t.startMultiBtn}
                       </button>
                     ) : (
                       <p style={{ textAlign: "center", color: "var(--text-2)", fontSize: "14px", margin: "10px 0 0" }}>
-                        방장이 레이스를 시작할 때까지 대기 중입니다...
+                        {t.waitingForHost}
                       </p>
                     )}
                   </div>
@@ -578,6 +592,7 @@ export default function TypingPage() {
           text={currentQuote.text}
           isActive={true}
           startTime={raceStartTime}
+          t={t}
           onProgress={handleTypingProgress}
           onFinish={handleTypingFinish}
         />
@@ -586,23 +601,23 @@ export default function TypingPage() {
       {/* RESULT STATE */}
       {gameState === "RESULT" && myResult && (
         <div className="resultCard">
-          <h2 className="resultTitle">🏁 레이스 완주!</h2>
+          <h2 className="resultTitle">{t.resultTitle}</h2>
           <p style={{ color: "var(--text-2)", margin: 0 }}>
-            멋진 주행이었습니다! 최종 기록을 확인해보세요.
+            {t.resultSubtitle}
           </p>
 
           <div className="resultStatsGrid">
             <div className="resultStatBox">
-              <span className="statLabel">최종 속도</span>
+              <span className="statLabel">{t.statFinalSpeed}</span>
               <span className="resultStatVal statWpm">{myResult.wpm} WPM</span>
             </div>
             <div className="resultStatBox">
-              <span className="statLabel">타이핑 정확도</span>
+              <span className="statLabel">{t.statFinalAcc}</span>
               <span className="resultStatVal statAcc">{myResult.accuracy}%</span>
             </div>
             <div className="resultStatBox">
-              <span className="statLabel">완주 시간</span>
-              <span className="resultStatVal statProg">{myResult.timeSeconds.toFixed(1)}초</span>
+              <span className="statLabel">{t.statFinalTime}</span>
+              <span className="resultStatVal statProg">{myResult.timeSeconds.toFixed(1)}{t.secondsSuffix}</span>
             </div>
           </div>
 
@@ -610,17 +625,17 @@ export default function TypingPage() {
           <div className="submitScoreSection">
             {scoreSubmitted ? (
               <span style={{ color: "var(--ok)", fontWeight: "700" }}>
-                ✅ 명예의 전당 리더보드에 성공적으로 등록되었습니다!
+                {t.submitSuccess}
               </span>
             ) : (
               <>
-                <span>닉네임: <b>{nickname || "익명"}</b></span>
+                <span>{t.nicknamePrefix}<b>{nickname || t.anonymous}</b></span>
                 <button
                   className="btnPrimary"
                   onClick={handleSubmitScore}
                   disabled={submittingScore}
                 >
-                  {submittingScore ? "등록 중..." : "🏆 리더보드에 내 기록 등록하기"}
+                  {submittingScore ? t.submitting : t.submitScoreBtn}
                 </button>
               </>
             )}
@@ -628,10 +643,10 @@ export default function TypingPage() {
 
           <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
             <button className="btnPrimary" onClick={handleRestart}>
-              다시 레이스하기 🏎️
+              {t.raceAgainBtn}
             </button>
             <button className="btnSecondary" onClick={() => setIsLeaderboardOpen(true)}>
-              리더보드 보기 🏆
+              {t.viewLeaderboardBtn}
             </button>
           </div>
         </div>
@@ -641,6 +656,7 @@ export default function TypingPage() {
       <LeaderboardModal
         isOpen={isLeaderboardOpen}
         onClose={() => setIsLeaderboardOpen(false)}
+        t={t}
       />
     </div>
   );

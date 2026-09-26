@@ -2,12 +2,12 @@
 
 import CarIcon from "./CarIcon";
 
-export default function RaceTrack({ players = [], myId = null }) {
+export default function RaceTrack({ players = [], myId = null, t = null }) {
   return (
     <div className="trackContainer">
       <div className="trackHeader">
-        <span className="trackTitle">🏎️ RACE TRACK</span>
-        <span className="finishLabel">🏁 FINISH</span>
+        <span className="trackTitle">{t?.raceTrackHeader || "🏎️ RACE TRACK"}</span>
+        <span className="finishLabel">{t?.finishHeader || "🏁 FINISH"}</span>
       </div>
 
       <div className="trackRoad">
@@ -24,9 +24,9 @@ export default function RaceTrack({ players = [], myId = null }) {
               {/* Lane Info Header */}
               <div className="laneInfo">
                 <span className="laneRacerName" style={{ color: player.color }}>
-                  {isMe && <span className="meTag">YOU</span>}
+                  {isMe && <span className="meTag">{t?.youTag || "YOU"}</span>}
                   {player.nickname}
-                  {player.isBot && <span className="botTag">BOT</span>}
+                  {player.isBot && <span className="botTag">{t?.botTag || "BOT"}</span>}
                 </span>
 
                 <div className="laneStats">
