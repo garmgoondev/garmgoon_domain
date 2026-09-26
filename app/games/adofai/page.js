@@ -4,17 +4,23 @@ import Link from "next/link";
 import "../games.css";
 import "./adofai.css";
 import AdofaiGame from "../../../components/games/adofai/AdofaiGame";
+import LangToggle from "../../../components/games/LangToggle";
+import { ADOFAI_TEXT } from "../../../lib/adofai/i18n";
+import { useGamesLang } from "../../../lib/gamesLang";
 
 export default function AdofaiPage() {
+  const [lang] = useGamesLang();
+  const t = ADOFAI_TEXT[lang];
   return (
     <>
       <div className="gameHead">
         <Link href="/games" className="gameBack">
-          ← 게임 목록
+          {t.backToGames}
         </Link>
-        <h1 className="gameTitle">얼음과 불의 춤</h1>
+        <h1 className="gameTitle">{t.pageTitle}</h1>
+        <LangToggle />
       </div>
-      <AdofaiGame />
+      <AdofaiGame lang={lang} />
     </>
   );
 }

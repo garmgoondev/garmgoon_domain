@@ -2,19 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LEVELS } from "../../../lib/adofai/levels";
-import { buildTimeline, parseAdofaiFile } from "../../../lib/adofai/level";
+import { LevelError, buildTimeline, parseAdofaiFile } from "../../../lib/adofai/level";
 import { AdofaiEngine, DIFFICULTIES, JUDGES, JUDGE_ORDER, emptyCounts } from "../../../lib/adofai/engine";
 import { METRONOME, adofaiAudio, buildSessionEvents } from "../../../lib/adofai/audio";
+import { ADOFAI_TEXT } from "../../../lib/adofai/i18n";
 
 const SETTINGS_KEY = "adofai_settings";
 const RECORDS_KEY = "adofai_records";
 const DEFAULT_SETTINGS = { difficulty: "normal", offsetMs: 0, musicVol: 0.8, hitVol: 0.8, hitsound: "kick" };
-const HITSOUNDS = [
-  ["kick", "킥"],
-  ["clap", "클랩"],
-  ["tick", "틱"],
-  ["off", "끄기"],
-];
+const HITSOUNDS = ["kick", "clap", "tick", "off"];
 const AUDIO_EXT = /\.(ogg|mp3|wav|m4a|aac|flac|opus|webm)$/i;
 const CALIB_BPM = 100;
 const CALIB_LEAD = 4;
@@ -50,7 +46,10 @@ const median = (xs) => {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 };
 
-export default function AdofaiGame() {
+export default function AdofaiGame({ lang = "ko" }) {
+  const t = ADOFAI_TEXT[lang] || ADOFAI_TEXT.ko;
+  const titleOf = (L) => (L.custom ? L.title || t.customLevel : lang === "en" && L.en ? L.en.title : L.title);
+  const descOf = (L) => (lang === "en" && L.en ? L.en.desc : L.desc);
   const frameRef = useRef(null);
   const canvasRef = useRef(null);
   const engineRef = useRef(null);
@@ -69,7 +68,7 @@ export default function AdofaiGame() {
   const [panel, setPanel] = useState(null);
   const [resumeIn, setResumeIn] = useState(0);
   const [loadingCustom, setLoadingCustom] = useState(false);
-  const [customError, setCustomError] = useState("");
+  const [customError, setCustomError] = useState(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [calib, setCalib] = useState({ state: "idle", taps: [], result: null });
 
@@ -293,11 +292,11 @@ export default function AdofaiGame() {
   const loadCustom = async (fileList) => {
     const files = [...(fileList || [])];
     if (!files.length) return;
-    setCustomError("");
+    setCustomError(null);
     setLoadingCustom(true);
     try {
       const levelFile = files.find((f) => /\.adofai$/i.test(f.name));
-      if (!levelFile) throw new Error(".adofai 파일을 함께 골라 주세요");
+      if (!levelFile) throw new LevelError("noLevelFile");
       const parsed = parseAdofaiFile(await levelFile.text());
       const audios = files.filter((f) => AUDIO_EXT.test(f.name) || f.type.startsWith("audio/"));
       const want = parsed.songFilename.toLowerCase();
@@ -308,7 +307,7 @@ export default function AdofaiGame() {
         try {
           buffer = await ctx.decodeAudioData(await audioFile.arrayBuffer());
         } catch {
-          throw new Error(`${audioFile.name}을(를) 이 브라우저에서 재생할 수 없어요. mp3나 wav로 바꿔 보세요`);
+          throw new LevelError("decode", audioFile.name);
         }
       }
       const L = { ...parsed, id: `custom:${parsed.title}:${parsed.angles.length}`, custom: true, buffer, audioName: audioFile?.name || "" };
@@ -318,7 +317,7 @@ export default function AdofaiGame() {
       setSel(LEVELS.length);
       setPanel(null);
     } catch (err) {
-      setCustomError(err.message || "레벨을 읽지 못했어요");
+      setCustomError(err instanceof LevelError ? { code: err.code, arg: err.arg } : { code: "unknown" });
     } finally {
       setLoadingCustom(false);
     }
@@ -455,9 +454,17 @@ export default function AdofaiGame() {
         <div className="adfMenu">
           <div className="adfPanel">
             <h2 className="adfLogo">
-              <span className="ice">얼음</span>과 <span className="fire">불</span>의 춤
+              {t.logo.map(([cls, text], i) =>
+                cls ? (
+                  <span key={i} className={cls}>
+                    {text}
+                  </span>
+                ) : (
+                  text
+                ),
+              )}
             </h2>
-            <p className="adfTag">A Dance of Fire and Ice · 웹 에디션</p>
+            <p className="adfTag">{t.tagline}</p>
             <ol className="adfLevels">
               {levels.map((L, i) => {
                 const r = records[L.id];
@@ -471,14 +478,14 @@ export default function AdofaiGame() {
                     >
                       <span className="adfLvId">{L.custom ? "★" : L.id}</span>
                       <span className="adfLvBody">
-                        <b>{L.title}</b>
+                        <b>{titleOf(L)}</b>
                         <small>
                           {Math.round(L.bpm)} BPM{t ? ` · ${fmtTime(t.end - t.firstHit)}` : ""}
                         </small>
                       </span>
                       {r?.cleared ? (
                         <span className={`adfLvRec${r.perfect ? " pure" : ""}`}>
-                          {r.best ? `${r.best.toFixed(1)}%` : "클리어"}
+                          {r.best ? `${r.best.toFixed(1)}%` : t.cleared}
                         </span>
                       ) : null}
                     </button>
@@ -489,8 +496,8 @@ export default function AdofaiGame() {
                 <button className="adfLv adfLvAdd" onClick={() => setPanel("custom")}>
                   <span className="adfLvId">＋</span>
                   <span className="adfLvBody">
-                    <b>커스텀 레벨 불러오기</b>
-                    <small>.adofai + 음악 파일</small>
+                    <b>{t.addCustom}</b>
+                    <small>{t.addCustomSub}</small>
                   </span>
                 </button>
               </li>
@@ -499,44 +506,50 @@ export default function AdofaiGame() {
 
           <div className="adfDetail">
             <div className="adfDetailHead">
-              <span className="adfDetailId">{level.custom ? "커스텀" : level.id}</span>
-              <h3>{level.title}</h3>
+              <span className="adfDetailId">{level.custom ? t.customBadge : level.id}</span>
+              <h3>{titleOf(level)}</h3>
               {level.custom ? (
                 <p>
-                  {[level.artist, level.author && `제작 ${level.author}`].filter(Boolean).join(" · ") || "작자 미상"}
+                  {[level.artist, level.author && t.byAuthor(level.author)].filter(Boolean).join(" · ") || t.unknownArtist}
                   <br />
-                  {level.audioName ? `🎵 ${level.audioName}` : "음악 파일 없이 메트로놈으로 플레이"}
-                  {level.warnings.length ? <><br />⚠️ 일부 기능 미지원: {level.warnings.join(", ")}</> : null}
+                  {level.audioName ? `🎵 ${level.audioName}` : t.noMusic}
+                  {level.warnings.length ? (
+                    <>
+                      <br />
+                      {t.partlyUnsupported}
+                      {level.warnings.map((w) => t.warnings[w] || w).join(", ")}
+                    </>
+                  ) : null}
                 </p>
               ) : (
-                <p>{level.desc}</p>
+                <p>{descOf(level)}</p>
               )}
               <div className="adfStats">
                 <span>{Math.round(level.bpm)} BPM</span>
-                {selTl ? <span>타일 {selTl.floors.length - 1}개</span> : null}
-                {selTl?.checkpoints.length ? <span>체크포인트 {selTl.checkpoints.length}</span> : null}
-                {rec?.best ? <span>최고 {rec.best.toFixed(2)}%{rec.perfect ? " · 완벽" : ""}</span> : null}
+                {selTl ? <span>{t.tiles(selTl.floors.length - 1)}</span> : null}
+                {selTl?.checkpoints.length ? <span>{t.checkpoints(selTl.checkpoints.length)}</span> : null}
+                {rec?.best ? <span>{t.best(rec.best.toFixed(2), rec.perfect)}</span> : null}
               </div>
             </div>
             <div className="adfActions">
               <button className="adfBtn primary" onClick={() => enterLevel(level)} disabled={!selTl}>
-                ▶ 시작
+                {t.play}
               </button>
               <button className={`adfBtn${autoplay ? " on" : ""}`} onClick={() => setAutoplay((a) => !a)}>
-                🤖 자동 플레이 {autoplay ? "켜짐" : "꺼짐"}
+                {t.autoplay(autoplay)}
               </button>
             </div>
           </div>
 
           <div className="adfTopBar">
-            <button className="adfIcon" onClick={() => setPanel("settings")} aria-label="설정">
+            <button className="adfIcon" onClick={() => setPanel("settings")} aria-label={t.settings}>
               ⚙️
             </button>
-            <button className="adfIcon" onClick={toggleFullscreen} aria-label="전체 화면">
+            <button className="adfIcon" onClick={toggleFullscreen} aria-label={t.fullscreen}>
               {fullscreen ? "🗗" : "⛶"}
             </button>
           </div>
-          <p className="adfKeys">↑↓ 선택 · Enter 시작 · 두 번 클릭해도 시작</p>
+          <p className="adfKeys">{t.keysHint}</p>
         </div>
       ) : (
         <div className="adfHud">
@@ -546,13 +559,13 @@ export default function AdofaiGame() {
           <div className="adfHudTop">
             <span className="adfHudTitle">
               {run.current.level?.custom ? "" : `${run.current.level?.id} `}
-              {run.current.level?.title}
-              {run.current.autoplay ? <em>자동</em> : null}
-              {run.current.startFloor > 0 ? <em>체크포인트</em> : null}
+              {run.current.level ? titleOf(run.current.level) : null}
+              {run.current.autoplay ? <em>{t.badgeAuto}</em> : null}
+              {run.current.startFloor > 0 ? <em>{t.badgeCheckpoint}</em> : null}
             </span>
             <span className="adfHudRight">
               <b>{hud.xacc.toFixed(2)}%</b>
-              <button className="adfIcon" onClick={phase === "playing" ? pause : toMenu} aria-label="일시 정지">
+              <button className="adfIcon" onClick={phase === "playing" ? pause : toMenu} aria-label={t.pause}>
                 {phase === "playing" ? "⏸" : "✕"}
               </button>
             </span>
@@ -562,11 +575,11 @@ export default function AdofaiGame() {
 
           {phase === "ready" ? (
             <div className="adfOverlay soft">
-              <p className="adfBig">아무 키나 눌러 시작</p>
+              <p className="adfBig">{t.pressToStart}</p>
               <p className="adfHint">
-                행성이 다음 타일에 닿는 순간 아무 키(또는 화면 터치)를 누르세요.
+                {t.readyHint}
                 <br />
-                Esc로 나가기 · 판정 {DIFFICULTIES[settings.difficulty].name} · 오프셋 {settings.offsetMs}ms
+                {t.readyInfo(t.difficulties[settings.difficulty], settings.offsetMs)}
               </p>
             </div>
           ) : null}
@@ -577,11 +590,11 @@ export default function AdofaiGame() {
                 <p className="adfBig">{resumeIn}</p>
               ) : (
                 <>
-                  <p className="adfBig">일시 정지</p>
+                  <p className="adfBig">{t.paused}</p>
                   <div className="adfRow">
-                    <button className="adfBtn primary" onClick={resume}>계속하기</button>
-                    <button className="adfBtn" onClick={() => retry(false)}>처음부터</button>
-                    <button className="adfBtn" onClick={toMenu}>레벨 선택</button>
+                    <button className="adfBtn primary" onClick={resume}>{t.resume}</button>
+                    <button className="adfBtn" onClick={() => retry(false)}>{t.restart}</button>
+                    <button className="adfBtn" onClick={toMenu}>{t.levelSelect}</button>
                   </div>
                 </>
               )}
@@ -590,24 +603,24 @@ export default function AdofaiGame() {
 
           {phase === "failed" && result ? (
             <div className="adfOverlay">
-              <p className="adfFail">실패!</p>
+              <p className="adfFail">{t.failed}</p>
               <p className="adfPercent">{Math.floor(result.progress)}%</p>
               <div className="adfRow">
                 <button className="adfBtn primary" onClick={() => retry(true)}>
-                  {result.checkpoint ? "체크포인트부터" : "다시 하기"}
+                  {result.checkpoint ? t.fromCheckpoint : t.retry}
                 </button>
                 {result.checkpoint ? (
-                  <button className="adfBtn" onClick={() => retry(false)}>처음부터 (R)</button>
+                  <button className="adfBtn" onClick={() => retry(false)}>{t.restartR}</button>
                 ) : null}
-                <button className="adfBtn" onClick={toMenu}>레벨 선택 (Esc)</button>
+                <button className="adfBtn" onClick={toMenu}>{t.levelSelectEsc}</button>
               </div>
-              <p className="adfHint">아무 키나 누르면 바로 다시 시작해요</p>
+              <p className="adfHint">{t.failHint}</p>
             </div>
           ) : null}
 
           {phase === "cleared" && result ? (
             <div className="adfOverlay">
-              <p className="adfClear">{result.perfect && !result.usedCheckpoint && !result.auto ? "완벽한 플레이!" : "클리어!"}</p>
+              <p className="adfClear">{result.perfect && !result.usedCheckpoint && !result.auto ? t.purePerfect : t.clear}</p>
               <p className="adfPercent">{result.xacc.toFixed(2)}%</p>
               <div className="adfJudges">
                 {JUDGE_ORDER.map((k) => (
@@ -619,15 +632,15 @@ export default function AdofaiGame() {
               </div>
               <p className="adfHint">
                 {result.auto
-                  ? "자동 플레이는 기록되지 않아요"
+                  ? t.autoNoRecord
                   : result.usedCheckpoint
-                    ? "체크포인트를 써서 정확도 기록은 남지 않아요"
+                    ? t.checkpointNoRecord
                     : result.newBest
-                      ? "🎉 최고 기록!"
+                      ? t.newBest
                       : ""}
               </p>
               <div className="adfRow">
-                <button className="adfBtn primary" onClick={() => retry(false)}>다시 하기 (R)</button>
+                <button className="adfBtn primary" onClick={() => retry(false)}>{t.retryR}</button>
                 {!run.current.level?.custom && sel + 1 < LEVELS.length ? (
                   <button
                     className="adfBtn"
@@ -636,10 +649,10 @@ export default function AdofaiGame() {
                       enterLevel(LEVELS[sel + 1]);
                     }}
                   >
-                    다음 레벨 →
+                    {t.nextLevel}
                   </button>
                 ) : null}
-                <button className="adfBtn" onClick={toMenu}>레벨 선택 (Esc)</button>
+                <button className="adfBtn" onClick={toMenu}>{t.levelSelectEsc}</button>
               </div>
             </div>
           ) : null}
@@ -649,20 +662,20 @@ export default function AdofaiGame() {
       {panel === "settings" ? (
         <div className="adfModal">
           <div className="adfSheet">
-            <h3>설정</h3>
+            <h3>{t.settings}</h3>
             <label className="adfField">
-              <span>판정 난이도</span>
+              <span>{t.judgment}</span>
               <div className="adfSeg">
-                {Object.entries(DIFFICULTIES).map(([k, d]) => (
+                {Object.keys(DIFFICULTIES).map((k) => (
                   <button key={k} className={settings.difficulty === k ? "on" : ""} onClick={() => updateSettings({ difficulty: k })}>
-                    {d.name}
+                    {t.difficulties[k]}
                   </button>
                 ))}
               </div>
             </label>
             <div className="adfField">
               <span>
-                입력 오프셋 <b>{settings.offsetMs > 0 ? "+" : ""}{settings.offsetMs}ms</b>
+                {t.inputOffset} <b>{settings.offsetMs > 0 ? "+" : ""}{settings.offsetMs}ms</b>
               </span>
               <input
                 type="range"
@@ -672,23 +685,23 @@ export default function AdofaiGame() {
                 value={settings.offsetMs}
                 onChange={(e) => updateSettings({ offsetMs: Number(e.target.value) })}
               />
-              <small>
-                판정이 계속 Late로 나오면 +, Early로 나오면 −. 블루투스 이어폰은 지연이 커서 보정이 꼭 필요해요.
-              </small>
-              <button className="adfBtn small" onClick={() => setPanel("calib")}>🎧 박자 맞춰 자동 보정</button>
+              <small>{t.offsetHelp}</small>
+              <button className="adfBtn small" onClick={() => setPanel("calib")}>
+                {t.calibrateBtn}
+              </button>
             </div>
             <label className="adfField">
-              <span>음악 볼륨 {Math.round(settings.musicVol * 100)}%</span>
+              <span>{t.musicVol(Math.round(settings.musicVol * 100))}</span>
               <input type="range" min={0} max={1} step={0.05} value={settings.musicVol} onChange={(e) => updateSettings({ musicVol: Number(e.target.value) })} />
             </label>
             <label className="adfField">
-              <span>타격음 볼륨 {Math.round(settings.hitVol * 100)}%</span>
+              <span>{t.hitVol(Math.round(settings.hitVol * 100))}</span>
               <input type="range" min={0} max={1} step={0.05} value={settings.hitVol} onChange={(e) => updateSettings({ hitVol: Number(e.target.value) })} />
             </label>
             <div className="adfField">
-              <span>타격음</span>
+              <span>{t.hitsound}</span>
               <div className="adfSeg">
-                {HITSOUNDS.map(([k, name]) => (
+                {HITSOUNDS.map((k) => (
                   <button
                     key={k}
                     className={settings.hitsound === k ? "on" : ""}
@@ -698,13 +711,13 @@ export default function AdofaiGame() {
                       adofaiAudio.playHit(k);
                     }}
                   >
-                    {name}
+                    {t.hitsounds[k]}
                   </button>
                 ))}
               </div>
             </div>
             <div className="adfRow end">
-              <button className="adfBtn primary" onClick={() => setPanel(null)}>닫기</button>
+              <button className="adfBtn primary" onClick={() => setPanel(null)}>{t.close}</button>
             </div>
           </div>
         </div>
@@ -713,15 +726,13 @@ export default function AdofaiGame() {
       {panel === "calib" ? (
         <div className="adfModal">
           <div className="adfSheet">
-            <h3>입력 오프셋 보정</h3>
+            <h3>{t.calibTitle}</h3>
             {calib.state === "idle" ? (
               <>
-                <p className="adfSheetDesc">
-                  딸깍 소리가 {CALIB_LEAD}번 난 뒤부터 {CALIB_TAPS}번, 소리에 맞춰 아무 키(또는 화면 터치)를 누르세요. 화면 말고 소리에만 집중하세요.
-                </p>
+                <p className="adfSheetDesc">{t.calibDesc(CALIB_LEAD, CALIB_TAPS)}</p>
                 <div className="adfRow end">
-                  <button className="adfBtn" onClick={() => setPanel("settings")}>뒤로</button>
-                  <button className="adfBtn primary" onClick={startCalib}>시작</button>
+                  <button className="adfBtn" onClick={() => setPanel("settings")}>{t.back}</button>
+                  <button className="adfBtn primary" onClick={startCalib}>{t.start}</button>
                 </div>
               </>
             ) : null}
@@ -733,24 +744,24 @@ export default function AdofaiGame() {
                   ))}
                 </div>
                 <p className="adfSheetDesc">
-                  {calib.taps.length ? `지금까지 평균 ${Math.round(median(calib.taps))}ms` : "소리에 맞춰 누르세요…"}
+                  {calib.taps.length ? t.calibAvg(Math.round(median(calib.taps))) : t.calibPrompt}
                 </p>
                 <div className="adfRow end">
-                  <button className="adfBtn" onClick={stopCalib}>그만하기</button>
+                  <button className="adfBtn" onClick={stopCalib}>{t.stop}</button>
                 </div>
               </>
             ) : null}
             {calib.state === "done" ? (
               <>
                 {calib.result === null ? (
-                  <p className="adfSheetDesc">입력이 너무 적어요. 다시 해 주세요.</p>
+                  <p className="adfSheetDesc">{t.tooFewTaps}</p>
                 ) : (
                   <p className="adfSheetDesc">
-                    측정값 <b>{calib.result > 0 ? "+" : ""}{calib.result}ms</b> (현재 {settings.offsetMs}ms)
+                    {t.measured} <b>{calib.result > 0 ? "+" : ""}{calib.result}ms</b> {t.current(settings.offsetMs)}
                   </p>
                 )}
                 <div className="adfRow end">
-                  <button className="adfBtn" onClick={startCalib}>다시 측정</button>
+                  <button className="adfBtn" onClick={startCalib}>{t.measureAgain}</button>
                   {calib.result !== null ? (
                     <button
                       className="adfBtn primary"
@@ -760,7 +771,7 @@ export default function AdofaiGame() {
                         setPanel("settings");
                       }}
                     >
-                      적용
+                      {t.apply}
                     </button>
                   ) : null}
                 </div>
@@ -780,28 +791,27 @@ export default function AdofaiGame() {
               loadCustom(e.dataTransfer.files);
             }}
           >
-            <h3>커스텀 레벨 불러오기</h3>
+            <h3>{t.customTitle}</h3>
             <p className="adfSheetDesc">
-              원작용 <b>.adofai</b> 파일과 음악 파일(mp3·ogg·wav)을 함께 고르거나 여기로 끌어다 놓으세요. 압축 파일은 먼저 풀어 주세요.
-              파일은 이 브라우저 안에서만 쓰이고 서버로 올라가지 않아요.
+              {t.customDesc[0]}
+              <b>{t.customDesc[1]}</b>
+              {t.customDesc[2]}
             </p>
             <div className="adfRow">
               <label className="adfBtn primary">
-                파일 고르기
+                {t.pickFiles}
                 <input type="file" multiple accept=".adofai,audio/*,.ogg,.mp3,.wav" hidden onChange={(e) => loadCustom(e.target.files)} />
               </label>
               <label className="adfBtn">
-                폴더 고르기
+                {t.pickFolder}
                 <input type="file" webkitdirectory="" directory="" hidden onChange={(e) => loadCustom(e.target.files)} />
               </label>
             </div>
-            <p className="adfSheetNote">
-              지원: 경로, 소용돌이, 속도 변경, 일시정지, 체크포인트, 트랙·배경 색. 장식·카메라·필터 효과와 홀드·자유 이동은 무시돼요.
-            </p>
-            {loadingCustom ? <p className="adfSheetDesc">불러오는 중…</p> : null}
-            {customError ? <p className="adfError">{customError}</p> : null}
+            <p className="adfSheetNote">{t.customNote}</p>
+            {loadingCustom ? <p className="adfSheetDesc">{t.loading}</p> : null}
+            {customError ? <p className="adfError">{(t.errors[customError.code] || t.errors.unknown)(customError.arg)}</p> : null}
             <div className="adfRow end">
-              <button className="adfBtn" onClick={() => setPanel(null)}>닫기</button>
+              <button className="adfBtn" onClick={() => setPanel(null)}>{t.close}</button>
             </div>
           </div>
         </div>

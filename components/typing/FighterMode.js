@@ -362,7 +362,7 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
       setBattleActive(false); // Stay in lobby until opponent joins & host starts!
       setRoundStatus("WAITING");
     } catch (err) {
-      setMultiError("방 생성 오류: " + err.message);
+      setMultiError((t?.errCreateRoom || "방 생성 오류: ") + err.message);
     } finally {
       setConnecting(false);
     }
@@ -371,7 +371,7 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
   const handleJoinMultiRoom = async () => {
     const code = inputRoomCode.trim().toUpperCase();
     if (!code) {
-      setMultiError("방 코드를 입력해주세요.");
+      setMultiError(t?.errEnterCode || "방 코드를 입력해주세요.");
       return;
     }
     setMultiError("");
@@ -406,7 +406,7 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
       setBattleActive(false); // Stay in lobby until host starts!
       setRoundStatus("WAITING");
     } catch (err) {
-      setMultiError("방 참가 오류: " + err.message);
+      setMultiError((t?.errJoinRoom || "방 참가 오류: ") + err.message);
     } finally {
       setConnecting(false);
     }
@@ -578,7 +578,7 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
                       <button
                         className="btnSecondary"
                         onClick={() => {
-                          const inviteUrl = `${window.location.origin}/typing?mode=fighter&room=${roomCode}`;
+                          const inviteUrl = `${window.location.origin}/games/typing?mode=fighter&room=${roomCode}`;
                           navigator.clipboard.writeText(inviteUrl);
                           alert((t?.linkCopiedAlert || "초대 링크가 복사되었습니다:\n") + inviteUrl);
                         }}

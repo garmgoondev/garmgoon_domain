@@ -234,7 +234,7 @@ export default function FighterEngine({
               }}
               title="Cancel skill (Esc)"
             >
-              취소 (Esc)
+              {t?.cancelEsc || "취소 (Esc)"}
             </button>
           </div>
 
