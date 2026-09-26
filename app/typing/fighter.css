@@ -674,4 +674,180 @@
     width: 90px;
     height: 115px;
   }
+  .fighterRosterContainer {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .fighterRosterVs {
+    transform: rotate(90deg);
+  }
 }
+
+/* Fighter Multiplayer Roster & Matchup */
+.fighterRosterContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 16px 0;
+}
+
+.fighterRosterCard {
+  flex: 1;
+  max-width: 240px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.fighterRosterCard.host {
+  border-color: #3b82f6;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.15);
+}
+
+.fighterRosterCard.guest.connected {
+  border-color: #10b981;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.2);
+}
+
+.fighterRosterCard.guest.waiting {
+  border-style: dashed;
+  border-color: #64748b;
+  opacity: 0.85;
+}
+
+.rosterBadge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.rosterBadge.hostBadge {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+.rosterBadge.guestBadge {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.rosterAvatar {
+  font-size: 38px;
+  line-height: 1;
+  margin: 4px 0;
+}
+
+.rosterName {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  word-break: break-all;
+}
+
+.rosterStatus {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 10px;
+}
+
+.rosterStatus.ready {
+  background: #10b981;
+  color: white;
+}
+
+.rosterStatus.waiting {
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.fighterRosterVs {
+  font-family: Impact, sans-serif;
+  font-size: 28px;
+  font-style: italic;
+  color: #f59e0b;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+}
+
+.waitingNoticeBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px dashed var(--line);
+  padding: 14px 18px;
+  border-radius: 12px;
+  color: var(--text-2);
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.pulsingDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+  animation: pulseDotAnim 1.2s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulseDotAnim {
+  0% { transform: scale(0.8); opacity: 0.4; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0.4; }
+}
+
+.btnPulse {
+  animation: btnGlowPulse 1.5s infinite alternate;
+}
+
+@keyframes btnGlowPulse {
+  from { box-shadow: 0 0 10px rgba(37, 99, 235, 0.4); }
+  to { box-shadow: 0 0 24px rgba(37, 99, 235, 0.9); }
+}
+
+.youBadge {
+  background: #10b981;
+  color: white;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin: 0 4px;
+  vertical-align: middle;
+}
+
+.battleRoomBadge {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #94a3b8;
+  font-family: monospace;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+
+.battleRoomBadge b {
+  color: #60a5fa;
+  letter-spacing: 1.5px;
+}
+

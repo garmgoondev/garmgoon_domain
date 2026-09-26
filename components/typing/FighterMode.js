@@ -15,7 +15,7 @@ import { FIGHTER_SKILLS, ULTIMATE_SKILL } from "../../lib/fighterSkills";
 import { FighterBattleManager } from "../../lib/webrtcFighter";
 import { generateRoomCode } from "../../lib/webrtcRace";
 
-export default function FighterMode({ nickname = "Fighter", t = null }) {
+export default function FighterMode({ nickname = "Fighter", t = null, initialRoomCode = "" }) {
   const [subMode, setSubMode] = useState("solo"); // 'solo' | 'multi'
   const [battleActive, setBattleActive] = useState(false);
 
@@ -59,6 +59,23 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
   useEffect(() => {
     setP1((prev) => ({ ...prev, nickname: nickname || "Player 1" }));
   }, [nickname]);
+
+  // Check URL parameters or initialRoomCode prop on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const room = params.get("room") || initialRoomCode;
+      if (room) {
+        setSubMode("multi");
+        setMultiRole("join");
+        setInputRoomCode(room.toUpperCase());
+      }
+    } else if (initialRoomCode) {
+      setSubMode("multi");
+      setMultiRole("join");
+      setInputRoomCode(initialRoomCode.toUpperCase());
+    }
+  }, [initialRoomCode]);
 
   // Clean up
   useEffect(() => {
@@ -310,6 +327,8 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
 
   // ---------- MULTIPLAYER (P2P) SETUP ----------
 
+  // ---------- MULTIPLAYER (P2P) SETUP ----------
+
   const handleCreateMultiRoom = async () => {
     setMultiError("");
     setConnecting(true);
@@ -324,6 +343,14 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
             setRoundStatus(state.battleState.roundStatus);
             setWinner(state.battleState.winner);
           }
+          if (state.battleStarted) {
+            setBattleActive(true);
+            setRoundStatus("FIGHT");
+          }
+          if (state.resetToLobby) {
+            setBattleActive(false);
+            setRoundStatus("WAITING");
+          }
         },
         onError: (err) => setMultiError(err.message),
         onActionFx: (fx) => triggerFx(fx),
@@ -332,7 +359,8 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
       await fm.createRoom(code, nickname || "Host Fighter");
       setFighterManager(fm);
       setRoomCode(code);
-      setBattleActive(true);
+      setBattleActive(false); // Stay in lobby until opponent joins & host starts!
+      setRoundStatus("WAITING");
     } catch (err) {
       setMultiError("방 생성 오류: " + err.message);
     } finally {
@@ -358,6 +386,14 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
             setRoundStatus(state.battleState.roundStatus);
             setWinner(state.battleState.winner);
           }
+          if (state.battleStarted) {
+            setBattleActive(true);
+            setRoundStatus("FIGHT");
+          }
+          if (state.resetToLobby) {
+            setBattleActive(false);
+            setRoundStatus("WAITING");
+          }
         },
         onError: (err) => setMultiError(err.message),
         onActionFx: (fx) => triggerFx(fx),
@@ -367,7 +403,8 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
       setRoomCode(code);
 
       await fm.joinRoom(code, nickname || "Guest Fighter");
-      setBattleActive(true);
+      setBattleActive(false); // Stay in lobby until host starts!
+      setRoundStatus("WAITING");
     } catch (err) {
       setMultiError("방 참가 오류: " + err.message);
     } finally {
@@ -375,9 +412,49 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
     }
   };
 
+  const handleStartMultiBattle = () => {
+    if (fighterManager && fighterManager.isHost) {
+      fighterManager.startBattle();
+      setBattleActive(true);
+      setRoundStatus("FIGHT");
+    }
+  };
+
+  const handleLeaveMultiRoom = () => {
+    if (fighterManager) {
+      fighterManager.destroy();
+      setFighterManager(null);
+    }
+    setRoomCode("");
+    setBattleActive(false);
+    setRoundStatus("WAITING");
+    setP1({
+      nickname: nickname || "Player 1",
+      hp: 100,
+      maxHp: 100,
+      combo: 0,
+      isGuarding: false,
+      state: "idle",
+    });
+    setP2({
+      nickname: "Shadow Fist 🤖",
+      hp: 100,
+      maxHp: 100,
+      combo: 0,
+      isGuarding: false,
+      state: "idle",
+    });
+  };
+
+  // Local Player vs Opponent determination
+  const isGuest = subMode === "multi" && fighterManager && !fighterManager.isHost;
+  const myPlayer = isGuest ? p2 : p1;
+  const oppPlayer = isGuest ? p1 : p2;
+  const isMyWin = (winner === "p1" && !isGuest) || (winner === "p2" && isGuest);
+
   return (
     <div className="fighterModeWrapper">
-      {/* ARENA STAGE (Always visible during battle) */}
+      {/* ARENA STAGE (Always visible) */}
       <FighterArena
         p1={p1}
         p2={p2}
@@ -385,6 +462,9 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
         isShaking={isShaking}
         roundStatus={roundStatus}
         winner={winner}
+        subMode={subMode}
+        isHost={!isGuest}
+        roomCode={roomCode}
         t={t}
       />
 
@@ -394,7 +474,10 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
           <div className="modeTabs">
             <button
               className={`modeTabBtn ${subMode === "solo" ? "active" : ""}`}
-              onClick={() => setSubMode("solo")}
+              onClick={() => {
+                if (fighterManager) handleLeaveMultiRoom();
+                setSubMode("solo");
+              }}
             >
               {t?.fighterSoloTab || "🥋 AI 배틀 (vs Shadow Fist)"}
             </button>
@@ -425,39 +508,39 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
                       style={{ flex: 1, borderColor: multiRole === "host" ? "var(--brand)" : undefined }}
                       onClick={() => setMultiRole("host")}
                     >
-                      {t?.hostTab || "방 만들기 (Host)"}
+                      {t?.hostFighterTab || "방 만들기 (Host)"}
                     </button>
                     <button
                       className={`btnSecondary ${multiRole === "join" ? "active" : ""}`}
                       style={{ flex: 1, borderColor: multiRole === "join" ? "var(--brand)" : undefined }}
                       onClick={() => setMultiRole("join")}
                     >
-                      {t?.joinTab || "방 참가하기 (Join)"}
+                      {t?.joinFighterTab || "방 참가하기 (Join)"}
                     </button>
                   </div>
 
                   {multiRole === "host" ? (
                     <div>
                       <p style={{ color: "var(--text-2)", fontSize: "14px", marginBottom: "16px" }}>
-                        방 코드를 생성해 친구와 1:1 진검승부를 펼치세요.
+                        {t?.hostFighterDesc || "방 코드를 생성해 친구와 1:1 진검승부를 펼치세요."}
                       </p>
                       <button
                         className="btnPrimary"
                         onClick={handleCreateMultiRoom}
                         disabled={connecting}
-                        style={{ width: "100%" }}
+                        style={{ width: "100%", fontSize: "16px" }}
                       >
-                        {connecting ? "방 개설 중..." : "결투방 만들기 ⚔️"}
+                        {connecting ? (t?.creatingFighterRoom || "방 개설 중...") : (t?.createFighterRoomBtn || "결투방 만들기 ⚔️")}
                       </button>
                     </div>
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                       <div className="inputGroup">
-                        <label>방 코드 입력</label>
+                        <label>{t?.joinFighterCodeLabel || "방 코드 입력 (6자리)"}</label>
                         <input
                           type="text"
                           className="textInput"
-                          placeholder="예: FIGHT9"
+                          placeholder={t?.joinFighterPlaceholder || "예: FIGHT9"}
                           value={inputRoomCode}
                           maxLength={8}
                           onChange={(e) => setInputRoomCode(e.target.value.toUpperCase())}
@@ -467,8 +550,9 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
                         className="btnPrimary"
                         onClick={handleJoinMultiRoom}
                         disabled={connecting || !inputRoomCode.trim()}
+                        style={{ width: "100%", fontSize: "16px" }}
                       >
-                        {connecting ? "접속 중..." : "결투방 입장하기 🚀"}
+                        {connecting ? (t?.joiningFighterRoom || "접속 중...") : (t?.joinFighterRoomBtn || "결투방 입장하기 🚀")}
                       </button>
                     </div>
                   )}
@@ -480,21 +564,100 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
                   )}
                 </div>
               ) : (
+                /* MULTIPLAYER WAITING LOBBY */
                 <div className="multiplayerRoomInfo">
+                  {/* Room Code Box */}
                   <div className="roomCodeBox">
                     <div>
-                      <span style={{ fontSize: "12px", color: "var(--text-2)", display: "block" }}>방 코드</span>
+                      <span style={{ fontSize: "12px", color: "var(--text-2)", display: "block" }}>
+                        {t?.roomCodeTitle || "방 초대 코드"}
+                      </span>
                       <span className="roomCodeValue">{roomCode}</span>
                     </div>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                      <button
+                        className="btnSecondary"
+                        onClick={() => {
+                          const inviteUrl = `${window.location.origin}/typing?mode=fighter&room=${roomCode}`;
+                          navigator.clipboard.writeText(inviteUrl);
+                          alert((t?.linkCopiedAlert || "초대 링크가 복사되었습니다:\n") + inviteUrl);
+                        }}
+                      >
+                        🔗 {t?.copyLinkBtn || "초대 링크 복사"}
+                      </button>
+                      <button
+                        className="btnSecondary"
+                        onClick={() => {
+                          navigator.clipboard.writeText(roomCode);
+                          alert((t?.codeCopiedAlert || "방 코드가 복사되었습니다: ") + roomCode);
+                        }}
+                      >
+                        📋 {t?.copyCodeBtn || "코드만 복사"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Fighter Matchup Roster */}
+                  <div className="fighterRosterContainer">
+                    {/* 1P Host Card */}
+                    <div className="fighterRosterCard host">
+                      <span className="rosterBadge hostBadge">👑 1P {t?.fighterHostBadge || "방장"}</span>
+                      <div className="rosterAvatar">🥋</div>
+                      <div className="rosterName">{p1.nickname}</div>
+                      <span className="rosterStatus ready">READY</span>
+                    </div>
+
+                    <div className="fighterRosterVs">VS</div>
+
+                    {/* 2P Guest Card */}
+                    <div className={`fighterRosterCard guest ${p2.nickname ? "connected" : "waiting"}`}>
+                      <span className="rosterBadge guestBadge">🥊 2P {t?.fighterChallengerBadge || "도전자"}</span>
+                      <div className="rosterAvatar">{p2.nickname ? "🥷" : "⏳"}</div>
+                      <div className="rosterName">
+                        {p2.nickname ? p2.nickname : (t?.waitingForChallenger || "도전자 입장 대기 중...")}
+                      </div>
+                      <span className={`rosterStatus ${p2.nickname ? "ready" : "waiting"}`}>
+                        {p2.nickname ? "READY" : (t?.waitingDots || "대기 중...")}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Action Bar (Start button or waiting notice) */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "8px" }}>
+                    {fighterManager.isHost ? (
+                      <>
+                        {p2.nickname ? (
+                          <button
+                            className="btnPrimary btnPulse"
+                            onClick={handleStartMultiBattle}
+                            style={{ width: "100%", fontSize: "18px", padding: "14px" }}
+                          >
+                            🔥 {t?.startBattleBtn || "결투 시작! (START FIGHT)"}
+                          </button>
+                        ) : (
+                          <div className="waitingNoticeBox">
+                            <span className="pulsingDot" />
+                            <span>
+                              {t?.waitingOpponentNotice || "친구에게 방 코드나 초대 링크를 보내주세요. 도전자 입장 시 대결을 시작할 수 있습니다."}
+                            </span>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="waitingNoticeBox">
+                        <span className="pulsingDot" />
+                        <span>
+                          {t?.waitingHostToStart || "방장이 결투를 시작할 때까지 잠시 대기해주세요..."}
+                        </span>
+                      </div>
+                    )}
+
                     <button
                       className="btnSecondary"
-                      onClick={() => {
-                        const url = `${window.location.origin}/typing?mode=fighter&room=${roomCode}`;
-                        navigator.clipboard.writeText(url);
-                        alert("초대 링크가 복사되었습니다:\n" + url);
-                      }}
+                      onClick={handleLeaveMultiRoom}
+                      style={{ width: "100%" }}
                     >
-                      초대 링크 복사 🔗
+                      {t?.leaveRoomBtn || "방 나가기"}
                     </button>
                   </div>
                 </div>
@@ -508,9 +671,9 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
           {roundStatus !== "KO" ? (
             <FighterEngine
               isActive={roundStatus === "FIGHT"}
-              combo={p1.combo}
-              opponentIsAttacking={p2IsAttacking}
-              isGuarding={p1.isGuarding}
+              combo={myPlayer.combo || 0}
+              opponentIsAttacking={oppPlayer.state?.startsWith("attack") || oppPlayer.state === "ultimate"}
+              isGuarding={myPlayer.isGuarding}
               onCastSkill={handlePlayerCastSkill}
               t={t}
             />
@@ -518,15 +681,15 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
             /* MATCH FINISHED RESULT CARD */
             <div className="resultCard">
               <h2 className="resultTitle">
-                {winner === "p1" ? (t?.koYouWin || "🏆 YOU WIN! (K.O.)") : (t?.koYouLose || "💀 YOU LOSE... (K.O.)")}
+                {isMyWin ? (t?.koYouWin || "🏆 YOU WIN! (K.O.)") : (t?.koYouLose || "💀 YOU LOSE... (K.O.)")}
               </h2>
               <p style={{ color: "var(--text-2)", margin: "0 0 20px 0" }}>
-                {winner === "p1"
-                  ? "화려한 타격과 필살기로 상대를 완벽하게 쓰러뜨렸습니다!"
-                  : "체력이 다했습니다. 재정비하고 다시 도전해보세요!"}
+                {isMyWin
+                  ? (t?.koWinDesc || "화려한 타격과 필살기로 상대를 완벽하게 쓰러뜨렸습니다!")
+                  : (t?.koLoseDesc || "체력이 다했습니다. 재정비하고 다시 도전해보세요!")}
               </p>
 
-              <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+              <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
                 <button
                   className="btnPrimary"
                   onClick={() => {
@@ -542,11 +705,17 @@ export default function FighterMode({ nickname = "Fighter", t = null }) {
                 <button
                   className="btnSecondary"
                   onClick={() => {
-                    setBattleActive(false);
-                    if (aiIntervalRef.current) clearInterval(aiIntervalRef.current);
+                    if (subMode === "solo") {
+                      setBattleActive(false);
+                    } else if (fighterManager) {
+                      if (fighterManager.isHost) {
+                        fighterManager.resetToLobby();
+                      }
+                      setBattleActive(false);
+                    }
                   }}
                 >
-                  대기실로 돌아가기
+                  {t?.leaveRoomBtn || "대기실로 돌아가기"}
                 </button>
               </div>
             </div>

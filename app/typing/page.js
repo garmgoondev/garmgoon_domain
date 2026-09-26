@@ -416,7 +416,7 @@ export default function TypingPage() {
       </div>
 
       {gameCategory === "fighter" ? (
-        <FighterMode nickname={nickname} t={t} />
+        <FighterMode nickname={nickname} t={t} initialRoomCode={inputRoomCode} />
       ) : (
         <>
           {/* Racetrack (Visible during Countdown, Racing, and Result) */}

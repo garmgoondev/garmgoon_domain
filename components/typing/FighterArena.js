@@ -7,12 +7,18 @@ export default function FighterArena({
   p2 = { nickname: "Shadow Fist 🤖", hp: 100, maxHp: 100, combo: 0, isGuarding: false, state: "idle" },
   floatingTexts = [],
   isShaking = false,
-  roundStatus = "FIGHT", // 'START' | 'FIGHT' | 'KO'
+  roundStatus = "FIGHT", // 'START' | 'FIGHT' | 'KO' | 'WAITING'
   winner = null, // 'p1' | 'p2' | null
+  subMode = "solo",
+  isHost = true,
+  roomCode = "",
   t = null,
 }) {
   const p1HpPercent = Math.max(0, Math.min(100, (p1.hp / p1.maxHp) * 100));
   const p2HpPercent = Math.max(0, Math.min(100, (p2.hp / p2.maxHp) * 100));
+
+  const isGuest = subMode === "multi" && !isHost;
+  const isMyWin = (winner === "p1" && !isGuest) || (winner === "p2" && isGuest);
 
   const getHpColor = (percent) => {
     if (percent > 50) return "linear-gradient(90deg, #10B981, #059669)";
@@ -28,7 +34,9 @@ export default function FighterArena({
         <div className="hudFighterLeft">
           <div className="hudFighterNameRow">
             <span className="hudFighterName">
-              {p1.nickname} {p1.isGuarding && <span className="guardBadgePulse">🛡️ GUARD</span>}
+              {p1.nickname}
+              {((subMode === "multi" && isHost) || subMode === "solo") && <span className="youBadge">YOU</span>}
+              {p1.isGuarding && <span className="guardBadgePulse">🛡️ GUARD</span>}
             </span>
             <span className="hudHpNumber">{Math.max(0, Math.round(p1.hp))} / {p1.maxHp}</span>
           </div>
@@ -67,7 +75,9 @@ export default function FighterArena({
         <div className="hudFighterRight">
           <div className="hudFighterNameRow" style={{ flexDirection: "row-reverse" }}>
             <span className="hudFighterName">
-              {p2.isGuarding && <span className="guardBadgePulse">🛡️ GUARD</span>} {p2.nickname}
+              {p2.isGuarding && <span className="guardBadgePulse">🛡️ GUARD</span>}
+              {subMode === "multi" && isGuest && <span className="youBadge">YOU</span>}
+              {p2.nickname || (subMode === "multi" ? (t?.waitingForChallenger || "도전자 대기 중...") : "Shadow Fist 🤖")}
             </span>
             <span className="hudHpNumber">{Math.max(0, Math.round(p2.hp))} / {p2.maxHp}</span>
           </div>
@@ -104,6 +114,13 @@ export default function FighterArena({
         <div className="stageBackgroundGlow" />
         <div className="stageRopes" />
         <div className="stageFloor" />
+
+        {/* Room Code Badge during Multiplayer Battle */}
+        {subMode === "multi" && roomCode && (
+          <div className="battleRoomBadge">
+            <span>ROOM: <b>{roomCode}</b></span>
+          </div>
+        )}
 
         {/* Floating Combat Numbers */}
         {floatingTexts.map((f) => (
@@ -212,7 +229,7 @@ export default function FighterArena({
           <div className="koBannerOverlay">
             <span className="koBannerText bounceIn">K.O.!</span>
             <span className="koWinnerText">
-              {winner === "p1" ? (t?.koYouWin || "🏆 YOU WIN!") : (t?.koYouLose || "💀 YOU LOSE...")}
+              {isMyWin ? (t?.koYouWin || "🏆 YOU WIN!") : (t?.koYouLose || "💀 YOU LOSE...")}
             </span>
           </div>
         )}
