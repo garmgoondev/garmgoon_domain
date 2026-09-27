@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { api, resetMe, useApi } from "../../lib/api";
+import { api, logout, resetMe, useApi } from "../../lib/api";
 import { timeAgo } from "../../lib/format";
 
 const TICK_MINUTES = 10;
 const IDLE = "지금 처리할 작업이 없어요.";
 const MAX_AUTO_STEPS = 200;
-const BATCH_CARDS = 8;
+const BATCH_CARDS = 25;
+const SUMMARY_BATCH = 10;
 
 function collectHours(data) {
   const hours = [];
@@ -38,13 +39,13 @@ function cardProgress(data) {
       step: 1,
       pct: 10 + (40 * done) / total,
       label: `AI 채점 ${done} / ${total}건`,
-      ticks: batches(fresh, 60) + 1 + batches(perBatch, 5),
+      ticks: batches(fresh, 60) + 1 + batches(perBatch, SUMMARY_BATCH),
     };
   }
-  if (scored) return { step: 2, pct: 50, label: "새 카드 선정 대기", ticks: 1 + batches(Math.min(scored, perBatch), 5) };
+  if (scored) return { step: 2, pct: 50, label: "새 카드 선정 대기", ticks: 1 + batches(Math.min(scored, perBatch), SUMMARY_BATCH) };
   if (selected) {
     const cards = published + selected;
-    return { step: 3, pct: 60 + (40 * published) / cards, label: `카드뉴스 ${published} / ${cards}장 완성`, ticks: batches(selected, 5) };
+    return { step: 3, pct: 60 + (40 * published) / cards, label: `카드뉴스 ${published} / ${cards}장 완성`, ticks: batches(selected, SUMMARY_BATCH) };
   }
   if (published) return { step: 4, pct: 100, label: `오늘 카드 ${published} / 최대 ${data.dailyCards}장 ✓`, sub: next };
   return { step: 4, pct: 100, label: "오늘은 아직 새 카드가 없어요", sub: next };
@@ -282,7 +283,7 @@ function Status() {
       <h2 className="panelTitle">⚙️ 수집 상태</h2>
       <p className="panelDesc">
         {TZ_LABELS[data.timeZone] || data.timeZone} 기준 {collectHours(data).join("·")}시, {data.collectInterval}시간마다 새 글을 모아 좋은 글만
-        카드로 추가해요 (한 번에 최대 {BATCH_CARDS}장, 하루 최대 {data.dailyCards}장). 처리는 10분마다 한 단계씩 진행돼요.
+        카드로 추가해요 (한 번에 최대 {BATCH_CARDS}장, 하루 최대 {data.dailyCards}장, 피드에는 추천 상위 {data.feedCards}장). 처리는 10분마다 한 단계씩 진행돼요.
       </p>
       <div className="sourceChips">
         {data.sources.map((s) => {
@@ -290,11 +291,23 @@ function Status() {
           return (
             <span key={s.label} className={off ? "off" : ""} title={off ? `${KEY_NAMES[s.needs]} 필요` : "수집 중"}>
               {off ? "🔑" : "●"} {s.label}
-              {off ? " · 키 필요" : ""}
+              {off ? " · 비활성" : s.needs === "reddit" ? ` · ${(data.reddit?.mode || "api").toUpperCase()}` : ""}
             </span>
           );
         })}
       </div>
+      {data.reddit?.mode === "rss" ? (
+        <p className="panelDesc">
+          Reddit은 서브레딧별 주간 Top 100을 매일 확인하고, 월간 Top 100을 주 1회 보충해요. 한 번에 한 피드씩 처리하며 실제 반환 건수는 100건보다 적을 수 있어요.
+          {data.reddit.lastFeed ? ` 마지막 확인: r/${data.reddit.lastFeed.subreddit} ${data.reddit.lastFeed.period === "week" ? "주간" : "월간"} · 신규 ${data.reddit.lastFeed.inserted}건.` : ""}
+          {data.reddit.lastSuccess ? ` 최근 후보 수집 ${data.reddit.lastCount}건 · ${timeAgo(data.reddit.lastSuccess)}` : " 아직 후보 수집 성공 기록이 없어요."}
+          {data.reddit.lastResult?.status && data.reddit.lastResult.status !== "ok"
+            ? " 현재 Reddit 접근 또는 요청 제한으로 수집을 쉬고 있어요. 실패한 댓글은 추정해서 요약하지 않아요."
+            : ""}
+          {data.reddit.lastResult?.status !== "ok" && data.reddit.lastResult?.reason
+            ? ` 원인: ${data.reddit.lastResult.reason}` : ""}
+        </p>
+      ) : null}
       {!data.hasKey ? <div className="banner">⚠️ OPENROUTER_API_KEY가 없어서 AI 요약 없이 원문만 보여줘요.</div> : null}
       <div className="statGrid">
         <div className="stat">
@@ -347,12 +360,6 @@ function Status() {
 }
 
 export default function SettingsPage() {
-  async function logout() {
-    await api("/api/logout", { method: "POST" });
-    resetMe();
-    location.href = "/";
-  }
-
   return (
     <>
       <div className="pageHead">
@@ -361,7 +368,7 @@ export default function SettingsPage() {
           <h1 className="pageTitle">설정</h1>
           <p className="pageDesc">채널과 키워드를 관리하고, 수집 상태를 확인해요.</p>
         </div>
-        <button type="button" className="btn ghost small" onClick={logout}>
+        <button type="button" className="btn ghost small" onClick={() => logout("/")}>
           로그아웃
         </button>
       </div>

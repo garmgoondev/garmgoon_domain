@@ -1,4 +1,5 @@
 import { parseFeed } from "./feed.js";
+import { redditMode } from "./reddit.js";
 import { addDays, DAY, fetchText, getState, HOUR, parseJSON, setState, stripHtml } from "./util.js";
 
 // 비즈니스 아이디어 수집 출처.
@@ -6,21 +7,21 @@ import { addDays, DAY, fetchText, getState, HOUR, parseJSON, setState, stripHtml
 // - group "news": 투자·스타트업 뉴스는 트렌드 신호로 하루 몇 장만 남긴다
 // - needs: 해당 API 키가 있을 때만 수집한다
 export const SOURCES = [
-  { id: "reddit", label: "Reddit", type: "reddit", needs: "reddit", cap: 10 },
+  { id: "reddit", label: "Reddit", type: "reddit", needs: "reddit", cap: 30 },
   // 창업자들이 아이디어·고민을 올리고 댓글로 검증받는 게시판. 최신 글과 주간 인기 글을 읽는다.
-  { id: "indiehackers", label: "Indie Hackers", type: "indiehackers", minReactions: 6, maxAgeHours: 24 * 8, cap: 6 },
-  { id: "showhn", label: "Show HN", type: "hn", tag: "show_hn", minPoints: 15, limit: 25, cap: 6 },
-  { id: "askhn", label: "Ask HN", type: "hn", tag: "ask_hn", minPoints: 20, limit: 15, cap: 4 },
-  { id: "producthunt", label: "Product Hunt", type: "rss", url: "https://www.producthunt.com/feed", limit: 15, cap: 4 },
-  { id: "acquire", label: "Acquire", type: "rss", url: "https://blog.acquire.com/feed/", limit: 5, cap: 3, browserUA: true },
-  { id: "trendsvc", label: "Trends.vc", type: "rss", url: "https://trends.vc/feed/", limit: 5, cap: 3 },
-  { id: "geeknews", label: "GeekNews", type: "rss", url: "https://news.hada.io/rss/news", limit: 20, cap: 4 },
+  { id: "indiehackers", label: "Indie Hackers", type: "indiehackers", minReactions: 6, maxAgeHours: 24 * 8, cap: 18 },
+  { id: "showhn", label: "Show HN", type: "hn", tag: "show_hn", minPoints: 15, limit: 25, cap: 18 },
+  { id: "askhn", label: "Ask HN", type: "hn", tag: "ask_hn", minPoints: 20, limit: 15, cap: 12 },
+  { id: "producthunt", label: "Product Hunt", type: "rss", url: "https://www.producthunt.com/feed", limit: 15, cap: 12 },
+  { id: "acquire", label: "Acquire", type: "rss", url: "https://blog.acquire.com/feed/", limit: 5, cap: 9, browserUA: true },
+  { id: "trendsvc", label: "Trends.vc", type: "rss", url: "https://trends.vc/feed/", limit: 5, cap: 9 },
+  { id: "geeknews", label: "GeekNews", type: "rss", url: "https://news.hada.io/rss/news", limit: 20, cap: 12 },
   { id: "techcrunch", label: "TechCrunch", type: "rss", url: "https://techcrunch.com/category/startups/feed/", limit: 8, group: "news" },
   { id: "platum", label: "플래텀", type: "rss", url: "https://platum.kr/feed", limit: 8, group: "news" },
   { id: "venturesquare", label: "벤처스퀘어", type: "rss", url: "https://www.venturesquare.net/feed", limit: 8, group: "news" },
 ];
 
-export const GROUP_CAPS = { news: 3 };
+export const GROUP_CAPS = { news: 9 };
 
 // 커뮤니티 글은 30일 뒤 삭제한다 (Reddit·Indie Hackers 약관의 데이터 보관 조건)
 export const SHORT_RETENTION_SOURCES = ["reddit", "indiehackers"];
@@ -47,7 +48,7 @@ const BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 
 export function sourceAvailability(env) {
   return {
-    reddit: Boolean(env.REDDIT_CLIENT_ID && env.REDDIT_CLIENT_SECRET),
+    reddit: redditMode(env) === "api" ? Boolean(env.REDDIT_CLIENT_ID && env.REDDIT_CLIENT_SECRET) : redditMode(env) !== "off",
   };
 }
 
@@ -170,13 +171,14 @@ async function fetchIndieHackers(src, { weeks = 1 } = {}) {
 
 function fetchSource(env, src) {
   if (src.type === "hn") return fetchHN(src);
-  if (src.type === "reddit") return fetchReddit(env);
+  // RSS uses its persistent per-subreddit queue, independent of other sources.
+  if (src.type === "reddit") return redditMode(env) === "api" ? fetchReddit(env) : [];
   if (src.type === "indiehackers") return fetchIndieHackers(src);
   return fetchRss(src);
 }
 
 // 지난 며칠치를 한 번에 모은다. 날짜 범위를 지원하는 출처(HN, Indie Hackers 주간 인기)는 기간 전체를,
-// RSS는 피드에 남아 있는 만큼 가져온다. Reddit은 "오늘의 인기"만 제공해서 제외한다.
+// RSS는 피드에 남아 있는 만큼 가져온다. Reddit은 별도 인기글 큐로 수집한다.
 export async function collectBackfill(env, days) {
   const now = Date.now();
   const since = now - days * DAY;

@@ -183,6 +183,7 @@ export default function VolleyGame({ lang = "ko" }) {
       document.removeEventListener("visibilitychange", onVis);
       volleyAudio.stopMusic();
       netRef.current?.close();
+      netRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -401,10 +402,14 @@ export default function VolleyGame({ lang = "ko" }) {
     onMessage: (msg) => onNetMessage(msg),
     onClose: () => onPeerLeft(),
     onError: (code) => {
-      if (code === "full") {
+      if (code) {
         netRef.current?.close();
         netRef.current = null;
-        setNet({ ...NET_IDLE, error: "full" });
+        lockRef.current = null;
+        volleyAudio.stopMusic();
+        startDemo();
+        setScreen("online");
+        setNet({ ...NET_IDLE, error: code });
       }
     },
   };
@@ -481,14 +486,17 @@ export default function VolleyGame({ lang = "ko" }) {
     for (let tries = 0; tries < 3; tries++) {
       const code = makeRoomCode();
       const nt = new VolleyNet(netHandlers);
+      netRef.current = nt;
       try {
         await nt.host(code);
-        netRef.current = nt;
+        if (netRef.current !== nt) return;
         setNet({ ...NET_IDLE, status: "room", role: "host", code });
         return;
       } catch (why) {
         nt.close();
+        if (netRef.current !== nt) return;
         if (why !== "taken") {
+          netRef.current = null;
           setNet({ ...NET_IDLE, error: why });
           return;
         }
@@ -507,10 +515,12 @@ export default function VolleyGame({ lang = "ko" }) {
     netRef.current = nt;
     try {
       await nt.join(code);
+      if (netRef.current !== nt) return;
       setNet((n) => (n.status === "busy" ? { ...n, status: "room" } : n));
     } catch (why) {
       nt.close();
-      if (netRef.current === nt) netRef.current = null;
+      if (netRef.current !== nt) return;
+      netRef.current = null;
       setNet({ ...NET_IDLE, error: why });
     }
   };

@@ -1,6 +1,7 @@
 "use client";
 
 import { categoryStyle, KINDS } from "../lib/categories";
+import RedditDiscussion from "./RedditDiscussion";
 
 export function cardVars(category) {
   const c = categoryStyle(category);
@@ -12,12 +13,12 @@ function compact(n) {
 }
 
 // 요약을 카드 안에 모두 보여주는 갤러리 카드. 카드 어디를 눌러도 원문이 새 탭으로 열린다.
-export default function IdeaCard({ card, index, keywords = [], isNew, authed, scrapped, onToggleScrap }) {
+export default function IdeaCard({ card, index, keywords = [], isNew, authed, scrapped, onToggleScrap, vote = 0, onVote }) {
   const c = categoryStyle(card.category);
   const kind = card.kind ? KINDS[card.kind] : null;
   const hasReactions = card.points != null || card.comments != null;
   return (
-    <article className="ncard" style={cardVars(card.category)}>
+    <article className={`ncard${vote === -1 ? " disliked" : ""}`} style={cardVars(card.category)}>
       {keywords.length ? <span className="kwBadge">🔔 {keywords.join(", ")}</span> : null}
       <div className="ncardTop">
         <span className="ncardChips">
@@ -41,6 +42,11 @@ export default function IdeaCard({ card, index, keywords = [], isNew, authed, sc
       </h3>
 
       {card.signal ? <p className="ncardSignal">📊 {card.signal}</p> : null}
+      {card.source === "reddit" ? (
+        <small>원문 작성 {card.publishedAt ? new Date(card.publishedAt).toISOString().slice(0, 10) : "날짜 미상"}
+          {card.collectedAt ? ` · 발견 ${new Date(card.collectedAt).toISOString().slice(0, 10)} (UTC)` : ""}
+        </small>
+      ) : null}
 
       {card.summary.length ? (
         <ul className="ncardSummary">
@@ -49,6 +55,8 @@ export default function IdeaCard({ card, index, keywords = [], isNew, authed, sc
           ))}
         </ul>
       ) : null}
+
+      {card.source === "reddit" ? <RedditDiscussion discussion={card.discussion} /> : null}
 
       {card.point ? (
         <div className="ncardPoint">
@@ -70,6 +78,16 @@ export default function IdeaCard({ card, index, keywords = [], isNew, authed, sc
           ) : null}
         </span>
         <span className="ncardActions">
+          {authed && onVote ? (
+            <>
+              <button type="button" className={`ncardScrap ncardVote${vote === 1 ? " on" : ""}`} onClick={() => onVote(1)} aria-label="좋아요" aria-pressed={vote === 1}>
+                👍
+              </button>
+              <button type="button" className={`ncardScrap ncardVote${vote === -1 ? " on" : ""}`} onClick={() => onVote(-1)} aria-label="싫어요" aria-pressed={vote === -1}>
+                👎
+              </button>
+            </>
+          ) : null}
           {authed ? (
             <button
               type="button"

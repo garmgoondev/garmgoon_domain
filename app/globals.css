@@ -125,10 +125,25 @@ button {
   font-weight: 900;
 }
 
+.headerMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .headerDate {
   color: var(--text-2);
   font-size: 13px;
   font-weight: 600;
+}
+
+.headerAuthBtn {
+  font-size: 13px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
 }
 
 .nav {
@@ -722,6 +737,21 @@ button {
   font-weight: 800;
 }
 
+.ncardDiscussion {
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--c-fg) 25%, transparent);
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.ncardDiscussion > b, .ncardDiscussion small { display: block; }
+.ncardDiscussion small { font-size: 11px; opacity: 0.8; }
+.ncardDiscussion p { margin: 6px 0; }
+.ncardDiscussionGroup { margin: 8px 0; }
+.ncardDiscussionGroup strong { font-size: 12px; }
+.ncardDiscussionGroup ul { padding-left: 18px; margin: 2px 0 0; }
+
 .ncardMeta {
   margin-top: auto;
   display: flex;
@@ -773,6 +803,61 @@ button {
 
 .ncardScrap:hover {
   background: color-mix(in srgb, var(--c-fg) 30%, transparent);
+}
+
+/* 좋아요·싫어요. 누르지 않은 상태는 흐리게, 누른 쪽은 또렷하게 */
+.ncardVote {
+  font-size: 14px;
+  filter: grayscale(1);
+  opacity: 0.7;
+}
+
+.ncardVote:hover,
+.ncardVote.on {
+  filter: none;
+  opacity: 1;
+}
+
+.ncardVote.on {
+  background: color-mix(in srgb, var(--c-fg) 45%, transparent);
+  box-shadow: inset 0 0 0 2px var(--c-fg);
+}
+
+/* 싫어요 한 카드는 흐리게 남겨 두고, 새로고침하면 피드에서 빠진다 */
+.ncard.disliked {
+  opacity: 0.5;
+  filter: saturate(0.4);
+}
+
+.ncard.disliked:hover {
+  opacity: 0.85;
+}
+
+.prefLine {
+  margin: -8px 0 16px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.moreCards {
+  display: grid;
+  gap: 4px;
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+}
+
+.moreCards small {
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.moreCards:hover {
+  border-color: var(--text-3);
 }
 
 .kwBadge {
@@ -1583,6 +1668,55 @@ button {
   border-radius: 18px;
   font-size: 28px;
   margin: 0 auto 16px;
+}
+
+.passwordField {
+  position: relative;
+  width: 100%;
+}
+
+.passwordField .input {
+  padding-right: 44px;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.passwordToggle:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.loginNoticeBox {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-2);
+  text-align: left;
+}
+
+.loginNoticeBox code {
+  color: var(--brand);
+  background: var(--surface);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 11px;
 }
 
 .progressGroup {

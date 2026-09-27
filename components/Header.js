@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useMe } from "../lib/api";
+import { logout, useMe } from "../lib/api";
 import { formatDay, todayLocal } from "../lib/format";
 
 const NAV = [
@@ -22,7 +22,7 @@ export default function Header() {
   const [today, setToday] = useState("");
   useEffect(() => setToday(formatDay(todayLocal())), []);
 
-  const isActive = (href) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const isActive = (href) => (href === "/" ? pathname === "/" || pathname.startsWith("/cards") : pathname.startsWith(href));
 
   return (
     <header className="header">
@@ -31,7 +31,22 @@ export default function Header() {
           <span className="brandMark">G</span>
           garmgoon
         </Link>
-        <span className="headerDate">{today}</span>
+        <div className="headerMeta">
+          <span className="headerDate">{today}</span>
+          {me?.authed ? (
+            <button type="button" className="btn ghost small headerAuthBtn" onClick={() => logout("/")} title="로그아웃">
+              로그아웃
+            </button>
+          ) : me && !me.authed ? (
+            <Link
+              href={pathname && pathname !== "/" && pathname !== "/login" ? `/login?next=${encodeURIComponent(pathname)}` : "/login"}
+              className="btn ghost small headerAuthBtn"
+              title="로그인"
+            >
+              로그인
+            </Link>
+          ) : null}
+        </div>
       </div>
       <nav className="nav" aria-label="주요 메뉴">
         {NAV.map((n) => (

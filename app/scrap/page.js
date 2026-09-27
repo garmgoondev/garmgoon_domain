@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { cardVars } from "../../components/IdeaCard";
-import { api, useApi } from "../../lib/api";
+import { api, logout, useApi } from "../../lib/api";
 import { timeAgo } from "../../lib/format";
 
 const STATUSES = [
@@ -283,6 +283,9 @@ export default function ScrapPage() {
           <h1 className="pageTitle">스크랩 · 아이디어 노트</h1>
           <p className="pageDesc">마음에 든 카드와 영상을 모으고, 내 아이디어로 발전시키는 곳이에요.</p>
         </div>
+        <button type="button" className="btn ghost small" onClick={() => logout("/")}>
+          로그아웃
+        </button>
       </div>
       <div className="tabs" role="tablist">
         <button type="button" role="tab" aria-selected={tab === "scraps"} className={tab === "scraps" ? "on" : ""} onClick={() => setTab("scraps")}>

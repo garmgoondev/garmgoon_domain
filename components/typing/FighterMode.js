@@ -49,6 +49,7 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
   const [roomCode, setRoomCode] = useState("");
   const [inputRoomCode, setInputRoomCode] = useState("");
   const [fighterManager, setFighterManager] = useState(null);
+  const connectionRef = useRef(null);
   const [connecting, setConnecting] = useState(false);
   const [multiError, setMultiError] = useState("");
 
@@ -82,9 +83,10 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
     return () => {
       if (aiIntervalRef.current) clearInterval(aiIntervalRef.current);
       if (aiTypingTimerRef.current) clearTimeout(aiTypingTimerRef.current);
-      if (fighterManager) fighterManager.destroy();
+      connectionRef.current?.destroy();
+      connectionRef.current = null;
     };
-  }, [fighterManager]);
+  }, []);
 
   // Trigger Action FX (Damage popup, sound, screen shake)
   const triggerFx = ({ target, text, type, isHeavy = false }) => {
@@ -333,9 +335,10 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
     setMultiError("");
     setConnecting(true);
 
+    let fm;
     try {
       const code = generateRoomCode();
-      const fm = new FighterBattleManager({
+      fm = new FighterBattleManager({
         onStateChange: (state) => {
           if (state.battleState) {
             setP1(state.battleState.p1);
@@ -347,24 +350,39 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
             setBattleActive(true);
             setRoundStatus("FIGHT");
           }
+          if (state.opponentLeft) setBattleActive(false);
           if (state.resetToLobby) {
             setBattleActive(false);
             setRoundStatus("WAITING");
           }
         },
-        onError: (err) => setMultiError(err.message),
+        onError: (err) => {
+          if (connectionRef.current !== fm) return;
+          fm.destroy();
+          setFighterManager(null);
+          setRoomCode("");
+          setBattleActive(false);
+          setMultiError(err.message);
+        },
         onActionFx: (fx) => triggerFx(fx),
       });
 
+      connectionRef.current?.destroy();
+      connectionRef.current = fm;
       await fm.createRoom(code, nickname || "Host Fighter");
+      if (connectionRef.current !== fm) return;
       setFighterManager(fm);
       setRoomCode(code);
       setBattleActive(false); // Stay in lobby until opponent joins & host starts!
       setRoundStatus("WAITING");
     } catch (err) {
+      fm?.destroy();
+      if (connectionRef.current !== fm) return;
+      setFighterManager(null);
+      setRoomCode("");
       setMultiError((t?.errCreateRoom || "방 생성 오류: ") + err.message);
     } finally {
-      setConnecting(false);
+      if (connectionRef.current === fm) setConnecting(false);
     }
   };
 
@@ -377,8 +395,9 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
     setMultiError("");
     setConnecting(true);
 
+    let fm;
     try {
-      const fm = new FighterBattleManager({
+      fm = new FighterBattleManager({
         onStateChange: (state) => {
           if (state.battleState) {
             setP1(state.battleState.p1);
@@ -390,25 +409,39 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
             setBattleActive(true);
             setRoundStatus("FIGHT");
           }
+          if (state.opponentLeft) setBattleActive(false);
           if (state.resetToLobby) {
             setBattleActive(false);
             setRoundStatus("WAITING");
           }
         },
-        onError: (err) => setMultiError(err.message),
+        onError: (err) => {
+          if (connectionRef.current !== fm) return;
+          fm.destroy();
+          setFighterManager(null);
+          setRoomCode("");
+          setBattleActive(false);
+          setMultiError(err.message);
+        },
         onActionFx: (fx) => triggerFx(fx),
       });
 
+      connectionRef.current?.destroy();
+      connectionRef.current = fm;
+      await fm.joinRoom(code, nickname || "Guest Fighter");
+      if (connectionRef.current !== fm) return;
       setFighterManager(fm);
       setRoomCode(code);
-
-      await fm.joinRoom(code, nickname || "Guest Fighter");
       setBattleActive(false); // Stay in lobby until host starts!
       setRoundStatus("WAITING");
     } catch (err) {
+      fm?.destroy();
+      if (connectionRef.current !== fm) return;
+      setFighterManager(null);
+      setRoomCode("");
       setMultiError((t?.errJoinRoom || "방 참가 오류: ") + err.message);
     } finally {
-      setConnecting(false);
+      if (connectionRef.current === fm) setConnecting(false);
     }
   };
 
@@ -421,8 +454,10 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
   };
 
   const handleLeaveMultiRoom = () => {
+    connectionRef.current?.destroy();
+    connectionRef.current = null;
+    setConnecting(false);
     if (fighterManager) {
-      fighterManager.destroy();
       setFighterManager(null);
     }
     setRoomCode("");
@@ -475,7 +510,7 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
             <button
               className={`modeTabBtn ${subMode === "solo" ? "active" : ""}`}
               onClick={() => {
-                if (fighterManager) handleLeaveMultiRoom();
+                handleLeaveMultiRoom();
                 setSubMode("solo");
               }}
             >

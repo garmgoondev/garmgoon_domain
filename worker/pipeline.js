@@ -1,4 +1,4 @@
-import { collectIdeas, scoreIdeas, selectIdeas, summarizeIdeas } from "./ideas.js";
+import { collectIdeas, collectRedditTop, scoreIdeas, selectIdeas, summarizeIdeas, retryRedditDiscussion } from "./ideas.js";
 import { buildWeeklyReport } from "./report.js";
 import { RETENTION_DAYS, SHORT_RETENTION_SOURCES } from "./sources.js";
 import { addDays, DAY, getState, localParts, localWeekStart, log, setState, timeZone } from "./util.js";
@@ -50,6 +50,8 @@ export async function tick(env, { forceCollect = false } = {}) {
       const row = await env.DB.prepare("SELECT day FROM items WHERE status = 'selected' ORDER BY day DESC LIMIT 1").first();
       return row ? `카드 생성: ${await summarizeIdeas(env, row.day)}건` : null;
     },
+    async () => collectRedditTop(env, today),
+    async () => (await retryRedditDiscussion(env)) ? "Reddit 댓글 재확인: 1건" : null,
     async () => ((await checkChannels(env)) ? "유튜브 새 영상 확인" : null),
     async () => {
       const n = await summarizeVideos(env);

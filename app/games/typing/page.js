@@ -49,6 +49,7 @@ export default function TypingPage() {
   const [roomCode, setRoomCode] = useState("");
   const [inputRoomCode, setInputRoomCode] = useState("");
   const [peerManager, setPeerManager] = useState(null);
+  const connectionRef = useRef(null);
   const [connecting, setConnecting] = useState(false);
   const [multiError, setMultiError] = useState("");
 
@@ -58,6 +59,12 @@ export default function TypingPage() {
 
   // Bot interval for Solo Mode
   const botIntervalRef = useRef(null);
+  const raceDelayRef = useRef(null);
+  const countdownRef = useRef(null);
+  const clearRaceTimers = () => {
+    clearTimeout(raceDelayRef.current);
+    clearInterval(countdownRef.current);
+  };
 
   // Load saved nickname, audio preference, language, and check URL for room invite
   useEffect(() => {
@@ -100,10 +107,12 @@ export default function TypingPage() {
   // Cleanup WebRTC and timers on unmount
   useEffect(() => {
     return () => {
-      if (peerManager) peerManager.destroy();
+      clearRaceTimers();
+      connectionRef.current?.destroy();
+      connectionRef.current = null;
       if (botIntervalRef.current) clearInterval(botIntervalRef.current);
     };
-  }, [peerManager]);
+  }, []);
 
   // ---------- SOLO MODE LOGIC ----------
 
@@ -180,9 +189,10 @@ export default function TypingPage() {
     setMultiError("");
     setConnecting(true);
 
+    let pm;
     try {
       const code = generateRoomCode();
-      const pm = new RacePeerManager({
+      pm = new RacePeerManager({
         onStateChange: (state) => {
           if (state.players) setPlayers([...state.players]);
           if (state.raceStarting) {
@@ -193,19 +203,32 @@ export default function TypingPage() {
           }
         },
         onError: (err) => {
+          if (connectionRef.current !== pm) return;
+          clearRaceTimers();
+          pm.destroy();
+          setPeerManager(null);
+          setRoomCode("");
+          setGameState("LOBBY");
           setMultiError(err.message || t.errConnection);
         },
       });
 
+      connectionRef.current?.destroy();
+      connectionRef.current = pm;
       await pm.createRoom(code, nickname || "Host");
+      if (connectionRef.current !== pm) return;
       setPeerManager(pm);
       setRoomCode(code);
       myIdRef.current = pm.myId;
       setPlayers(pm.players);
     } catch (err) {
+      pm?.destroy();
+      if (connectionRef.current !== pm) return;
+      setPeerManager(null);
+      setRoomCode("");
       setMultiError(t.errCreateRoom + err.message);
     } finally {
-      setConnecting(false);
+      if (connectionRef.current === pm) setConnecting(false);
     }
   };
 
@@ -218,8 +241,9 @@ export default function TypingPage() {
     setMultiError("");
     setConnecting(true);
 
+    let pm;
     try {
-      const pm = new RacePeerManager({
+      pm = new RacePeerManager({
         onStateChange: (state) => {
           if (state.players) setPlayers([...state.players]);
           if (state.raceStarting) {
@@ -230,22 +254,34 @@ export default function TypingPage() {
           }
         },
         onError: (err) => {
+          if (connectionRef.current !== pm) return;
+          clearRaceTimers();
+          pm.destroy();
+          setPeerManager(null);
+          setRoomCode("");
+          setGameState("LOBBY");
           setMultiError(err.message || t.errConnection);
         },
       });
 
+      connectionRef.current?.destroy();
+      connectionRef.current = pm;
+      await pm.joinRoom(code, nickname || "Guest");
+      if (connectionRef.current !== pm) return;
       setPeerManager(pm);
       setRoomCode(code);
-
-      await pm.joinRoom(code, nickname || "Guest");
       myIdRef.current = pm.myId;
       if (pm.players && pm.players.length) {
         setPlayers([...pm.players]);
       }
     } catch (err) {
+      pm?.destroy();
+      if (connectionRef.current !== pm) return;
+      setPeerManager(null);
+      setRoomCode("");
       setMultiError(t.errJoinRoom + err.message);
     } finally {
-      setConnecting(false);
+      if (connectionRef.current === pm) setConnecting(false);
     }
   };
 
@@ -259,7 +295,8 @@ export default function TypingPage() {
   const handleRemoteRaceStart = (quote, startTime) => {
     setCurrentQuote(quote);
     const delay = Math.max(0, startTime - Date.now() - 3000);
-    setTimeout(() => {
+    clearRaceTimers();
+    raceDelayRef.current = setTimeout(() => {
       runCountdown(quote, startTime);
     }, delay);
   };
@@ -267,6 +304,7 @@ export default function TypingPage() {
   // ---------- COUNTDOWN & GAME LIFECYCLE ----------
 
   const runCountdown = (quote, exactStartTime = null) => {
+    clearRaceTimers();
     setGameState("COUNTDOWN");
     setCountdownNum(3);
     playCountdownBeep(false);
@@ -292,6 +330,7 @@ export default function TypingPage() {
         }
       }
     }, 1000);
+    countdownRef.current = interval;
   };
 
   // Handling typing progress from local TypingEngine
@@ -414,7 +453,16 @@ export default function TypingPage() {
         </button>
         <button
           className={`categoryTabBtn ${gameCategory === "fighter" ? "active" : ""}`}
-          onClick={() => setGameCategory("fighter")}
+          onClick={() => {
+            clearRaceTimers();
+            connectionRef.current?.destroy();
+            connectionRef.current = null;
+            setPeerManager(null);
+            setRoomCode("");
+            setConnecting(false);
+            setGameState("LOBBY");
+            setGameCategory("fighter");
+          }}
         >
           {t?.gameModeFighter || "🥊 타이핑 파이터 (Fighter)"}
         </button>
@@ -449,7 +497,10 @@ export default function TypingPage() {
               className={`modeTabBtn ${gameMode === "solo" ? "active" : ""}`}
               onClick={() => {
                 setGameMode("solo");
-                if (peerManager) peerManager.destroy();
+                clearRaceTimers();
+                connectionRef.current?.destroy();
+                connectionRef.current = null;
+                setConnecting(false);
                 setPeerManager(null);
                 setRoomCode("");
               }}

@@ -3,12 +3,21 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "test:reddit": "node --test tests/reddit.test.mjs tests/reddit-runtime.test.mjs",
+    "test:cards": "node --test tests/cards.test.mjs",
+    "test:auth": "node --test tests/auth.test.mjs",
+    "test:multiplayer": "node --test tests/multiplayer.test.mjs",
+    "test:multiplayer:browser": "node tests/multiplayer-browser.mjs",
+    "test:multiplayer:ui": "node tests/multiplayer-ui.mjs",
     "dev": "next dev",
     "build": "next build && node scripts/fix-export.mjs",
     "preview": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy"
   },
   "devDependencies": {
+    "esbuild": "0.28.1",
+    "miniflare": "5.20260825.0-alpha",
+    "playwright": "^1.63.0",
     "wrangler": "^4.26.0"
   },
   "dependencies": {

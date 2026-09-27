@@ -1,5 +1,7 @@
 "use client";
 
+import { logout } from "../../lib/api";
+
 // 나만 쓰는 SaaS 도구 모음. 새 도구를 만들면 이 목록에 추가한다.
 // 예: { emoji: "🧮", name: "마진 계산기", description: "원가와 수수료로 판매가를 계산", href: "/tools/margin" }
 const TOOLS = [];
@@ -15,6 +17,9 @@ export default function ToolsPage() {
           <h1 className="pageTitle">SaaS 도구함</h1>
           <p className="pageDesc">직접 만들어 쓰는 작은 도구들을 모아두는 곳이에요.</p>
         </div>
+        <button type="button" className="btn ghost small" onClick={() => logout("/")}>
+          로그아웃
+        </button>
       </div>
       <div className="toolGrid">
         {TOOLS.map((t) => (

@@ -1,11 +1,13 @@
 import { checkPassword, clearCookie, isAuthed, sessionCookie } from "./auth.js";
-import { backfillIdeas, cardFromRow, dailyCardCount } from "./ideas.js";
+import { backfillIdeas, cardFromRow, dailyCardCount, feedCardCount } from "./ideas.js";
 import { hasLLM, modelName } from "./llm.js";
 import { collectHourOf, collectIntervalOf, collectSlot, tick } from "./pipeline.js";
 import { buildWeeklyReport } from "./report.js";
 import { SOURCES, sourceAvailability } from "./sources.js";
 import { DAY, getState, httpError, json, localDay, localParts, localWeekStart, parseJSON, timeZone } from "./util.js";
 import { addChannel, videoFromRow } from "./youtube.js";
+import { redditMode } from "./reddit.js";
+import { loadPreferences, preferenceBoost, preferenceSummary } from "./prefs.js";
 
 const PRIVATE_PAGES = /^\/(tools|scrap|settings)(\/|\.html|\.txt|$)/;
 const NOTE_STATUSES = ["idea", "review", "doing", "hold"];
@@ -22,12 +24,27 @@ async function getIdeas(env, url, authed) {
     "SELECT day, COUNT(*) AS count FROM items WHERE status = 'published' GROUP BY day ORDER BY day DESC LIMIT 30",
   ).all();
   const day = url.searchParams.get("day") || days[0]?.day || localDay(timeZone(env));
-  const [{ results }, pending] = await Promise.all([
+  const view = url.searchParams.get("view") === "all" ? "all" : "feed";
+  const [{ results }, pending, prefs, { results: votes }] = await Promise.all([
     // 가장 최근 수집분이 위로 오고, 같은 수집분 안에서는 점수 순서
     env.DB.prepare("SELECT * FROM items WHERE day = ? AND status = 'published' ORDER BY collected_at DESC, rank").bind(day).all(),
     env.DB.prepare("SELECT COUNT(*) AS n FROM items WHERE day = ? AND status IN ('new', 'scored', 'selected')").bind(day).first(),
+    loadPreferences(env),
+    env.DB.prepare("SELECT f.item_id, f.value FROM card_feedback f JOIN items i ON i.id = f.item_id WHERE i.day = ?").bind(day).all(),
   ]);
-  const cards = results.map(cardFromRow);
+  const vote = new Map(votes.map((v) => [v.item_id, v.value]));
+  // 선정 때 저장한 종합 점수에 최신 좋아요·싫어요로 계산한 취향 가산점을 더한다
+  const scoreOf = new Map(results.map((r) => [r.id, (r.pick_score ?? r.score ?? 0) + preferenceBoost(prefs, r)]));
+  let rows = results;
+  if (view === "feed") {
+    // 피드에는 싫어요를 뺀 상위 카드만. 나머지는 전체보기 페이지에서 본다.
+    const top = new Set(results.filter((r) => vote.get(r.id) !== -1)
+      .sort((a, b) => scoreOf.get(b.id) - scoreOf.get(a.id))
+      .slice(0, feedCardCount(env))
+      .map((r) => r.id));
+    rows = results.filter((r) => top.has(r.id));
+  }
+  const cards = rows.map((r) => ({ ...cardFromRow(r), feedScore: Math.round(scoreOf.get(r.id) * 10) / 10 }));
   let scrapped = [];
   if (authed && cards.length) {
     const { results: s } = await env.DB.prepare(`SELECT ref_id FROM scraps WHERE kind = 'item' AND ref_id IN (${cards.map(() => "?").join(",")})`)
@@ -35,7 +52,18 @@ async function getIdeas(env, url, authed) {
       .all();
     scrapped = s.map((r) => Number(r.ref_id));
   }
-  return json({ day, days, cards, pending: pending.n, scrapped });
+  return json({
+    day,
+    days,
+    view,
+    cards,
+    total: results.length,
+    feedSize: feedCardCount(env),
+    pending: pending.n,
+    scrapped,
+    votes: authed ? Object.fromEntries(vote) : {},
+    prefs: authed ? preferenceSummary(prefs) : null,
+  });
 }
 
 async function getVideos(env, url, authed) {
@@ -145,7 +173,7 @@ async function scrapsApi(env, request, id) {
   const now = Date.now();
   if (request.method === "GET") {
     const { results } = await env.DB.prepare(
-      `SELECT s.*, i.url, i.source, i.source_label, i.title, i.headline, i.summary, i.point, i.category, i.tags, i.rank, i.day, i.published_at,
+      `SELECT s.*, i.url, i.source, i.source_label, i.title, i.headline, i.summary, i.point, i.category, i.tags, i.rank, i.day, i.published_at, i.collected_at, i.discussion,
               v.title AS v_title, v.thumbnail AS v_thumbnail, v.one_liner AS v_one_liner, v.summary AS v_summary, v.published_at AS v_published_at, c.title AS v_channel
        FROM scraps s
        LEFT JOIN items i ON s.kind = 'item' AND i.id = CAST(s.ref_id AS INTEGER)
@@ -190,6 +218,27 @@ async function scrapsApi(env, request, id) {
     return json({ ok: true });
   }
   return httpError(405, "허용되지 않는 요청");
+}
+
+// 카드 좋아요(1)·싫어요(-1)·취소(0). 다음 채점·선정과 피드 순서에 반영된다.
+async function feedbackApi(env, request, id) {
+  if (request.method !== "PUT" || !/^\d+$/.test(id || "")) return httpError(405, "허용되지 않는 요청");
+  const value = Number((await readBody(request)).value);
+  if (value === 0) {
+    await env.DB.prepare("DELETE FROM card_feedback WHERE item_id = ?").bind(Number(id)).run();
+    return json({ ok: true, value: 0 });
+  }
+  if (value !== 1 && value !== -1) return httpError(400, "잘못된 평가 값");
+  const now = Date.now();
+  const row = await env.DB.prepare(
+    `INSERT INTO card_feedback (item_id, value, source, source_label, category, kind, tags, headline, created_at, updated_at)
+     SELECT id, ?, source, source_label, category, kind, COALESCE(tags, '[]'), COALESCE(headline, title), ?, ? FROM items WHERE id = ? AND status = 'published'
+     ON CONFLICT(item_id) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at RETURNING item_id`,
+  )
+    .bind(value, now, now, Number(id))
+    .first();
+  if (!row) return httpError(404, "없는 카드");
+  return json({ ok: true, value });
 }
 
 function noteFromRow(r) {
@@ -298,6 +347,8 @@ async function statusApi(env) {
     hasPassword: Boolean(env.ADMIN_PASSWORD),
     model: modelName(env),
     dailyCards: dailyCardCount(env),
+    feedCards: feedCardCount(env),
+    prefs: preferenceSummary(await loadPreferences(env)),
     collectHour: collectHourOf(env),
     collectInterval: collectIntervalOf(env),
     nextCollectHour: collectSlot(env, today, hour).nextHour,
@@ -305,6 +356,14 @@ async function statusApi(env) {
     collectedAt: collected ? Number(collected) : null,
     sources: SOURCES.map((s) => ({ label: s.label, needs: s.needs || null })),
     integrations: sourceAvailability(env),
+    reddit: {
+      mode: redditMode(env),
+      lastResult: parseJSON(await getState(env, "reddit:rss:last-result")),
+      lastSuccess: Number(await getState(env, "reddit:rss:last-success")) || null,
+      lastCount: Number(await getState(env, "reddit:rss:last-count")) || 0,
+      lastFeed: parseJSON(await getState(env, "reddit:rss:last-feed")),
+      feeds: (await env.DB.prepare('SELECT subreddit, period, next_at, last_success, received, inserted FROM reddit_feeds ORDER BY subreddit, period').all()).results,
+    },
     items: toMap(items),
     videos: toMap(videos),
     logs: logs.results,
@@ -331,16 +390,29 @@ async function handleApi(request, env, url) {
   const path = url.pathname.replace(/\/+$/, "");
   const authed = await isAuthed(request, env);
 
-  if (path === "/api/me") return json({ authed });
+  const isHttps = url.protocol === "https:";
+
+  if (path === "/api/me") return json({ authed, hasAdminPassword: Boolean(env.ADMIN_PASSWORD) });
   if (path === "/api/login" && request.method === "POST") {
     const { password } = await readBody(request);
     if (!(await checkPassword(env, password))) {
       await new Promise((r) => setTimeout(r, 800));
       return httpError(401, env.ADMIN_PASSWORD ? "비밀번호가 맞지 않아요." : "ADMIN_PASSWORD가 설정되지 않았어요.");
     }
-    return json({ ok: true }, { headers: { "set-cookie": await sessionCookie(env, url.protocol === "https:") } });
+    return json({ ok: true }, { headers: { "set-cookie": await sessionCookie(env, isHttps) } });
   }
-  if (path === "/api/logout" && request.method === "POST") return json({ ok: true }, { headers: { "set-cookie": clearCookie() } });
+  if (path === "/api/logout") {
+    if (request.method === "POST") return json({ ok: true }, { headers: { "set-cookie": clearCookie(isHttps) } });
+    if (request.method === "GET") {
+      return new Response(null, {
+        status: 302,
+        headers: {
+          location: `${url.origin}/`,
+          "set-cookie": clearCookie(isHttps),
+        },
+      });
+    }
+  }
   if (path === "/api/ideas") return getIdeas(env, url, authed);
   if (path === "/api/videos") return getVideos(env, url, authed);
   if (path === "/api/reports") return getReports(env);
@@ -352,6 +424,7 @@ async function handleApi(request, env, url) {
   if (!authed) return httpError(401, "로그인이 필요해요.");
   const [, resource, id] = m;
   if (resource === "scraps") return scrapsApi(env, request, id);
+  if (resource === "feedback") return feedbackApi(env, request, id);
   if (resource === "notes") return notesApi(env, request, id);
   if (resource === "channels") return channelsApi(env, request, id);
   if (resource === "keywords") return keywordsApi(env, request, id);

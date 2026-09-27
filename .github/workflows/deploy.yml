@@ -18,6 +18,12 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Test Reddit RSS pipeline
+        run: npm run test:reddit
+      - name: Test card feed and feedback
+        run: npm run test:cards
+      - name: Test authentication
+        run: npm run test:auth
       - name: Build Next.js site
         run: npm run build
       - name: Apply D1 migrations
