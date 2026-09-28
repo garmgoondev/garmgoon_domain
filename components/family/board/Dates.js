@@ -131,10 +131,12 @@ export default function Dates() {
   }
 
   return (
-    <div>
-      <div className="boardWeekHead">
-        <span className="muted">다가오는 순서</span>
-        <button type="button" className="btn small brand" onClick={() => setEditing("new")}>
+    <div className="boardSection">
+      <div className="boardBar">
+        <b className="boardBarTitle">
+          다가오는 기념일 <span className="muted">{dates.length}</span>
+        </b>
+        <button type="button" className="boardAddBtn" onClick={() => setEditing("new")}>
           + 기념일
         </button>
       </div>

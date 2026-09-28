@@ -115,7 +115,7 @@ export default function WeekTasks({ me, members }) {
         </div>
       ) : null}
 
-      <div className="boardWeekHead">
+      <div className="boardBar">
         <div className="boardWeekNav">
           <button type="button" className="iconBtn" onClick={() => setStart(addDays(start, -7))} aria-label="지난주">
             ‹
@@ -132,7 +132,7 @@ export default function WeekTasks({ me, members }) {
             </button>
           ) : null}
         </div>
-        <button type="button" className="btn small brand" onClick={() => setEditing({ day: thisWeek ? today : start })}>
+        <button type="button" className="boardAddBtn" onClick={() => setEditing({ day: thisWeek ? today : start })}>
           + 할 일
         </button>
       </div>

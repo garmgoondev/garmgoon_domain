@@ -28,7 +28,7 @@ export default function Board({ me, members }) {
             </button>
           ))}
         </div>
-        <button type="button" className={`btn small ${notify ? "" : "ghost"}`} onClick={() => setNotify((v) => !v)} aria-expanded={notify}>
+        <button type="button" className={`boardNotifyBtn${notify ? " on" : ""}`} onClick={() => setNotify((v) => !v)} aria-expanded={notify}>
           🔔 알림
         </button>
       </div>

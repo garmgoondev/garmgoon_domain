@@ -160,8 +160,8 @@ export default function Notes({ members }) {
   const shown = notes.filter((n) => category === "all" || n.category === category);
 
   return (
-    <div>
-      <div className="boardWeekHead">
+    <div className="boardSection">
+      <div className="boardBar">
         <div className="chips">
           <button type="button" className={`chip${category === "all" ? " on" : ""}`} onClick={() => setCategory("all")}>
             전체 <span className="count">{notes.length}</span>
@@ -175,7 +175,7 @@ export default function Notes({ members }) {
             ) : null;
           })}
         </div>
-        <button type="button" className="btn small brand" onClick={() => setEditing("new")}>
+        <button type="button" className="boardAddBtn" onClick={() => setEditing("new")}>
           + 정보
         </button>
       </div>
