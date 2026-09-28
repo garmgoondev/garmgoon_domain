@@ -183,6 +183,21 @@ button {
   font-size: 11px;
 }
 
+.navBadge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 5px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+}
+
 /* ---------- 공통 레이아웃 ---------- */
 
 .page {

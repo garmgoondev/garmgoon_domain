@@ -1,4 +1,5 @@
 import { checkPassword, clearCookie, isAuthed, sessionCookie } from "./auth.js";
+import { cleanupFamilyFiles, familyAdminApi, familySummary, handleFamily } from "./family.js";
 import { backfillIdeas, cardFromRow, dailyCardCount, feedCardCount } from "./ideas.js";
 import { hasLLM, modelName } from "./llm.js";
 import { collectHourOf, collectIntervalOf, collectSlot, tick } from "./pipeline.js";
@@ -392,7 +393,8 @@ async function handleApi(request, env, url) {
 
   const isHttps = url.protocol === "https:";
 
-  if (path === "/api/me") return json({ authed, hasAdminPassword: Boolean(env.ADMIN_PASSWORD) });
+  if (path === "/api/me") return json({ authed, hasAdminPassword: Boolean(env.ADMIN_PASSWORD), family: await familySummary(request, env) });
+  if (path === "/api/family" || path.startsWith("/api/family/")) return handleFamily(request, env, url, path);
   if (path === "/api/login" && request.method === "POST") {
     const { password } = await readBody(request);
     if (!(await checkPassword(env, password))) {
@@ -428,6 +430,7 @@ async function handleApi(request, env, url) {
   if (resource === "notes") return notesApi(env, request, id);
   if (resource === "channels") return channelsApi(env, request, id);
   if (resource === "keywords") return keywordsApi(env, request, id);
+  if (resource === "family") return familyAdminApi(env, request, id);
   if (resource === "status") return statusApi(env);
   if (resource === "run" && request.method === "POST") return runApi(env, request);
   return httpError(404, "없는 API");
@@ -453,5 +456,6 @@ export default {
 
   async scheduled(_event, env, ctx) {
     ctx.waitUntil(tick(env));
+    if (env.FILES) ctx.waitUntil(cleanupFamilyFiles(env).catch((e) => console.error(e)));
   },
 };

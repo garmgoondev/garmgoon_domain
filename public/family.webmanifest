@@ -1,0 +1,16 @@
+{
+  "name": "우리 가족 · garmgoon",
+  "short_name": "우리 가족",
+  "description": "가족끼리 일기와 메시지를 나누는 공간",
+  "id": "/family",
+  "start_url": "/family",
+  "scope": "/family",
+  "display": "standalone",
+  "background_color": "#f3f4f7",
+  "theme_color": "#ff5a36",
+  "lang": "ko",
+  "icons": [
+    { "src": "/icons/family-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/family-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

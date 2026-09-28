@@ -24,6 +24,8 @@ jobs:
         run: npm run test:cards
       - name: Test authentication
         run: npm run test:auth
+      - name: Test family space
+        run: npm run test:family
       - name: Build Next.js site
         run: npm run build
       - name: Apply D1 migrations

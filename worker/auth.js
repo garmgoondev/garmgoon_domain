@@ -2,7 +2,7 @@ const COOKIE = "gg_session";
 const MAX_AGE = 30 * 24 * 60 * 60;
 const enc = new TextEncoder();
 
-async function hmac(secret, message) {
+export async function hmac(secret, message) {
   const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const sig = await crypto.subtle.sign("HMAC", key, enc.encode(message));
   return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -13,7 +13,7 @@ function secret(env) {
   return `${(env.ADMIN_PASSWORD || "").trim()}:${env.SESSION_SECRET || "garmgoon"}`;
 }
 
-function timingSafeEqual(a, b) {
+export function timingSafeEqual(a, b) {
   if (a.length !== b.length) return false;
   let diff = 0;
   for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);

@@ -11,6 +11,7 @@ const NAV = [
   { href: "/youtube", label: "유튜브" },
   { href: "/trends", label: "주간 트렌드" },
   { href: "/games", label: "게임 🎮" },
+  { href: "/family", label: "가족 🏠", family: true },
   { href: "/tools", label: "SaaS 도구", private: true },
   { href: "/scrap", label: "스크랩·노트", private: true },
   { href: "/settings", label: "설정", private: true },
@@ -53,6 +54,11 @@ export default function Header() {
           <Link key={n.href} href={n.href} className={`navItem${isActive(n.href) ? " active" : ""}`}>
             {n.label}
             {n.private && me && !me.authed ? <span className="lock" aria-label="로그인 필요">🔒</span> : null}
+            {n.family && me?.family?.unread && !isActive(n.href) ? (
+              <span className="navBadge" aria-label={`새 소식 ${me.family.unread}개`}>
+                {me.family.unread > 99 ? "99+" : me.family.unread}
+              </span>
+            ) : null}
           </Link>
         ))}
       </nav>

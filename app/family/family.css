@@ -1,0 +1,790 @@
+/* ---------- 가족 공간 ---------- */
+
+.famPage {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.famAvatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--m) 18%, var(--surface));
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--m) 55%, transparent);
+  line-height: 1;
+}
+
+.famNew {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.famTag {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.famList {
+  display: grid;
+  gap: 16px;
+}
+
+.famTabs {
+  display: flex;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.famTabs button {
+  flex: 1;
+  white-space: nowrap;
+}
+
+.famFilter {
+  margin: 4px 0 12px;
+}
+
+/* 로그인: 프로필 고르기 */
+
+.famLogin {
+  text-align: center;
+}
+
+.famWho {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 8px 0 18px;
+}
+
+.famWhoItem {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 104px;
+  padding: 14px 8px;
+  border: 2px solid transparent;
+  border-radius: 20px;
+  background: var(--surface-2);
+  font-size: 15px;
+  transition: border-color 0.15s, transform 0.1s;
+}
+
+.famWhoItem:hover {
+  transform: translateY(-2px);
+}
+
+.famWhoItem.on {
+  border-color: var(--m);
+  background: color-mix(in srgb, var(--m) 10%, var(--surface));
+}
+
+.famLoginForm {
+  display: flex;
+  gap: 8px;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* 글쓰기 */
+
+.famComposer {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+  transition: box-shadow 0.15s;
+}
+
+.famComposer.dragging {
+  box-shadow: 0 0 0 3px var(--brand), var(--shadow);
+}
+
+.famComposerTop,
+.famComposerFoot,
+.famDiaryRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.famComposerTop {
+  justify-content: space-between;
+}
+
+.famSeg {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.famSeg button {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.famSeg button.on {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.famDate {
+  width: auto;
+  height: 38px;
+  padding: 0 12px;
+}
+
+.famMoods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.famMoods button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 20px;
+  opacity: 0.45;
+  filter: grayscale(0.6);
+  transition: opacity 0.15s, transform 0.1s, filter 0.15s;
+}
+
+.famMoods button:hover,
+.famMoods button.on {
+  opacity: 1;
+  filter: none;
+}
+
+.famMoods button.on {
+  background: var(--brand-soft);
+  transform: scale(1.12);
+}
+
+.famHint {
+  font-size: 12px;
+}
+
+.famSpacer {
+  flex: 1;
+}
+
+.famAttachList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.famAttach {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 240px;
+  padding: 6px 30px 6px 6px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-size: 13px;
+  overflow: hidden;
+}
+
+.famAttach img,
+.famAttachIcon {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 8px;
+  object-fit: cover;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+}
+
+.famAttach.failed {
+  color: var(--danger);
+}
+
+.famAttachName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.famAttachProgress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--line);
+}
+
+.famAttachProgress span {
+  display: block;
+  height: 100%;
+  background: var(--brand);
+  transition: width 0.2s;
+}
+
+.famAttachRemove {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: var(--line);
+  font-size: 11px;
+  line-height: 1;
+}
+
+/* 글 */
+
+.famPost {
+  display: grid;
+  gap: 12px;
+  border-top: 4px solid color-mix(in srgb, var(--m, var(--line)) 70%, transparent);
+}
+
+.famPost.diary {
+  background: color-mix(in srgb, var(--m, var(--brand)) 4%, var(--surface));
+}
+
+.famPostHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.famPostWho {
+  display: grid;
+  line-height: 1.3;
+  min-width: 0;
+}
+
+.famPostWho span {
+  font-size: 12px;
+}
+
+.famPostTags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.famDiaryHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.famMood {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.famBody {
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* 사진: 한 장은 원래 비율, 여러 장은 격자 */
+
+.famSingle,
+.famCell,
+.famPhoto {
+  display: block;
+  padding: 0;
+  border: none;
+  background: var(--surface-2);
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.famSingle {
+  max-width: 100%;
+  border-radius: 16px;
+}
+
+.famSingle img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-height: 560px;
+  object-fit: cover;
+}
+
+.famGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.famGrid.n2 {
+  aspect-ratio: 2 / 1.1;
+}
+
+.famGrid.n3,
+.famGrid.n4 {
+  aspect-ratio: 4 / 3;
+  grid-template-rows: 1fr 1fr;
+}
+
+.famGrid.n3 .famCell:first-child {
+  grid-row: span 2;
+}
+
+.famCell {
+  position: relative;
+  min-height: 0;
+}
+
+.famCell img,
+.famPhoto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s;
+}
+
+.famCell:hover img,
+.famPhoto:hover img {
+  transform: scale(1.03);
+}
+
+.famMore {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.famFiles {
+  display: grid;
+  gap: 6px;
+}
+
+.famFile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-size: 14px;
+}
+
+.famFile:hover {
+  background: var(--line);
+}
+
+.famFileIcon {
+  font-size: 20px;
+}
+
+.famFileName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+/* 반응 */
+
+.famReactions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.famReaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 14px;
+}
+
+.famReaction b {
+  font-size: 12px;
+}
+
+.famReaction.mine {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.famReaction.add {
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+.famReactPick {
+  position: relative;
+}
+
+.famReactMenu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 5;
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+}
+
+.famReactMenu button {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  font-size: 22px;
+  transition: transform 0.1s;
+}
+
+.famReactMenu button:hover {
+  transform: scale(1.25);
+}
+
+.famPostActions,
+.famCommentActions {
+  display: flex;
+  gap: 10px;
+}
+
+.famPostActions {
+  margin-top: -6px;
+}
+
+.famPostActions button,
+.famCommentActions button {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.famPostActions button:hover,
+.famCommentActions button:hover {
+  color: var(--text);
+}
+
+/* 댓글 */
+
+.famComments {
+  display: grid;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.famComment {
+  display: flex;
+  gap: 8px;
+}
+
+.famCommentMain {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border-radius: 4px 14px 14px 14px;
+  background: var(--surface-2);
+}
+
+.famCommentHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.famCommentHead .muted {
+  font-size: 12px;
+}
+
+.famCommentActions {
+  margin-left: auto;
+}
+
+.famCommentMain p {
+  margin: 2px 0 0;
+  white-space: pre-wrap;
+  font-size: 14px;
+}
+
+.famCommentEdit {
+  display: grid;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.famCommentForm {
+  display: flex;
+  gap: 8px;
+}
+
+.famCommentForm .input {
+  height: 38px;
+  border-radius: 12px;
+}
+
+.famCommentForm .btn {
+  height: 38px;
+}
+
+/* 사진 크게 보기 */
+
+.famLightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: rgba(8, 9, 12, 0.94);
+  touch-action: pan-y;
+}
+
+.famLightbox > img {
+  max-width: 100vw;
+  max-height: calc(100vh - 120px);
+  max-height: calc(100dvh - 120px);
+  object-fit: contain;
+  user-select: none;
+}
+
+.famLightboxBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: max(12px, env(safe-area-inset-top)) 16px 12px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.famLightboxBar .btn.ghost {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.famLightboxNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 64px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.famLightboxNav.prev {
+  left: 12px;
+}
+
+.famLightboxNav.next {
+  right: 12px;
+}
+
+/* 사진 모아보기 */
+
+.famPhotoMonth + .famPhotoMonth {
+  margin-top: 24px;
+}
+
+.famPhotoMonth h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.famPhotoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 4px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.famPhoto {
+  position: relative;
+  aspect-ratio: 1;
+}
+
+.famPhotoBy {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+}
+
+/* 프로필·관리 */
+
+.famSettings {
+  margin-bottom: 18px;
+}
+
+.famPickRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.famPickRow button {
+  width: 40px;
+  height: 40px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-size: 22px;
+}
+
+.famPickRow button.on {
+  border-color: var(--text);
+}
+
+.famPickRow.colors button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.famPickRow.colors button.on {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text);
+  border-color: transparent;
+}
+
+.famMemberList {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.famMemberRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+
+.famMemberInfo {
+  flex: 1;
+  display: grid;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.famMemberInfo .muted {
+  font-size: 12px;
+}
+
+.famMemberForm {
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  margin-bottom: 12px;
+}
+
+.famInstall {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  background: var(--brand-soft);
+  font-size: 14px;
+}
+
+.famInstallText {
+  flex: 1;
+}
+
+@media (max-width: 640px) {
+  .famComposer,
+  .famPost {
+    padding: 16px;
+  }
+
+  .famHint {
+    display: none;
+  }
+
+  .famTabs button {
+    padding: 9px 8px;
+    font-size: 14px;
+  }
+
+  .famGrid.n3,
+  .famGrid.n4 {
+    aspect-ratio: 1 / 1;
+  }
+
+  .famLoginForm {
+    flex-direction: column;
+  }
+
+  .famLightboxNav {
+    display: none;
+  }
+}

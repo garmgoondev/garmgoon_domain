@@ -28,6 +28,13 @@
       "migrations_dir": "migrations"
     }
   ],
+  // 가족 공간 첨부 파일 (사진 원본·화면용·썸네일, 일반 파일)
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "garmgoon-family"
+    }
+  ],
   // 10분마다 파이프라인을 한 단계씩 진행한다
   "triggers": {
     "crons": ["*/10 * * * *"]
