@@ -1,7 +1,7 @@
 import { lunarAnniversary, solarToLunar } from "./lunar.js";
 import { addDays, httpError, json, parseJSON } from "./util.js";
 
-// 우리집 보드: 이번 주 할 일(반복 포함), 기억할 정보, 기념일(음력 포함), 장보기 목록.
+// 우리집 보드: 이번 주 할 일(반복 포함), 기억할 정보, 기념일(음력 포함).
 // 'family' 항목은 가족 누구나 고치고, 'private' 항목은 만든 사람만 보고 고친다.
 
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -100,10 +100,6 @@ function noteFromRow(r, me) {
     updatedBy: r.updated_by,
     updatedAt: r.updated_at,
   };
-}
-
-function shoppingFromRow(r) {
-  return { id: r.id, title: r.title, qty: r.qty, addedBy: r.added_by, doneBy: r.done_by, doneAt: r.done_at, createdAt: r.created_at };
 }
 
 function readVisibility(v, current) {
@@ -385,49 +381,6 @@ async function datesApi(env, me, request, id, url) {
   return httpError(405, "허용되지 않는 요청");
 }
 
-// ---------- 장보기 (가족 공용) ----------
-
-async function shoppingApi(env, me, request, id, url) {
-  const now = Date.now();
-  if (request.method === "GET") {
-    // 산 물건은 사흘 동안만 보여 준다
-    const { results } = await env.DB.prepare("SELECT * FROM family_shopping WHERE done_at IS NULL OR done_at > ? ORDER BY done_at IS NOT NULL, created_at DESC")
-      .bind(now - 3 * 86400000)
-      .all();
-    return json({ items: results.map(shoppingFromRow) });
-  }
-  if (request.method === "POST") {
-    const b = await request.json();
-    const title = String(b.title ?? "").trim();
-    if (!title || title.length > 60) return httpError(400, "물건 이름은 1~60자로 적어 주세요.");
-    const row = await env.DB.prepare("INSERT INTO family_shopping (title, qty, added_by, created_at) VALUES (?, ?, ?, ?) RETURNING *")
-      .bind(title, String(b.qty ?? "").trim().slice(0, 20), me.id, now)
-      .first();
-    return json({ item: shoppingFromRow(row) });
-  }
-  if (request.method === "DELETE" && !id && url.searchParams.has("done")) {
-    await env.DB.prepare("DELETE FROM family_shopping WHERE done_at IS NOT NULL").run();
-    return json({ ok: true });
-  }
-  const current = id && (await env.DB.prepare("SELECT * FROM family_shopping WHERE id = ?").bind(Number(id)).first());
-  if (!current) return httpError(404, "물건을 찾을 수 없어요.");
-  if (request.method === "PATCH") {
-    const b = await request.json();
-    const title = b.title !== undefined ? String(b.title).trim().slice(0, 60) || current.title : current.title;
-    const qty = b.qty !== undefined ? String(b.qty).trim().slice(0, 20) : current.qty;
-    const [doneBy, doneAt] = b.done === undefined ? [current.done_by, current.done_at] : b.done ? [me.id, now] : [null, null];
-    const row = await env.DB.prepare("UPDATE family_shopping SET title = ?, qty = ?, done_by = ?, done_at = ? WHERE id = ? RETURNING *")
-      .bind(title, qty, doneBy, doneAt, current.id)
-      .first();
-    return json({ item: shoppingFromRow(row) });
-  }
-  if (request.method === "DELETE") {
-    await env.DB.prepare("DELETE FROM family_shopping WHERE id = ?").bind(current.id).run();
-    return json({ ok: true });
-  }
-  return httpError(405, "허용되지 않는 요청");
-}
-
 // ---------- 아침 요약 ----------
 
 // 그날 내가 할 일(내 담당이거나 '모두')과 곧 다가오는 기념일(당일·1·3·7일 전)
@@ -449,14 +402,13 @@ export async function digestFor(env, me, today) {
 // /api/family/board/...
 export async function handleBoard(env, me, request, url, sub) {
   if (sub === "/week" && request.method === "GET") return weekView(env, me, url);
-  const m = sub.match(/^\/(tasks|notes|dates|shopping)(?:\/(\d+))?(?:\/(done|history))?$/);
+  const m = sub.match(/^\/(tasks|notes|dates)(?:\/(\d+))?(?:\/(done|history))?$/);
   if (!m) return httpError(404, "없는 API");
   const [, resource, id, child] = m;
   if (resource === "tasks") return tasksApi(env, me, request, id, child);
   if (resource === "notes") return notesApi(env, me, request, id, child);
   if (child) return httpError(404, "없는 API");
-  if (resource === "dates") return datesApi(env, me, request, id, url);
-  return shoppingApi(env, me, request, id, url);
+  return datesApi(env, me, request, id, url);
 }
 
 // 구성원을 지울 때 그 사람의 비공개 항목과 알림 구독을 지우고, 가족 항목의 담당은 '모두'로 돌린다

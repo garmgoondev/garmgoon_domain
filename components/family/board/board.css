@@ -196,26 +196,6 @@
   text-overflow: ellipsis;
 }
 
-.boardQty {
-  margin-left: 6px;
-  padding: 1px 7px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--text-2);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.boardRemove {
-  width: 26px;
-  height: 26px;
-  border: none;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--text-3);
-  font-size: 12px;
-}
-
 .boardDateRow {
   padding: 4px 0 6px;
   font-size: 14px;
@@ -335,24 +315,6 @@
   font-size: 13px;
 }
 
-/* 장보기 */
-
-.boardShopping {
-  display: grid;
-  gap: 12px;
-}
-
-.boardShopAdd {
-  display: flex;
-  gap: 8px;
-  padding: 12px;
-}
-
-.boardQtyInput {
-  width: 90px;
-  flex: none;
-}
-
 /* 기억할 정보 */
 
 .boardNotes {
@@ -462,7 +424,4 @@
     width: 100%;
   }
 
-  .boardQtyInput {
-    width: 70px;
-  }
 }

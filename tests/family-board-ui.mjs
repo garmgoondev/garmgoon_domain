@@ -94,19 +94,6 @@ try {
   await mom.locator(".boardHistory", { hasText: "02-123-4567" }).waitFor();
   await mom.getByRole("button", { name: "닫기" }).click();
 
-  // 장보기
-  await mom.locator(".boardSections button", { hasText: "장보기" }).click();
-  for (const [t, q] of [
-    ["우유", "2개"],
-    ["달걀", "한 판"],
-    ["대파", ""],
-  ]) {
-    await mom.getByPlaceholder("살 물건 (예: 우유)").fill(t);
-    await mom.getByPlaceholder("수량").fill(q);
-    await mom.getByPlaceholder("살 물건 (예: 우유)").press("Enter");
-    await mom.locator(".boardTask", { hasText: t }).waitFor();
-  }
-
   // 알림 설정 화면
   await mom.context().grantPermissions(["notifications"], { origin: base });
   await mom.getByRole("button", { name: "🔔 알림" }).click();
@@ -126,22 +113,13 @@ try {
   await dad.locator(".boardDay.today .boardTask", { hasText: "분리수거" }).locator(".boardCheck").click();
   await dad.locator(".boardDay.today .boardTask.done", { hasText: "아빠 완료" }).waitFor();
 
-  // 아빠가 마트에서 우유를 샀다 → 엄마 화면에서도 보인다
-  await dad.locator(".boardSections button", { hasText: "장보기" }).click();
-  await dad.locator(".boardTask", { hasText: "우유" }).locator(".boardCheck").click();
-  await dad.locator(".boardTask.done", { hasText: "우유" }).waitFor();
-  await dad.screenshot({ path: `${shots}/b4-dad-shopping.png`, fullPage: true });
-  await mom.reload();
-  await mom.locator(".famTabs button", { hasText: "우리집" }).click();
-  await mom.locator(".boardSections button", { hasText: "장보기" }).click();
-  await mom.locator(".boardTask.done", { hasText: "아빠 샀어요" }).waitFor();
-
   // 정보 탭(휴대폰)
   await dad.locator(".boardSections button", { hasText: "정보" }).click();
   await dad.locator(".boardNote").first().waitFor();
   await dad.screenshot({ path: `${shots}/b5-dad-notes.png`, fullPage: true });
 
-  // 엄마 화면: 할 일 주간 보기
+  // 엄마 화면: 할 일 주간 보기 (아빠의 완료 표시가 보인다)
+  await mom.reload();
   await mom.locator(".boardSections button", { hasText: "할 일" }).click();
   await mom.locator(".boardDay.today .boardTask.done", { hasText: "분리수거" }).waitFor();
   await mom.screenshot({ path: `${shots}/b6-mom-week.png`, fullPage: true });

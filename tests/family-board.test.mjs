@@ -198,18 +198,6 @@ test("notes keep history; private notes stay private", async (t) => {
   assert.equal((await call(env, `/api/family/board/notes/${id}/history`, { cookie: mom.cookie })).data.history.length, 10);
 });
 
-test("shopping list is shared and bought items can be cleared", async (t) => {
-  const env = await setup(t);
-  const [mom, dad] = await members(env, "엄마", "아빠");
-  const milk = await call(env, "/api/family/board/shopping", { method: "POST", cookie: mom.cookie, body: { title: "우유", qty: "2개" } });
-  await call(env, "/api/family/board/shopping", { method: "POST", cookie: mom.cookie, body: { title: "달걀" } });
-  await call(env, `/api/family/board/shopping/${milk.data.item.id}`, { method: "PATCH", cookie: dad.cookie, body: { done: true } });
-  const list = await call(env, "/api/family/board/shopping", { cookie: dad.cookie });
-  assert.deepEqual(list.data.items.map((i) => [i.title, i.doneBy]), [["달걀", null], ["우유", dad.id]]);
-  await call(env, "/api/family/board/shopping?done", { method: "DELETE", cookie: mom.cookie });
-  assert.deepEqual((await call(env, "/api/family/board/shopping", { cookie: mom.cookie })).data.items.map((i) => i.title), ["달걀"]);
-});
-
 test("web push: encrypted payloads, VAPID signature, post and comment alerts", async (t) => {
   const env = await setup(t);
   const [mom, dad] = await members(env, "엄마", "아빠");
