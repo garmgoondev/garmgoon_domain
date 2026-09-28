@@ -1,5 +1,6 @@
 import { checkPassword, clearCookie, isAuthed, sessionCookie } from "./auth.js";
 import { cleanupFamilyFiles, familyAdminApi, familySummary, handleFamily } from "./family.js";
+import { sendDigests } from "./push.js";
 import { backfillIdeas, cardFromRow, dailyCardCount, feedCardCount } from "./ideas.js";
 import { hasLLM, modelName } from "./llm.js";
 import { collectHourOf, collectIntervalOf, collectSlot, tick } from "./pipeline.js";
@@ -387,14 +388,14 @@ async function runApi(env, request) {
   return json({ result: result || "지금 처리할 작업이 없어요." });
 }
 
-async function handleApi(request, env, url) {
+async function handleApi(request, env, url, ctx) {
   const path = url.pathname.replace(/\/+$/, "");
   const authed = await isAuthed(request, env);
 
   const isHttps = url.protocol === "https:";
 
   if (path === "/api/me") return json({ authed, hasAdminPassword: Boolean(env.ADMIN_PASSWORD), family: await familySummary(request, env) });
-  if (path === "/api/family" || path.startsWith("/api/family/")) return handleFamily(request, env, url, path);
+  if (path === "/api/family" || path.startsWith("/api/family/")) return handleFamily(request, env, url, path, ctx);
   if (path === "/api/login" && request.method === "POST") {
     const { password } = await readBody(request);
     if (!(await checkPassword(env, password))) {
@@ -437,11 +438,11 @@ async function handleApi(request, env, url) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
       try {
-        return await handleApi(request, env, url);
+        return await handleApi(request, env, url, ctx);
       } catch (e) {
         console.error(e);
         return httpError(500, e.message || "서버 오류");
@@ -457,5 +458,6 @@ export default {
   async scheduled(_event, env, ctx) {
     ctx.waitUntil(tick(env));
     if (env.FILES) ctx.waitUntil(cleanupFamilyFiles(env).catch((e) => console.error(e)));
+    ctx.waitUntil(sendDigests(env).catch((e) => console.error(e)));
   },
 };

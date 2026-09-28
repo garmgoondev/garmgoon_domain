@@ -1,0 +1,468 @@
+/* ---------- 우리집 보드 ---------- */
+
+.board {
+  display: grid;
+  gap: 14px;
+}
+
+.boardTop,
+.boardWeekHead,
+.boardWeekNav,
+.boardFormRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.boardTop,
+.boardWeekHead {
+  justify-content: space-between;
+}
+
+.boardSections {
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.boardSections button {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.boardWeek {
+  display: grid;
+  gap: 12px;
+}
+
+.boardWeekNav b {
+  min-width: 110px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.boardFilter {
+  margin: -4px 0 0;
+}
+
+.boardUpcoming {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.boardDday {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.boardDday b {
+  color: var(--brand);
+}
+
+.boardDday.soon {
+  background: var(--brand-soft);
+}
+
+/* 하루 카드 */
+
+.boardDay {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.boardDay > header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 6px;
+  font-size: 14px;
+}
+
+.boardDay > header .muted {
+  font-size: 12px;
+}
+
+.boardDay.today {
+  box-shadow: 0 0 0 2px var(--brand), var(--shadow);
+}
+
+.boardDay.past {
+  opacity: 0.72;
+}
+
+.boardDay.overdue {
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+}
+
+.boardAdd {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 9px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.boardEmpty {
+  margin: 0;
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+.boardTask,
+.boardDateItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+
+.boardDay > header + .boardTask,
+.boardDay > header + .boardDateItem {
+  border-top: none;
+}
+
+.boardCheck {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.boardTask.done .boardCheck {
+  border-color: var(--ok);
+  background: var(--ok);
+}
+
+.boardTaskMain {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+  padding: 2px 0;
+  border: none;
+  background: none;
+  text-align: left;
+}
+
+.boardTaskTitle {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.boardTask.done .boardTaskTitle {
+  color: var(--text-3);
+  text-decoration: line-through;
+}
+
+.boardTaskDay {
+  margin-right: 6px;
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.boardTaskMeta {
+  overflow: hidden;
+  color: var(--text-3);
+  font-size: 12px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.boardQty {
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.boardRemove {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.boardDateRow {
+  padding: 4px 0 6px;
+  font-size: 14px;
+}
+
+.boardDateRow .muted {
+  font-size: 12px;
+}
+
+.boardDateItem {
+  width: 100%;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  background: none;
+  text-align: left;
+}
+
+.boardDateIcon {
+  font-size: 22px;
+}
+
+/* 입력 폼 */
+
+.boardForm .panelTitle {
+  margin: 0;
+}
+
+.boardLabel {
+  min-width: 38px;
+  flex: none;
+  white-space: nowrap;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.boardFormRow .chips {
+  flex: 1;
+  min-width: 0;
+}
+
+.boardWeekdays {
+  display: flex;
+  gap: 4px;
+}
+
+.boardWeekdays button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.boardWeekdays button.on {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--bg);
+}
+
+.boardDate {
+  width: auto;
+  height: 40px;
+}
+
+.boardNum {
+  width: 70px;
+  height: 40px;
+}
+
+.boardSelect {
+  width: auto;
+  height: 40px;
+  padding: 0 10px;
+}
+
+.boardHint {
+  margin: -4px 0 0;
+  font-size: 12px;
+}
+
+.boardCheckRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.boardCheckRow input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--brand);
+}
+
+.boardNotifyDevice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+
+.boardNotifyDevice .muted {
+  font-size: 13px;
+}
+
+.boardWarn {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--brand-soft);
+  font-size: 13px;
+}
+
+/* 장보기 */
+
+.boardShopping {
+  display: grid;
+  gap: 12px;
+}
+
+.boardShopAdd {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+}
+
+.boardQtyInput {
+  width: 90px;
+  flex: none;
+}
+
+/* 기억할 정보 */
+
+.boardNotes {
+  columns: 2 280px;
+  column-gap: 12px;
+  margin-top: 12px;
+}
+
+.boardNote {
+  display: grid;
+  gap: 6px;
+  break-inside: avoid;
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.boardNote.pinned {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 60%, transparent), var(--shadow);
+}
+
+.boardNote header,
+.boardNote footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.boardNoteCat {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+
+.boardPin {
+  border: none;
+  background: none;
+  font-size: 16px;
+  opacity: 0.25;
+  filter: grayscale(1);
+}
+
+.boardPin.on {
+  opacity: 1;
+  filter: none;
+}
+
+.boardNote h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.boardNote p,
+.boardHistory p {
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.boardNote p a {
+  color: var(--brand);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.boardNote footer {
+  font-size: 12px;
+}
+
+.boardNote footer button {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.boardNote footer button:hover {
+  color: var(--text);
+}
+
+.boardHistory {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.boardHistory .muted {
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .boardSections button {
+    padding: 8px 9px;
+    font-size: 13px;
+  }
+
+  .boardLabel {
+    width: 100%;
+  }
+
+  .boardQtyInput {
+    width: 70px;
+  }
+}

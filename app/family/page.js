@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Avatar from "../../components/family/Avatar";
+import Board from "../../components/family/board/Board";
 import Feed from "../../components/family/Feed";
 import InstallHint from "../../components/family/InstallHint";
 import MemberAdmin from "../../components/family/MemberAdmin";
@@ -84,8 +85,9 @@ function FamilyLogin({ members, onLogin }) {
 }
 
 const TABS = [
-  ["family", "🏠 가족 공간"],
+  ["family", "🏠 가족"],
   ["mine", "📔 내 공간"],
+  ["board", "📌 우리집"],
   ["photos", "🖼️ 사진"],
 ];
 
@@ -109,6 +111,9 @@ export default function FamilyPage() {
   useEffect(() => {
     loadSession();
     loadMembers();
+    // 알림을 눌러 들어오면 (?tab=board) 그 탭을 연다
+    const t = new URLSearchParams(location.search).get("tab");
+    if (TABS.some(([id]) => id === t)) setTab(t);
   }, []);
 
   // 첫 목록을 받은 뒤에 '봤음'으로 기록해야 이번 방문에서 NEW 표시가 보인다
@@ -224,6 +229,8 @@ export default function FamilyPage() {
                 </div>
               }
             />
+          ) : tab === "board" ? (
+            <Board me={me} members={members} />
           ) : (
             <PhotoGrid />
           )}

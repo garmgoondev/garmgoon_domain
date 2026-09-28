@@ -1,4 +1,6 @@
 import { hmac, timingSafeEqual } from "./auth.js";
+import { boardCleanupStatements, handleBoard } from "./board.js";
+import { handlePush, notifyMembers } from "./push.js";
 import { DAY, httpError, json } from "./util.js";
 
 // 가족 공간. 관리자 로그인(gg_session)과 별개로 구성원마다 비밀번호와 세션(gg_family)이 있다.
@@ -265,6 +267,17 @@ export async function cleanupFamilyFiles(env) {
   return results.length;
 }
 
+// 응답을 보낸 뒤에 이어서 할 일 (알림 등). 실패해도 요청에는 영향이 없다.
+function later(ctx, promise) {
+  const safe = promise.catch((e) => console.error(e));
+  ctx?.waitUntil?.(safe);
+}
+
+function preview(text, n = 100) {
+  const t = text.replace(/s+/g, " ").trim();
+  return t.length > n ? `${t.slice(0, n)}…` : t;
+}
+
 // ---------- 글 ----------
 
 function readPost(b, current) {
@@ -313,7 +326,7 @@ async function listPosts(env, me, url) {
   });
 }
 
-async function createPost(env, me, request) {
+async function createPost(env, me, request, ctx) {
   const p = readPost(await request.json());
   if (p.error) return httpError(400, p.error);
   if (!p.body && !p.fileIds?.length) return httpError(400, "내용을 쓰거나 파일을 붙여 주세요.");
@@ -324,7 +337,24 @@ async function createPost(env, me, request) {
     .bind(me.id, p.kind, p.visibility, p.diaryDay, p.mood, p.body, now, now)
     .first();
   await attachFiles(env, me, row.id, p.fileIds);
-  return json({ post: await onePost(env, me, row.id) });
+  const post = await onePost(env, me, row.id);
+  // 가족 공개 글은 다른 구성원에게 알린다
+  if (post.visibility === "family") {
+    later(
+      ctx,
+      (async () => {
+        const { results } = await env.DB.prepare("SELECT id FROM family_members WHERE id != ?").bind(me.id).all();
+        const photos = post.files.filter((f) => f.isImage).length;
+        await notifyMembers(env, results.map((r) => r.id), {
+          title: `${me.emoji} ${me.name} · 새 ${post.kind === "diary" ? "일기" : "메시지"}`,
+          body: preview(post.body) || (photos ? `사진 ${photos}장` : `파일 ${post.files.length}개`),
+          url: "/family",
+          tag: `post-${post.id}`,
+        });
+      })(),
+    );
+  }
+  return json({ post });
 }
 
 async function updatePost(env, me, id, request) {
@@ -359,7 +389,7 @@ async function deletePost(env, me, id) {
   return json({ ok: true });
 }
 
-async function addComment(env, me, postId, request) {
+async function addComment(env, me, postId, request, ctx) {
   const post = await postForMember(env, me, postId);
   if (!post) return httpError(404, "글을 찾을 수 없어요.");
   const body = String((await request.json()).body ?? "").trim();
@@ -367,6 +397,15 @@ async function addComment(env, me, postId, request) {
   const row = await env.DB.prepare("INSERT INTO family_comments (post_id, member_id, body, created_at) VALUES (?, ?, ?, ?) RETURNING *")
     .bind(post.id, me.id, body, Date.now())
     .first();
+  // 글쓴이와 그 글에 댓글을 단 사람들에게 알린다
+  later(
+    ctx,
+    (async () => {
+      const { results } = await env.DB.prepare("SELECT DISTINCT member_id FROM family_comments WHERE post_id = ?").bind(post.id).all();
+      const ids = [...new Set([post.member_id, ...results.map((r) => r.member_id)])].filter((id) => id !== me.id);
+      await notifyMembers(env, ids, { title: `💬 ${me.emoji} ${me.name} · 댓글`, body: preview(body), url: "/family", tag: `post-${post.id}` });
+    })(),
+  );
   return json({ comment: commentFromRow(row, await memberMap(env), me) });
 }
 
@@ -461,7 +500,7 @@ async function login(env, request, secure) {
 }
 
 // /api/family/...
-export async function handleFamily(request, env, url, path) {
+export async function handleFamily(request, env, url, path, ctx) {
   const secure = url.protocol === "https:";
   const method = request.method;
   const origin = request.headers.get("origin");
@@ -469,7 +508,9 @@ export async function handleFamily(request, env, url, path) {
   if (method !== "GET" && origin && origin !== url.origin) return httpError(403, "허용되지 않는 요청");
   const sub = path.slice("/api/family".length) || "/";
   // 파일 업로드(multipart)와 본문 없는 요청 말고는 JSON만 받는다
-  if (["POST", "PATCH", "PUT"].includes(method) && !["/files", "/seen", "/logout"].includes(sub) && !(request.headers.get("content-type") || "").includes("application/json")) {
+  // (실제 런타임에선 본문 없는 POST도 body가 빈 스트림이라 content-length로 판단한다)
+  const hasBody = Number(request.headers.get("content-length") || 0) > 0 || request.headers.has("transfer-encoding");
+  if (hasBody && sub !== "/files" && !(request.headers.get("content-type") || "").includes("application/json")) {
     return httpError(415, "JSON 요청만 받습니다.");
   }
 
@@ -493,15 +534,17 @@ export async function handleFamily(request, env, url, path) {
   }
   if (sub === "/posts") {
     if (method === "GET") return listPosts(env, me, url);
-    if (method === "POST") return createPost(env, me, request);
+    if (method === "POST") return createPost(env, me, request, ctx);
   }
   if (sub === "/photos" && method === "GET") return listPhotos(env, url);
+  if (sub === "/board" || sub.startsWith("/board/")) return handleBoard(env, me, request, url, sub.slice("/board".length));
+  if (sub === "/push" || sub.startsWith("/push/")) return handlePush(env, me, request, sub.slice("/push".length));
   if (sub === "/files" && method === "POST") return uploadFile(env, me, request);
 
   const m = sub.match(/^\/(posts|comments|files)\/([^/]+)(?:\/(comments|reactions))?$/);
   if (m) {
     const [, resource, id, child] = m;
-    if (resource === "posts" && child === "comments" && method === "POST") return addComment(env, me, id, request);
+    if (resource === "posts" && child === "comments" && method === "POST") return addComment(env, me, id, request, ctx);
     if (resource === "posts" && child === "reactions" && method === "PUT") return toggleReaction(env, me, id, request);
     if (resource === "posts" && !child && method === "PATCH") return updatePost(env, me, id, request);
     if (resource === "posts" && !child && method === "DELETE") return deletePost(env, me, id);
@@ -589,6 +632,7 @@ export async function familyAdminApi(env, request, id) {
       env.DB.prepare(`DELETE FROM family_comments WHERE member_id = ? OR post_id IN (${ownPosts})`).bind(member.id, member.id),
       env.DB.prepare(`DELETE FROM family_reactions WHERE member_id = ? OR post_id IN (${ownPosts})`).bind(member.id, member.id),
       env.DB.prepare("DELETE FROM family_posts WHERE member_id = ?").bind(member.id),
+      ...boardCleanupStatements(env, member.id),
       env.DB.prepare("DELETE FROM family_members WHERE id = ?").bind(member.id),
     ]);
     return json({ ok: true });
