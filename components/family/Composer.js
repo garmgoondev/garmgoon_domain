@@ -14,7 +14,17 @@ export default function Composer({ post, defaults, onSaved, onCancel }) {
   const [diaryDay, setDiaryDay] = useState(post?.diaryDay || todayLocal());
   const [mood, setMood] = useState(post?.mood || "");
   const [body, setBody] = useState(post?.body || "");
-  const [items, setItems] = useState(() => (post?.files || []).map((f) => ({ key: `f${f.id}`, file: f, name: f.name, size: f.size, isImage: f.isImage, thumb: f.hasPreview ? fileUrl(f.id, "thumb") : f.isImage ? fileUrl(f.id) : null })));
+  const [items, setItems] = useState(() =>
+    (post?.files || []).map((f) => ({
+      key: `f${f.id}`,
+      file: f,
+      name: f.name,
+      size: f.size,
+      isImage: f.isImage,
+      isVideo: f.isVideo || (!f.isImage && (f.mime?.startsWith("video/") || /\.(mp4|webm|mov|m4v|ogg)$/i.test(f.name))),
+      thumb: f.hasPreview ? fileUrl(f.id, "thumb") : f.isImage ? fileUrl(f.id) : null,
+    })),
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [dragging, setDragging] = useState(false);
@@ -48,23 +58,28 @@ export default function Composer({ post, defaults, onSaved, onCancel }) {
     const files = [...fileList];
     if (!files.length) return;
     setError("");
-    const added = files.map((f) => ({
-      key: `n${++seq}`,
-      raw: f,
-      name: f.name || "붙여넣은 이미지",
-      size: f.size,
-      isImage: (f.type || "").startsWith("image/"),
-      local: (f.type || "").startsWith("image/") ? URL.createObjectURL(f) : null,
-      progress: 0,
-      error: f.size > MAX_FILE ? `25MB가 넘어요 (${formatSize(f.size)})` : null,
-    }));
+    const added = files.map((f) => {
+      const isImg = (f.type || "").startsWith("image/");
+      const isVid = (f.type || "").startsWith("video/") || /\.(mp4|webm|mov|m4v|ogg)$/i.test(f.name || "");
+      return {
+        key: `n${++seq}`,
+        raw: f,
+        name: f.name || "파일",
+        size: f.size,
+        isImage: isImg,
+        isVideo: isVid,
+        local: isImg ? URL.createObjectURL(f) : null,
+        progress: 0,
+        error: f.size > MAX_FILE ? `25MB가 넘어요 (${formatSize(f.size)})` : null,
+      };
+    });
     setItems((list) => [...list, ...added]);
     // 휴대폰 회선에서도 안정적이도록 한 개씩 차례로 올린다
     for (const it of added.filter((a) => !a.error)) {
       try {
         const prepared = await prepareFile(it.raw);
         const file = await uploadFile(prepared, (p) => update(it.key, { progress: p }));
-        update(it.key, { file, progress: 1, isImage: file.isImage });
+        update(it.key, { file, progress: 1, isImage: file.isImage, isVideo: file.isVideo || it.isVideo });
       } catch (e) {
         update(it.key, { error: e.message });
       }
@@ -169,7 +184,13 @@ export default function Composer({ post, defaults, onSaved, onCancel }) {
         <div className="famAttachList">
           {items.map((it) => (
             <div key={it.key} className={`famAttach${it.error ? " failed" : ""}`}>
-              {it.local || it.thumb ? <img src={it.local || it.thumb} alt="" /> : <span className="famAttachIcon">📎</span>}
+              {it.isVideo ? (
+                <span className="famAttachIcon">🎬</span>
+              ) : it.local || it.thumb ? (
+                <img src={it.local || it.thumb} alt="" />
+              ) : (
+                <span className="famAttachIcon">📎</span>
+              )}
               <span className="famAttachName" title={it.name}>
                 {it.error || it.name}
               </span>
@@ -191,7 +212,7 @@ export default function Composer({ post, defaults, onSaved, onCancel }) {
         <button type="button" className="btn small ghost" onClick={() => inputRef.current.click()}>
           📎 사진·파일
         </button>
-        <span className="muted famHint">파일당 25MB · 사진은 자동으로 알맞게 줄여 보여요</span>
+        <span className="muted famHint">파일당 25MB · 동영상 재생 지원 · 사진은 자동 최적화</span>
         <span className="famSpacer" />
         {onCancel ? (
           <button type="button" className="btn small ghost" onClick={onCancel}>

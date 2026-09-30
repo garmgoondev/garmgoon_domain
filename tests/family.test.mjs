@@ -15,9 +15,17 @@ function bucket() {
     async put(key, value, opts = {}) {
       store.set(key, { data: new Uint8Array(value), httpMetadata: opts.httpMetadata || {} });
     },
-    async get(key) {
+    async get(key, opts = {}) {
       const o = store.get(key);
-      return o ? { body: o.data, httpMetadata: o.httpMetadata } : null;
+      if (!o) return null;
+      let data = o.data;
+      if (opts.range) {
+        const offset = opts.range.offset || 0;
+        const length = opts.range.length !== undefined ? opts.range.length : data.length - offset;
+        data = data.slice(offset, offset + length);
+        return { body: data, httpMetadata: o.httpMetadata, range: { offset, length } };
+      }
+      return { body: o.data, httpMetadata: o.httpMetadata };
     },
     async delete(keys) {
       for (const k of [].concat(keys)) store.delete(k);
@@ -213,6 +221,100 @@ test("files follow the visibility of their post", async (t) => {
   env.sqlite.prepare("UPDATE family_files SET created_at = 0 WHERE post_id IS NULL").run();
   assert.equal(await cleanupFamilyFiles(env), 1);
   assert.equal(env.FILES.store.size, 0);
+});
+
+test("video files can be streamed with range requests, played inline, and downloaded", async (t) => {
+  const env = setup(t);
+  const [mom, dad] = [await addMember(env, "엄마"), await addMember(env, "아빠")];
+  const [momC, dadC] = [await loginAs(env, mom), await loginAs(env, dad)];
+
+  // 1) 동영상 업로드 (MP4)
+  const videoData = new Uint8Array([10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
+  const form = new FormData();
+  form.append("file", new File([videoData], "놀이터.mp4", { type: "video/mp4" }));
+  const up = await call(env, "/api/family/files", { method: "POST", cookie: momC, form });
+  assert.equal(up.status, 200);
+  const vid = up.data.file;
+  assert.equal(vid.isImage, false);
+  assert.equal(vid.isVideo, true);
+  assert.equal(vid.mime, "video/mp4");
+  assert.equal(vid.size, 10);
+
+  // 확장자 기반 MIME 자동 추론 (MIME이 비어 있거나 octet-stream일 때)
+  const formInfer = new FormData();
+  formInfer.append("file", new File([new Uint8Array([1, 2, 3])], "춤.webm", { type: "application/octet-stream" }));
+  const upInfer = await call(env, "/api/family/files", { method: "POST", cookie: momC, form: formInfer });
+  assert.equal(upInfer.status, 200);
+  assert.equal(upInfer.data.file.isVideo, true);
+  assert.equal(upInfer.data.file.mime, "video/webm");
+
+  // 2) 가족 공유 글에 동영상 첨부
+  const post = await call(env, "/api/family/posts", {
+    method: "POST",
+    cookie: momC,
+    body: { kind: "message", visibility: "family", body: "놀이터 영상이에요", fileIds: [vid.id] },
+  });
+  assert.equal(post.status, 200);
+  assert.equal(post.data.post.files[0].isVideo, true);
+  assert.equal(post.data.post.files[0].isImage, false);
+
+  // 3) 다른 가족(아빠) 피드에서도 isVideo 플래그 확인
+  const feed = await call(env, "/api/family/posts", { cookie: dadC });
+  assert.equal(feed.status, 200);
+  const feedFile = feed.data.posts[0].files[0];
+  assert.equal(feedFile.isVideo, true);
+
+  // 4) 일반 재생 요청: 200 OK, inline Content-Disposition, accept-ranges 지원
+  const stream = await call(env, `/api/family/files/${vid.id}`, { cookie: dadC });
+  assert.equal(stream.status, 200);
+  assert.equal(stream.res.headers.get("content-type"), "video/mp4");
+  assert.match(stream.res.headers.get("content-disposition"), /^inline; filename\*=UTF-8''%EB%86%80%EC%9D%B4%ED%84%B0\.mp4$/);
+  assert.equal(stream.res.headers.get("accept-ranges"), "bytes");
+  assert.equal(stream.res.headers.get("content-length"), "10");
+  assert.match(stream.res.headers.get("content-security-policy"), /media-src 'self'/);
+
+  // 5) Range 스트리밍 요청: bytes=2-6 (총 10바이트 중 2번부터 6번 인덱스까지 5바이트)
+  const rangePart = await call(env, `/api/family/files/${vid.id}`, {
+    cookie: dadC,
+    headers: { range: "bytes=2-6" },
+  });
+  assert.equal(rangePart.status, 206);
+  assert.equal(rangePart.res.headers.get("content-range"), "bytes 2-6/10");
+  assert.equal(rangePart.res.headers.get("content-length"), "5");
+  assert.deepEqual([...new Uint8Array(await rangePart.res.arrayBuffer())], [30, 40, 50, 60, 70]);
+
+  // 6) 접미사 Range 요청: bytes=-4 (마지막 4바이트)
+  const rangeSuffix = await call(env, `/api/family/files/${vid.id}`, {
+    cookie: dadC,
+    headers: { range: "bytes=-4" },
+  });
+  assert.equal(rangeSuffix.status, 206);
+  assert.equal(rangeSuffix.res.headers.get("content-range"), "bytes 6-9/10");
+  assert.equal(rangeSuffix.res.headers.get("content-length"), "4");
+  assert.deepEqual([...new Uint8Array(await rangeSuffix.res.arrayBuffer())], [70, 80, 90, 100]);
+
+  // 7) 시작 지정 Range 요청: bytes=7-
+  const rangeOpen = await call(env, `/api/family/files/${vid.id}`, {
+    cookie: dadC,
+    headers: { range: "bytes=7-" },
+  });
+  assert.equal(rangeOpen.status, 206);
+  assert.equal(rangeOpen.res.headers.get("content-range"), "bytes 7-9/10");
+  assert.equal(rangeOpen.res.headers.get("content-length"), "3");
+  assert.deepEqual([...new Uint8Array(await rangeOpen.res.arrayBuffer())], [80, 90, 100]);
+
+  // 8) 범위 초과 Range 요청: 416 Range Not Satisfiable
+  const rangeOob = await call(env, `/api/family/files/${vid.id}`, {
+    cookie: dadC,
+    headers: { range: "bytes=20-30" },
+  });
+  assert.equal(rangeOob.status, 416);
+  assert.equal(rangeOob.res.headers.get("content-range"), "bytes */10");
+
+  // 9) 명시적 다운로드 요청: attachment 반환
+  const dl = await call(env, `/api/family/files/${vid.id}?download`, { cookie: dadC });
+  assert.equal(dl.status, 200);
+  assert.match(dl.res.headers.get("content-disposition"), /^attachment; filename\*=UTF-8''%EB%86%80%EC%9D%B4%ED%84%B0\.mp4$/);
 });
 
 test("changing a password ends other sessions", async (t) => {

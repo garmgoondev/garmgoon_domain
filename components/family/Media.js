@@ -35,6 +35,36 @@ function Gallery({ images, onOpen }) {
   );
 }
 
+function isVideoFile(f) {
+  if (f.isVideo) return true;
+  if (!f.isImage && f.mime && f.mime.startsWith("video/")) return true;
+  if (!f.isImage && f.name && /\.(mp4|webm|mov|m4v|ogg|ogv|mkv)$/i.test(f.name)) return true;
+  return false;
+}
+
+function VideoItem({ video }) {
+  return (
+    <div className="famVideoCard">
+      <video
+        className="famVideo"
+        src={fileUrl(video.id)}
+        controls
+        playsInline
+        preload="metadata"
+      >
+        브라우저가 동영상 재생을 지원하지 않아요.
+      </video>
+      <div className="famVideoMeta">
+        <span className="famFileName">🎬 {video.name}</span>
+        <span className="muted">{formatSize(video.size)}</span>
+        <a className="famVideoDownload" href={`${fileUrl(video.id)}?download`} download={video.name} title="다운로드">
+          다운로드
+        </a>
+      </div>
+    </div>
+  );
+}
+
 function fileIcon(f) {
   if (f.mime.startsWith("image/")) return "🖼️";
   if (f.mime.startsWith("video/")) return "🎬";
@@ -49,10 +79,18 @@ function fileIcon(f) {
 
 export default function Media({ files, author }) {
   const [open, setOpen] = useState(null);
+  const videos = files.filter(isVideoFile);
   const images = files.filter((f) => f.isImage);
-  const others = files.filter((f) => !f.isImage);
+  const others = files.filter((f) => !f.isImage && !isVideoFile(f));
   return (
     <>
+      {videos.length ? (
+        <div className="famVideos">
+          {videos.map((v) => (
+            <VideoItem key={v.id} video={v} />
+          ))}
+        </div>
+      ) : null}
       {images.length ? <Gallery images={images} onOpen={setOpen} /> : null}
       {others.length ? (
         <div className="famFiles">

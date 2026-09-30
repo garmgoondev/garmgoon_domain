@@ -18,6 +18,39 @@ const MAX_BODY = 20000;
 const MAX_COMMENT = 2000;
 // 브라우저에서 바로 보여 줘도 안전한 이미지 형식. SVG처럼 스크립트가 들어갈 수 있는 형식은 일반 파일로 다룬다.
 const INLINE_IMAGES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]);
+// 브라우저에서 바로 재생 가능한 동영상 형식
+const INLINE_VIDEOS = new Set(["video/mp4", "video/webm", "video/ogg", "video/quicktime"]);
+
+function detectMime(file) {
+  let mime = String(file.type || "").toLowerCase().slice(0, 100);
+  if (!mime || mime === "application/octet-stream") {
+    const ext = (file.name || "").split(".").pop().toLowerCase();
+    const map = {
+      mp4: "video/mp4",
+      m4v: "video/mp4",
+      webm: "video/webm",
+      mov: "video/quicktime",
+      ogg: "video/ogg",
+      ogv: "video/ogg",
+      mkv: "video/x-matroska",
+      jpg: "image/jpeg",
+      jpeg: "image/jpeg",
+      png: "image/png",
+      webp: "image/webp",
+      gif: "image/gif",
+      avif: "image/avif",
+      pdf: "application/pdf",
+    };
+    if (map[ext]) mime = map[ext];
+  }
+  return mime || "application/octet-stream";
+}
+
+function isVideoMime(mime, name) {
+  if (mime && (mime.startsWith("video/") || INLINE_VIDEOS.has(mime))) return true;
+  if (name && /\.(mp4|webm|mov|m4v|ogg|ogv|mkv)$/i.test(name)) return true;
+  return false;
+}
 export const REACTIONS = ["❤️", "😂", "👍", "😮", "😢", "🙏"];
 const enc = new TextEncoder();
 
@@ -91,7 +124,17 @@ function publicMember(m) {
 }
 
 function fileFromRow(f) {
-  return { id: f.id, name: f.name, mime: f.mime, size: f.size, width: f.width, height: f.height, isImage: Boolean(f.is_image), hasPreview: Boolean(f.has_preview) };
+  return {
+    id: f.id,
+    name: f.name,
+    mime: f.mime,
+    size: f.size,
+    width: f.width,
+    height: f.height,
+    isImage: Boolean(f.is_image),
+    isVideo: isVideoMime(f.mime, f.name),
+    hasPreview: Boolean(f.has_preview),
+  };
 }
 
 function commentFromRow(c, members, me) {
@@ -206,7 +249,7 @@ async function uploadFile(env, me, request) {
   const file = form.get("file");
   if (!isUpload(file)) return httpError(400, "파일이 없어요.");
   if (file.size > MAX_FILE) return httpError(413, "파일은 25MB까지 올릴 수 있어요.");
-  const mime = String(file.type || "application/octet-stream").slice(0, 100);
+  const mime = detectMime(file);
   const isImage = INLINE_IMAGES.has(mime);
   const preview = form.get("preview");
   const thumb = form.get("thumb");
@@ -239,23 +282,82 @@ async function serveFile(env, me, id, request, url) {
   if (!allowed) return httpError(404, "파일을 찾을 수 없어요.");
   const asked = url.searchParams.get("v");
   const variant = row.has_preview && (asked === "preview" || asked === "thumb") ? asked : "original";
-  const download = url.searchParams.has("download") || !row.is_image;
+  const isVideo = isVideoMime(row.mime, row.name);
+  const download = url.searchParams.has("download") || (!row.is_image && !isVideo);
   const etag = `"${id}-${variant}${download ? "-d" : ""}"`;
   const headers = {
     etag,
     "cache-control": "private, max-age=31536000, immutable",
     "x-content-type-options": "nosniff",
-    "content-security-policy": "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; sandbox",
+    "content-security-policy": "default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox",
+    "accept-ranges": "bytes",
   };
   if (request.headers.get("if-none-match") === etag) return new Response(null, { status: 304, headers });
+
+  const rangeHeader = !download && request.headers.get("range");
+  if (rangeHeader && rangeHeader.startsWith("bytes=")) {
+    const rawRange = rangeHeader.slice(6).trim();
+    const match = rawRange.match(/^(\d*)-(\d*)$/);
+    if (!match) {
+      return new Response(null, {
+        status: 416,
+        headers: { ...headers, "content-range": `bytes */${row.size}` },
+      });
+    }
+    const total = row.size;
+    let start = match[1] ? parseInt(match[1], 10) : undefined;
+    let end = match[2] ? parseInt(match[2], 10) : undefined;
+
+    if (start === undefined && end !== undefined) {
+      start = Math.max(0, total - end);
+      end = total - 1;
+    } else if (start !== undefined && end === undefined) {
+      end = total - 1;
+    }
+
+    if (start === undefined || end === undefined || start > end || start >= total) {
+      return new Response(null, {
+        status: 416,
+        headers: { ...headers, "content-range": `bytes */${total}` },
+      });
+    }
+
+    end = Math.min(end, total - 1);
+    const length = end - start + 1;
+
+    const obj = await env.FILES?.get(fileKey(id, variant), {
+      range: { offset: start, length },
+    });
+    if (!obj) return httpError(404, "파일을 찾을 수 없어요.");
+
+    let body = obj.body;
+    if (body instanceof Uint8Array && (!obj.range || obj.range.length !== length)) {
+      body = body.slice(start, start + length);
+    }
+
+    const name = encodeURIComponent(row.name).replace(/['()*!]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+    return new Response(body, {
+      status: 206,
+      headers: {
+        ...headers,
+        "content-type": variant === "original" ? row.mime : obj.httpMetadata?.contentType || "image/webp",
+        "content-disposition": `inline; filename*=UTF-8''${name}`,
+        "content-range": `bytes ${start}-${end}/${total}`,
+        "content-length": String(length),
+      },
+    });
+  }
+
   const obj = await env.FILES?.get(fileKey(id, variant));
   if (!obj) return httpError(404, "파일을 찾을 수 없어요.");
   const name = encodeURIComponent(row.name).replace(/['()*!]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
   return new Response(obj.body, {
+    status: 200,
     headers: {
       ...headers,
       "content-type": variant === "original" ? row.mime : obj.httpMetadata?.contentType || "image/webp",
       "content-disposition": `${download ? "attachment" : "inline"}; filename*=UTF-8''${name}`,
+      "content-length": String(row.size),
     },
   });
 }
@@ -345,9 +447,17 @@ async function createPost(env, me, request, ctx) {
       (async () => {
         const { results } = await env.DB.prepare("SELECT id FROM family_members WHERE id != ?").bind(me.id).all();
         const photos = post.files.filter((f) => f.isImage).length;
+        const videos = post.files.filter((f) => f.isVideo).length;
+        const fileSummary = videos && !photos
+          ? (videos === 1 ? "동영상 1개" : `동영상 ${videos}개`)
+          : photos && !videos
+          ? `사진 ${photos}장`
+          : photos && videos
+          ? `사진 ${photos}장·동영상 ${videos}개`
+          : `파일 ${post.files.length}개`;
         await notifyMembers(env, results.map((r) => r.id), {
           title: `${me.emoji} ${me.name} · 새 ${post.kind === "diary" ? "일기" : "메시지"}`,
-          body: preview(post.body) || (photos ? `사진 ${photos}장` : `파일 ${post.files.length}개`),
+          body: preview(post.body) || (post.files.length ? fileSummary : ""),
           url: "/family",
           tag: `post-${post.id}`,
         });

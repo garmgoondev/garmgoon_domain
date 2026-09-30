@@ -396,6 +396,61 @@
   font-weight: 800;
 }
 
+/* 동영상 */
+
+.famVideos {
+  display: grid;
+  gap: 12px;
+}
+
+.famVideoCard {
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.famVideo {
+  display: block;
+  width: 100%;
+  max-height: 560px;
+  background: #000;
+  outline: none;
+}
+
+.famVideoMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.famVideoMeta .famFileName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.famVideoDownload {
+  color: var(--text-2);
+  font-size: 12px;
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.famVideoDownload:hover {
+  background: var(--line);
+  color: var(--text);
+}
+
 .famFiles {
   display: grid;
   gap: 6px;
