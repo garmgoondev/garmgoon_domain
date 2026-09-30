@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { logout, useMe } from "../lib/api";
 import { formatDay, todayLocal } from "../lib/format";
 
@@ -21,7 +21,17 @@ export default function Header() {
   const pathname = usePathname();
   const me = useMe();
   const [today, setToday] = useState("");
+  const navRef = useRef(null);
+
   useEffect(() => setToday(formatDay(todayLocal())), []);
+
+  useEffect(() => {
+    if (!navRef.current) return;
+    const activeEl = navRef.current.querySelector(".navItem.active");
+    if (activeEl) {
+      activeEl.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    }
+  }, [pathname]);
 
   const isActive = (href) => (href === "/" ? pathname === "/" || pathname.startsWith("/cards") : pathname.startsWith(href));
 
@@ -49,7 +59,7 @@ export default function Header() {
           ) : null}
         </div>
       </div>
-      <nav className="nav" aria-label="주요 메뉴">
+      <nav ref={navRef} className="nav" aria-label="주요 메뉴">
         {NAV.map((n) => (
           <Link key={n.href} href={n.href} className={`navItem${isActive(n.href) ? " active" : ""}`}>
             {n.label}

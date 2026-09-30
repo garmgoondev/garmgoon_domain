@@ -39,6 +39,8 @@ html,
 body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -86,6 +88,7 @@ button {
   backdrop-filter: saturate(1.6) blur(14px);
   -webkit-backdrop-filter: saturate(1.6) blur(14px);
   border-bottom: 1px solid var(--line);
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .headerTop,
@@ -151,7 +154,15 @@ button {
   gap: 4px;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-inline: 16px;
   padding-bottom: 10px;
+}
+
+.nav::after {
+  content: "";
+  flex: none;
+  width: 12px;
 }
 
 .nav::-webkit-scrollbar {
@@ -202,7 +213,7 @@ button {
 
 .page {
   padding-top: 28px;
-  padding-bottom: 80px;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 }
 
 .pageHead {
@@ -226,10 +237,11 @@ button {
 
 .pageTitle {
   margin: 0;
-  font-size: clamp(26px, 4vw, 34px);
+  font-size: clamp(22px, 5.5vw, 34px);
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: -0.035em;
+  word-break: keep-all;
 }
 
 .pageDesc {
@@ -807,13 +819,13 @@ button {
   z-index: 2;
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border: none;
   border-radius: 50%;
   background: color-mix(in srgb, var(--c-fg) 18%, transparent);
   color: inherit;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .ncardScrap:hover {
@@ -1879,6 +1891,13 @@ button {
   opacity: 0.7;
 }
 
+.settingsActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
 /* ---------- 모바일 ---------- */
 
 @media (max-width: 640px) {
@@ -1887,6 +1906,10 @@ button {
   .page {
     padding-left: 16px;
     padding-right: 16px;
+  }
+
+  .headerTop {
+    height: 52px;
   }
 
   .page {
@@ -1908,6 +1931,25 @@ button {
     font-size: 18px;
   }
 
+  .kindTabs {
+    gap: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .kindTabs button {
+    min-width: 108px;
+    padding: 8px 12px;
+    border-radius: 14px;
+  }
+
+  .kindTabs button b {
+    font-size: 14px;
+  }
+
+  .kindTabs button small {
+    font-size: 11px;
+  }
+
   .videoGrid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1922,10 +1964,56 @@ button {
     padding: 18px;
   }
 
+  .settingsActions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    width: 100%;
+  }
+
+  .settingsActions .btn {
+    width: 100%;
+    padding: 0 8px;
+    font-size: 12px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .hotGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .statGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .tabs {
+    display: flex;
+    width: 100%;
+  }
+
+  .tabs button {
+    flex: 1;
+    text-align: center;
+    padding: 9px 8px;
+    font-size: 14px;
+  }
+
   .reportHero,
   .reportBody {
     padding-left: 20px;
     padding-right: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .headerDate {
+    display: none;
+  }
+
+  .brand {
+    font-size: 17px;
   }
 }
 

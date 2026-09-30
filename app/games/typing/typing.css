@@ -17,12 +17,13 @@
 }
 
 .heroTitle {
-  font-size: 28px;
+  font-size: clamp(20px, 5.2vw, 28px);
   font-weight: 800;
   margin: 0 0 6px 0;
   display: flex;
   align-items: center;
   gap: 10px;
+  word-break: keep-all;
 }
 
 .heroSubtitle {
@@ -759,15 +760,6 @@
   font-size: 14px;
 }
 
-@media (max-width: 640px) {
-  .resultStatsGrid {
-    grid-template-columns: 1fr;
-  }
-  .trackRoad {
-    padding-right: 48px;
-  }
-}
-
 /* Game Category Switcher (Race vs Fighter) */
 .gameCategoryBar {
   display: flex;
@@ -806,4 +798,64 @@
   background: var(--brand);
   color: white;
   box-shadow: 0 4px 12px rgba(255, 90, 54, 0.35);
+}
+
+@media (max-width: 640px) {
+  .typingPageWrapper {
+    padding: 16px 12px 80px;
+  }
+
+  .typingHero {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .heroActions {
+    justify-content: flex-end;
+  }
+
+  .lobbyCard {
+    padding: 16px;
+    border-radius: 18px;
+    margin-bottom: 20px;
+  }
+
+  .modeTabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    gap: 8px;
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+  }
+
+  .modeTabBtn {
+    flex: none;
+    white-space: nowrap;
+    font-size: 14px;
+    padding: 7px 12px;
+  }
+
+  .resultStatsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .trackRoad {
+    padding-right: 48px;
+  }
+
+  .gameCategoryBar {
+    padding: 4px;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+
+  .categoryTabBtn {
+    padding: 10px 8px;
+    font-size: 13px;
+    gap: 4px;
+  }
 }

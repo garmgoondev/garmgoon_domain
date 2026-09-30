@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { api, logout, resetMe, useApi } from "../../lib/api";
+import { api, resetMe, useApi } from "../../lib/api";
 import { timeAgo } from "../../lib/format";
 
 const TICK_MINUTES = 10;
@@ -320,7 +320,7 @@ function Status() {
         </div>
       </div>
       <PipelineProgress data={data} />
-      <div className="row" style={{ flexWrap: "wrap", marginTop: 16 }}>
+      <div className="settingsActions">
         <button type="button" className="btn small" onClick={() => run("tick")} disabled={!!running}>
           {running === "tick" ? "처리 중…" : "▶ 다음 단계 실행"}
         </button>
@@ -368,9 +368,6 @@ export default function SettingsPage() {
           <h1 className="pageTitle">설정</h1>
           <p className="pageDesc">채널과 키워드를 관리하고, 수집 상태를 확인해요.</p>
         </div>
-        <button type="button" className="btn ghost small" onClick={() => logout("/")}>
-          로그아웃
-        </button>
       </div>
       <Channels />
       <Keywords />
