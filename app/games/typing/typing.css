@@ -617,6 +617,8 @@
   align-items: center;
   z-index: 1000;
   padding: 16px;
+  touch-action: none;
+  overscroll-behavior: contain;
 }
 
 .modalCard {
@@ -629,6 +631,8 @@
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-lg);
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
 
 .modalHeader {
@@ -713,6 +717,9 @@
 .leaderboardTableWrapper {
   overflow-y: auto;
   flex: 1;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 .leaderboardTable {

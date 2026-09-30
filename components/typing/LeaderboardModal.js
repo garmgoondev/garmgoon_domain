@@ -1,12 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { lockScroll } from "../../lib/scrollLock";
 
 export default function LeaderboardModal({ isOpen, onClose, t = null }) {
   const [period, setPeriod] = useState("all");
   const [scores, setScores] = useState([]);
   const [stats, setStats] = useState({ totalRuns: 0, maxWpm: 0 });
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const unlock = lockScroll();
+    const onKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      unlock();
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -35,7 +49,7 @@ export default function LeaderboardModal({ isOpen, onClose, t = null }) {
   if (!isOpen) return null;
 
   return (
-    <div className="modalOverlay" onClick={onClose}>
+    <div className="modalOverlay" role="dialog" aria-modal="true" aria-label={t?.modalTitle || "명예의 전당"} onClick={onClose}>
       <div className="modalCard leaderboardModal" onClick={(e) => e.stopPropagation()}>
         <div className="modalHeader">
           <div>
