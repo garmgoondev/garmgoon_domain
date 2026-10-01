@@ -48,7 +48,7 @@ function Report({ r }) {
             <h3>🏷️ 많이 나온 키워드</h3>
             <div className="kwCloud">
               {r.keywords.map((k) => (
-                <span key={k.word} style={{ fontSize: 13 + (k.count / maxKw) * 9 }}>
+                <span key={k.word} style={{ fontSize: 14 + (k.count / maxKw) * 8 }}>
                   {k.word} <small className="muted">{k.count}</small>
                 </span>
               ))}

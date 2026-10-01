@@ -312,11 +312,11 @@ function Status() {
       <div className="statGrid">
         <div className="stat">
           <small>AI 모델</small>
-          <b style={{ fontSize: 13 }}>{data.model}</b>
+          <b style={{ fontSize: 14 }}>{data.model}</b>
         </div>
         <div className="stat">
           <small>마지막 수집</small>
-          <b style={{ fontSize: 14 }}>{data.collectedAt ? timeAgo(data.collectedAt) : "아직"}</b>
+          <b style={{ fontSize: 15 }}>{data.collectedAt ? timeAgo(data.collectedAt) : "아직"}</b>
         </div>
       </div>
       <PipelineProgress data={data} />

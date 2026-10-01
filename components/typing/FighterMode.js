@@ -604,7 +604,7 @@ export default function FighterMode({ nickname = "Fighter", t = null, initialRoo
                   {/* Room Code Box */}
                   <div className="roomCodeBox">
                     <div>
-                      <span style={{ fontSize: "12px", color: "var(--text-2)", display: "block" }}>
+                      <span style={{ fontSize: "13px", color: "var(--text-2)", display: "block" }}>
                         {t?.roomCodeTitle || "방 초대 코드"}
                       </span>
                       <span className="roomCodeValue">{roomCode}</span>

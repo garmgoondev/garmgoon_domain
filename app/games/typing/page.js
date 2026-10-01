@@ -611,7 +611,7 @@ export default function TypingPage() {
                   <div className="multiplayerRoomInfo">
                     <div className="roomCodeBox">
                       <div>
-                        <span style={{ fontSize: "12px", color: "var(--text-2)", display: "block" }}>
+                        <span style={{ fontSize: "13px", color: "var(--text-2)", display: "block" }}>
                           {t.roomCodeTitle}
                         </span>
                         <span className="roomCodeValue">{roomCode}</span>
@@ -648,7 +648,7 @@ export default function TypingPage() {
                           <div key={p.id} className="playerBadge">
                             <span className="playerColorDot" style={{ background: p.color }} />
                             <span>{p.nickname}</span>
-                            {p.isHost && <span style={{ fontSize: "11px", color: "var(--brand)" }}>{t.hostBadge}</span>}
+                            {p.isHost && <span style={{ fontSize: "12px", color: "var(--brand)" }}>{t.hostBadge}</span>}
                           </div>
                         ))}
                       </div>

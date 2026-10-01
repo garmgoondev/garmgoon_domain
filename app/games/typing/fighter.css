@@ -54,7 +54,7 @@
 .guardBadgePulse {
   background: #0284c7;
   color: white;
-  font-size: 11px;
+  font-size: 12px;
   padding: 2px 6px;
   border-radius: 6px;
   animation: pulseGuard 1s infinite alternate;
@@ -101,7 +101,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   color: #64748b;
   letter-spacing: 1px;
@@ -145,7 +145,7 @@
 
 .ultimateReadyTag {
   color: #fbbf24;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
   animation: blinkFast 0.6s infinite alternate;
 }
@@ -550,7 +550,7 @@
   background: var(--surface);
   border: 1px solid var(--line);
   font-family: monospace;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   padding: 2px 6px;
   border-radius: 6px;
@@ -570,7 +570,7 @@
 .skillCardDetails {
   display: flex;
   gap: 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
 }
 
@@ -580,7 +580,7 @@
 
 .skillDesc {
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-3);
   line-height: 1.4;
 }
@@ -634,7 +634,7 @@
 }
 
 .activeSkillTypeTag {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   background: var(--brand-soft);
   color: var(--brand);
@@ -646,7 +646,7 @@
   background: none;
   border: 1px solid var(--line);
   color: var(--text-3);
-  font-size: 12px;
+  font-size: 13px;
   padding: 4px 10px;
   border-radius: 6px;
   cursor: pointer;
@@ -725,7 +725,7 @@
 }
 
 .rosterBadge {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   padding: 3px 8px;
   border-radius: 6px;
@@ -756,7 +756,7 @@
 }
 
 .rosterStatus {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   padding: 3px 10px;
   border-radius: 10px;
@@ -823,7 +823,7 @@
 .youBadge {
   background: #10b981;
   color: white;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 900;
   padding: 2px 6px;
   border-radius: 4px;
@@ -839,7 +839,7 @@
   border: 1px solid #334155;
   border-radius: 8px;
   padding: 4px 10px;
-  font-size: 12px;
+  font-size: 13px;
   color: #94a3b8;
   font-family: monospace;
   z-index: 10;

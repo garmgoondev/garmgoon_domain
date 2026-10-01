@@ -104,7 +104,7 @@
   height: 32px;
   padding: 0 11px;
   border-radius: 10px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .vbBtn.ghost {
@@ -143,7 +143,7 @@
 
 .vbInput {
   width: 100%;
-  height: 38px;
+  height: 40px;
   margin-top: 8px;
   padding: 0 12px;
   border-radius: 11px;
@@ -151,7 +151,7 @@
   background: #fff;
   color: var(--vb-ink);
   font: inherit;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   text-align: center;
 }
@@ -189,7 +189,7 @@
   border: 1.5px solid var(--vb-line);
   background: #fff;
   color: var(--vb-ink-2);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 800;
   cursor: pointer;
 }
@@ -327,7 +327,7 @@
 
 .vbMode small {
   color: var(--vb-ink-2);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -371,7 +371,7 @@
 .vbCardLabel {
   align-self: stretch;
   color: var(--vb-ink-2);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -394,7 +394,7 @@
 
 .vbCardDesc {
   color: var(--vb-ink-2);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -452,7 +452,7 @@
 
 .vbOpt > span {
   color: var(--vb-ink-2);
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 800;
 }
 
@@ -470,7 +470,7 @@
 
 .vbOr {
   color: var(--vb-ink-2);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
 }
 
@@ -506,7 +506,7 @@
   border-radius: 999px;
   background: #e5f7ec;
   color: #16804a;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .vbWaitDot {
@@ -562,7 +562,7 @@
 
 .vbMuted.small {
   margin-top: 6px;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
   text-align: left;
 }
