@@ -7,10 +7,10 @@ import { fetchText, localDay, log, parseJSON, stripHtml, timeZone, truncate } fr
 
 const SCORE_BATCH = 60;
 const SUMMARY_BATCH = 10;
-const DEFAULT_CAP = 15;
+const DEFAULT_CAP = 20;
 // 한 번 선정할 때 추가하는 최대 카드 수. 하루 전체 상한은 DAILY_CARDS.
 // 피드에는 상위 FEED_CARDS장만 보이고 나머지는 전체보기 페이지에 나온다.
-const BATCH_CARDS = 25;
+const BATCH_CARDS = 50;
 
 const SOURCE_BY_ID = Object.fromEntries(SOURCES.map((s) => [s.id, s]));
 
@@ -23,11 +23,11 @@ const GOAL = `사용자는 카드를 보며 현재 트렌드를 파악하고, �
 4. 새로 생기는 수요와 시장 변화의 초기 신호`;
 
 export function dailyCardCount(env) {
-  return Number(env.DAILY_CARDS) || 100;
+  return Number(env.DAILY_CARDS) || 150;
 }
 
 export function feedCardCount(env) {
-  return Number(env.FEED_CARDS) || 30;
+  return Number(env.FEED_CARDS) || 60;
 }
 
 // 이 점수(AI 점수 + 호응·키워드 가산점) 미만인 글은 카드로 만들지 않는다

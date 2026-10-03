@@ -7,21 +7,21 @@ import { addDays, DAY, fetchText, getState, HOUR, parseJSON, setState, stripHtml
 // - group "news": 투자·스타트업 뉴스는 트렌드 신호로 하루 몇 장만 남긴다
 // - needs: 해당 API 키가 있을 때만 수집한다
 export const SOURCES = [
-  { id: "reddit", label: "Reddit", type: "reddit", needs: "reddit", cap: 30 },
+  { id: "reddit", label: "Reddit", type: "reddit", needs: "reddit", cap: 45 },
   // 창업자들이 아이디어·고민을 올리고 댓글로 검증받는 게시판. 최신 글과 주간 인기 글을 읽는다.
-  { id: "indiehackers", label: "Indie Hackers", type: "indiehackers", minReactions: 6, maxAgeHours: 24 * 8, cap: 18 },
-  { id: "showhn", label: "Show HN", type: "hn", tag: "show_hn", minPoints: 15, limit: 25, cap: 18 },
-  { id: "askhn", label: "Ask HN", type: "hn", tag: "ask_hn", minPoints: 20, limit: 15, cap: 12 },
-  { id: "producthunt", label: "Product Hunt", type: "rss", url: "https://www.producthunt.com/feed", limit: 15, cap: 12 },
-  { id: "acquire", label: "Acquire", type: "rss", url: "https://blog.acquire.com/feed/", limit: 5, cap: 9, browserUA: true },
-  { id: "trendsvc", label: "Trends.vc", type: "rss", url: "https://trends.vc/feed/", limit: 5, cap: 9 },
-  { id: "geeknews", label: "GeekNews", type: "rss", url: "https://news.hada.io/rss/news", limit: 20, cap: 12 },
+  { id: "indiehackers", label: "Indie Hackers", type: "indiehackers", minReactions: 6, maxAgeHours: 24 * 8, cap: 24 },
+  { id: "showhn", label: "Show HN", type: "hn", tag: "show_hn", minPoints: 15, limit: 25, cap: 24 },
+  { id: "askhn", label: "Ask HN", type: "hn", tag: "ask_hn", minPoints: 20, limit: 15, cap: 16 },
+  { id: "producthunt", label: "Product Hunt", type: "rss", url: "https://www.producthunt.com/feed", limit: 15, cap: 16 },
+  { id: "acquire", label: "Acquire", type: "rss", url: "https://blog.acquire.com/feed/", limit: 5, cap: 10, browserUA: true },
+  { id: "trendsvc", label: "Trends.vc", type: "rss", url: "https://trends.vc/feed/", limit: 5, cap: 10 },
+  { id: "geeknews", label: "GeekNews", type: "rss", url: "https://news.hada.io/rss/news", limit: 20, cap: 16 },
   { id: "techcrunch", label: "TechCrunch", type: "rss", url: "https://techcrunch.com/category/startups/feed/", limit: 8, group: "news" },
   { id: "platum", label: "플래텀", type: "rss", url: "https://platum.kr/feed", limit: 8, group: "news" },
   { id: "venturesquare", label: "벤처스퀘어", type: "rss", url: "https://www.venturesquare.net/feed", limit: 8, group: "news" },
 ];
 
-export const GROUP_CAPS = { news: 9 };
+export const GROUP_CAPS = { news: 12 };
 
 // 커뮤니티 글은 30일 뒤 삭제한다 (Reddit·Indie Hackers 약관의 데이터 보관 조건)
 export const SHORT_RETENTION_SOURCES = ["reddit", "indiehackers"];

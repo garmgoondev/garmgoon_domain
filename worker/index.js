@@ -65,6 +65,10 @@ async function getIdeas(env, url, authed) {
     scrapped,
     votes: authed ? Object.fromEntries(vote) : {},
     prefs: authed ? preferenceSummary(prefs) : null,
+  }, {
+    headers: authed
+      ? { "cache-control": "private, no-cache" }
+      : { "cache-control": "public, max-age=60, s-maxage=180, stale-while-revalidate=600" },
   });
 }
 
@@ -98,12 +102,19 @@ async function getVideos(env, url, authed) {
     pending: pending.n,
     scrapped,
     nextBefore: videos.length === limit ? videos[videos.length - 1].publishedAt : null,
+  }, {
+    headers: authed
+      ? { "cache-control": "private, no-cache" }
+      : { "cache-control": "public, max-age=120, s-maxage=300, stale-while-revalidate=900" },
   });
 }
 
 async function getReports(env) {
   const { results } = await env.DB.prepare("SELECT week, content FROM reports ORDER BY week DESC LIMIT 12").all();
-  return json({ reports: results.map((r) => ({ week: r.week, ...parseJSON(r.content, {}) })) });
+  return json(
+    { reports: results.map((r) => ({ week: r.week, ...parseJSON(r.content, {}) })) },
+    { headers: { "cache-control": "public, max-age=300, s-maxage=900, stale-while-revalidate=3600" } },
+  );
 }
 
 async function getTypingLeaderboard(env, url) {
@@ -133,6 +144,8 @@ async function getTypingLeaderboard(env, url) {
       totalRuns: statsRes?.total_runs || 0,
       maxWpm: statsRes?.max_wpm ? Math.round(statsRes.max_wpm) : 0,
     },
+  }, {
+    headers: { "cache-control": "public, max-age=60, s-maxage=60, stale-while-revalidate=120" },
   });
 }
 

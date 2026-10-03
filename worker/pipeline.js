@@ -58,16 +58,23 @@ export async function tick(env, { forceCollect = false } = {}) {
       return n ? `유튜브 요약: ${n}건` : null;
     },
     async () => {
-      // 하루 한 번, 보관 기간이 지난 커뮤니티 글을 지운다. 스크랩한 글은 남긴다.
+      // 하루 한 번, 탈락한 글과 보관 기간이 지난 글을 지운다. 스크랩한 글은 남긴다.
       if (await getState(env, `cleanup:${today}`)) return null;
       await setState(env, `cleanup:${today}`, now);
-      const res = await env.DB.prepare(
-        `DELETE FROM items WHERE source IN (${SHORT_RETENTION_SOURCES.map((s) => `'${s}'`).join(",")}) AND collected_at < ?
+
+      // 1) 카드 선정에서 탈락(skipped)한 글은 3일 뒤 자동 삭제 (중복 수집 방지 기간 경과 후 정리)
+      const skippedRes = await env.DB.prepare(
+        "DELETE FROM items WHERE status = 'skipped' AND collected_at < ?"
+      ).bind(now - 3 * DAY).run();
+
+      // 2) 보관 기간이 지난 미스크랩 글 삭제
+      const oldRes = await env.DB.prepare(
+        `DELETE FROM items WHERE collected_at < ?
          AND CAST(id AS TEXT) NOT IN (SELECT ref_id FROM scraps WHERE kind = 'item')`,
-      )
-        .bind(now - RETENTION_DAYS * DAY)
-        .run();
-      return res.meta.changes ? `보관 기간 지난 커뮤니티 글 ${res.meta.changes}건 삭제` : null;
+      ).bind(now - RETENTION_DAYS * DAY).run();
+
+      const totalDeleted = (skippedRes.meta.changes || 0) + (oldRes.meta.changes || 0);
+      return totalDeleted ? `데이터 정리: 탈락 글 ${skippedRes.meta.changes || 0}건, 만료 글 ${oldRes.meta.changes || 0}건 삭제` : null;
     },
     async () => {
       // 일요일 18시 이후엔 이번 주, 그 외엔 지난주 리포트가 없으면 만든다
