@@ -122,4 +122,8 @@ test("private pages redirect to login when unauthenticated", async (t) => {
   const scrapRes = await worker.fetch(new Request("https://garmgoon.test/scrap"), env);
   assert.equal(scrapRes.status, 302);
   assert.equal(scrapRes.headers.get("location"), "https://garmgoon.test/login?next=%2Fscrap");
+
+  const automationsRes = await worker.fetch(new Request("https://garmgoon.test/automations"), env);
+  assert.equal(automationsRes.status, 302);
+  assert.equal(automationsRes.headers.get("location"), "https://garmgoon.test/login?next=%2Fautomations");
 });

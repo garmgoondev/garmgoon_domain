@@ -11,7 +11,7 @@ import { addChannel, videoFromRow } from "./youtube.js";
 import { redditMode } from "./reddit.js";
 import { loadPreferences, preferenceBoost, preferenceSummary } from "./prefs.js";
 
-const PRIVATE_PAGES = /^\/(tools|scrap|settings)(\/|\.html|\.txt|$)/;
+const PRIVATE_PAGES = /^\/(tools|scrap|settings|automations)(\/|\.html|\.txt|$)/;
 const NOTE_STATUSES = ["idea", "review", "doing", "hold"];
 
 async function readBody(request) {
