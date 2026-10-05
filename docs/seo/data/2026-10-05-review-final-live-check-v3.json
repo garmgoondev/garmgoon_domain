@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-05T05:53:11.440Z",
+  "pages": [
+    {
+      "url": "https://utahsays.com/sitemap.xml",
+      "status": 200,
+      "cache": "HIT",
+      "localhostCount": 0,
+      "productionLocs": 105
+    },
+    {
+      "url": "https://utahsays.com/sitemap.xml",
+      "status": 200,
+      "cache": "HIT",
+      "localhostCount": 0,
+      "productionLocs": 105
+    }
+  ],
+  "latestDeployment": {
+    "id": "9c6b69df-93da-484f-a628-e88308d432f5",
+    "source": "wrangler",
+    "strategy": "percentage",
+    "author_email": "garmgoondev@gmail.com",
+    "annotations": {
+      "workers/triggered_by": "deployment"
+    },
+    "versions": [
+      {
+        "version_id": "eacd0d1a-f71c-4bd4-a92b-2c12141fef30",
+        "percentage": 100
+      }
+    ],
+    "created_on": "2026-10-05T05:39:51.447595Z"
+  },
+  "apiStatus": 200
+}

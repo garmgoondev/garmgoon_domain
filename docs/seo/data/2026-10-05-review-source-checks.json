@@ -1,0 +1,56 @@
+{
+  "at": "2026-10-05T05:44:36.481Z",
+  "method": "Execute transpiled actual site.ts in a VM; replace unrelated SEO config import with constant",
+  "checks": {
+    "eslintSite": {
+      "command": "pnpm exec eslint src/lib/site.ts",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "command": "pnpm exec tsc --noEmit --incremental false",
+      "exitCode": 0
+    },
+    "jsonc": {
+      "command": "typescript.parseConfigFileTextToJson",
+      "error": null
+    }
+  },
+  "cases": [
+    {
+      "NODE_ENV": "production",
+      "input": "(unset)",
+      "url": "https://utahsays.com",
+      "absolute": "https://utahsays.com/about"
+    },
+    {
+      "NODE_ENV": "production",
+      "input": "http://localhost:3000",
+      "url": "https://utahsays.com",
+      "absolute": "https://utahsays.com/about"
+    },
+    {
+      "NODE_ENV": "production",
+      "input": "https://utahsays.com/",
+      "url": "https://utahsays.com",
+      "absolute": "https://utahsays.com/about"
+    },
+    {
+      "NODE_ENV": "production",
+      "input": "http://127.0.0.1:3000",
+      "url": "http://127.0.0.1:3000",
+      "absolute": "http://127.0.0.1:3000/about"
+    },
+    {
+      "NODE_ENV": "production",
+      "input": "",
+      "url": "https://utahsays.com",
+      "absolute": "https://utahsays.com/about"
+    },
+    {
+      "NODE_ENV": "development",
+      "input": "http://localhost:3000",
+      "url": "http://localhost:3000",
+      "absolute": "http://localhost:3000/about"
+    }
+  ]
+}

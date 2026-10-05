@@ -1,0 +1,84 @@
+{
+  "at": "2026-10-05T05:40:11.544Z",
+  "repos": [
+    {
+      "root": "D:/Dev/garmgoon_domain",
+      "head": "1b96ba5f28c35da347f9661bab3c2611b9a90eac",
+      "status": " M components/IdeaCard.js\n M components/RedditDiscussion.js\n M worker/ideas.js\n M worker/pipeline.js\n?? AGENTS.md\n?? docs/seo/\n?? scripts/repair_cards.sql\n",
+      "files": [
+        {
+          "file": "components/IdeaCard.js",
+          "modified": "2026-10-05T00:11:21.792Z",
+          "sha256": "983d1af6affbcd91f5ed7d3ad7c9db379459d8712d01a3c08a1781d2b7250b0b"
+        },
+        {
+          "file": "components/RedditDiscussion.js",
+          "modified": "2026-10-05T00:11:31.893Z",
+          "sha256": "eb3727bb28b04d91a79249f417a8394ca1746184dc3410aa28b8dd0781f13368"
+        },
+        {
+          "file": "worker/ideas.js",
+          "modified": "2026-10-05T00:12:36.017Z",
+          "sha256": "88a2327d9768a1e21c78239e72cd5ff00d41ca3bdd097874847ded1a5be10788"
+        },
+        {
+          "file": "worker/pipeline.js",
+          "modified": "2026-10-05T00:11:59.621Z",
+          "sha256": "e30b7e619cf122efa0913f80d77f6da161482d15d1cd0398ef62be1a2eb2e9ea"
+        },
+        {
+          "file": "scripts/repair_cards.sql",
+          "modified": "2026-10-05T00:13:42.042Z",
+          "sha256": "1b1c00c1ba99a2748be8a862badf4c54f7c312b4cd3554e680fe88e9ed6d9462"
+        },
+        {
+          "file": "AGENTS.md",
+          "modified": "2026-10-05T03:23:27.350Z",
+          "sha256": "2807e082328fa6cb9653ed9a82b2e6d1ec892d1bcce6c0d09b3ef52a57024a36"
+        },
+        {
+          "file": "package.json",
+          "modified": "2026-09-28T09:33:09.160Z",
+          "sha256": "0d392e900a5f8ea962798dc03206e764b90aa2762b934ca9380d16330968daa2"
+        }
+      ]
+    },
+    {
+      "root": "D:/Dev/WhatsBestInUtah",
+      "head": "4f6f61186853ede90b7c7843ee597eb180136a69",
+      "status": "?? .dev.vars.example\n?? .env.example\n?? .gitignore\n?? AGENTS.md\n?? CLAUDE.md\n?? README.md\n?? cloudflare-env.d.ts\n?? docs/\n?? eslint.config.mjs\n?? migrations/\n?? next.config.ts\n?? open-next.config.ts\n?? package.json\n?? pnpm-lock.yaml\n?? pnpm-workspace.yaml\n?? postcss.config.mjs\n?? public/\n?? scripts/\n?? src/\n?? tsconfig.json\n?? vitest.config.mts\n?? worker.ts\n?? wrangler.jsonc\n",
+      "files": [
+        {
+          "file": "src/lib/site.ts",
+          "modified": "2026-10-05T05:28:17.911Z",
+          "sha256": "20e0c259b1a8185a17630f80351f2c2c5ddf014b1dc5f06a29c4c557d55b34ca"
+        },
+        {
+          "file": "wrangler.jsonc",
+          "modified": "2026-10-05T05:28:20.904Z",
+          "sha256": "a231e817af16891c87bfc2d2d3b577aec0c2bc3568432d5396e6fe39f7b0801c"
+        },
+        {
+          "file": "src/app/sitemap.ts",
+          "modified": "2026-10-05T03:43:16.262Z",
+          "sha256": "58ff2cfa32f3ccf31b1aebca365becd0789e3f5169f429235554041c0d23c3e3"
+        },
+        {
+          "file": "src/app/robots.ts",
+          "modified": "2026-10-05T03:48:54.001Z",
+          "sha256": "31aaaa5b920a6e46dac731f383b4b59fc6ba3a7191171739ce9c6a4d6b36a64b"
+        },
+        {
+          "file": "worker.ts",
+          "modified": "2026-10-05T04:19:35.023Z",
+          "sha256": "d09c66f4d2ca4e33a7f66a481d48c81eb54351d7beeb4029dec03fe48cb015a6"
+        },
+        {
+          "file": "package.json",
+          "modified": "2026-10-05T04:00:55.844Z",
+          "sha256": "71589cef3b0463f0ea5b4a646da8c93e5490dbaeb86bd3d57b982557fb397f8e"
+        }
+      ]
+    }
+  ]
+}

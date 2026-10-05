@@ -1,0 +1,11 @@
+﻿{
+  "id": "c043aeac-7cfc-4e46-8012-0d13d1862abb",
+  "ok": true,
+  "result": {
+    "result": "{\"text\":\"Toggle Sidebar\\nOpenSEO\\nProjects\\nProject settings\\nEverydayTutor\\nGeneral\\nIntegrations\\nGeneral\\nName\\nDomain\\n(optional)\\nCountry\\nLanguage\\nEnglish\\nKeyword, SERP, and domain data uses this country and language unless a call asks for a different one.\\nSave changes\\nArchive project\\n\\nArchiving removes the project from your workspace and stops its scheduled rank tracking. You can restore it later from the Projects page.\\n\\nArchive project\",\"inputs\":[{\"name\":\"name\",\"value\":\"EverydayTutor\"},{\"name\":\"domain\",\"value\":\"everydaytutor.net\"},{\"name\":\"\",\"value\":\"United States\"},{\"name\":\"\",\"value\":\"{\\\"code\\\":2840,\\\"label\\\":\\\"United States\\\",\\\"shortLabel\\\":\\\"US\\\",\\\"languageCode\\\":\\\"en\\\"}\"},{\"name\":\"\",\"value\":\"en\"}]}",
+    "origin": "https://seo.garmgoon.com/p/629af3c0-2782-4d60-a13b-104c7cf1e6b6/settings"
+  },
+  "_meta": {
+    "runtimeId": "da116397-d1ee-4f28-8435-c2f04b9df8f3"
+  }
+}

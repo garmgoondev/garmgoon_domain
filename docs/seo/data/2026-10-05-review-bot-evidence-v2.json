@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-05T05:42:21.734Z",
+  "requests": [
+    {
+      "url": "https://utahsays.com/c/st-george?review=Googlebot-fresh20261005",
+      "ua": "Googlebot",
+      "status": 200,
+      "cache": "MISS",
+      "canonical": "https://utahsays.com/c/st-george",
+      "canonicalInHead": true
+    },
+    {
+      "url": "https://utahsays.com/c/st-george?review=bingbot-fresh20261005",
+      "ua": "bingbot",
+      "status": 200,
+      "cache": "MISS",
+      "canonical": "https://utahsays.com/c/st-george",
+      "canonicalInHead": true
+    }
+  ]
+}

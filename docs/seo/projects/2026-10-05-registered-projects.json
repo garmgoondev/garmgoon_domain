@@ -1,0 +1,162 @@
+{
+  "updatedAt": "2026-10-05T05:14:00Z",
+  "workspace": "https://seo.garmgoon.com",
+  "mcpEndpoint": "https://seo.garmgoon.com/mcp",
+  "projects": [
+    {
+      "id": "e0206a78-8f7f-48d6-a056-d885028c14e5",
+      "name": "Garmgoon",
+      "domain": "garmgoon.com",
+      "url": "https://seo.garmgoon.com/p/e0206a78-8f7f-48d6-a056-d885028c14e5",
+      "market": {
+        "locationCode": 2410,
+        "languageCode": "ko"
+      },
+      "gsc": {
+        "status": "connected",
+        "property": "sc-domain:garmgoon.com",
+        "account": "garmgoon@gmail.com",
+        "recentMetrics28d": {
+          "clicks": 1,
+          "impressions": 18,
+          "ctr": 0.056,
+          "avgPosition": 10.1
+        }
+      },
+      "ga4": {
+        "status": "not_connected"
+      },
+      "dataforseo": {
+        "status": "active",
+        "referringDomains": 451,
+        "backlinks": 454
+      }
+    },
+    {
+      "id": "992bdb6c-b0eb-480a-b6c2-3238f26c8a52",
+      "name": "Utah Says",
+      "domain": "utahsays.com",
+      "url": "https://seo.garmgoon.com/p/992bdb6c-b0eb-480a-b6c2-3238f26c8a52",
+      "market": {
+        "locationCode": 2840,
+        "languageCode": "en"
+      },
+      "gsc": {
+        "status": "connected",
+        "property": "sc-domain:utahsays.com",
+        "account": "garmgoondev@gmail.com",
+        "recentMetrics28d": {
+          "clicks": 0,
+          "impressions": 0,
+          "ctr": 0.0,
+          "avgPosition": 0.0
+        }
+      },
+      "ga4": {
+        "status": "not_connected"
+      },
+      "dataforseo": {
+        "status": "active"
+      }
+    },
+    {
+      "id": "629af3c0-2782-4d60-a13b-104c7cf1e6b6",
+      "name": "EverydayTutor",
+      "domain": "everydaytutor.net",
+      "url": "https://seo.garmgoon.com/p/629af3c0-2782-4d60-a13b-104c7cf1e6b6",
+      "aliases": [
+        "https://www.everydaytutor.net/"
+      ],
+      "market": {
+        "locationCode": 2158,
+        "languageCode": "zh-TW"
+      },
+      "gsc": {
+        "status": "connected",
+        "property": "sc-domain:everydaytutor.net",
+        "account": "garmgoon@gmail.com",
+        "additionalProperties": [
+          {
+            "property": "https://www.everydaytutor.net/",
+            "account": "garmgoondev@gmail.com"
+          }
+        ],
+        "recentMetrics28d": {
+          "clicks": 1,
+          "impressions": 66,
+          "ctr": 0.015,
+          "avgPosition": 16.7
+        }
+      },
+      "ga4": {
+        "status": "not_connected"
+      },
+      "dataforseo": {
+        "status": "active",
+        "referringDomains": 40,
+        "backlinks": 43
+      }
+    },
+    {
+      "id": "0aa884bf-1249-4a89-b8c9-e215f64bdb31",
+      "name": "PW Studio",
+      "domain": "pwstudio.kr",
+      "url": "https://seo.garmgoon.com/p/0aa884bf-1249-4a89-b8c9-e215f64bdb31",
+      "market": {
+        "locationCode": 2410,
+        "languageCode": "ko"
+      },
+      "gsc": {
+        "status": "connected",
+        "property": "sc-domain:pwstudio.kr",
+        "account": "garmgoon@gmail.com",
+        "verificationMethod": "Cloudflare Domain Connect (DNS TXT)",
+        "recentMetrics28d": {
+          "clicks": 0,
+          "impressions": 0,
+          "ctr": 0.0,
+          "avgPosition": 0.0
+        }
+      },
+      "ga4": {
+        "status": "not_connected"
+      },
+      "dataforseo": {
+        "status": "active"
+      },
+      "latestAudit": {
+        "auditId": "f081d9f8-18ff-4cef-9718-0ba52749a4e4",
+        "pagesCrawled": 4,
+        "issuesFound": 1,
+        "criticalIssues": 0,
+        "warningIssues": 0,
+        "infoIssues": 1,
+        "avgResponseMs": 109,
+        "report": "docs/seo/audit/2026-10-05-pwstudio-kr-technical-audit-v2.md"
+      }
+    },
+    {
+      "id": "d90ac9ec-e2d5-4d10-8a63-d80b15c2750e",
+      "name": "EcoCarpet Utah",
+      "domain": "new.ecocarpetutah.com",
+      "url": "https://seo.garmgoon.com/p/d90ac9ec-e2d5-4d10-8a63-d80b15c2750e",
+      "aliases": [
+        "ecocarpet-site.garmgoon-domain.workers.dev"
+      ],
+      "market": {
+        "locationCode": 2840,
+        "languageCode": "en"
+      },
+      "gsc": {
+        "status": "pending_property",
+        "reason": "데모 사이트(new.ecocarpetutah.com) 단계에서는 소유권 인증을 보류하며, 향후 본 도메인(ecocarpetutah.com) 정식 오픈/전환(Cutover) 시점에 DNS 및 GSC 일괄 등록 합의."
+      },
+      "ga4": {
+        "status": "not_connected"
+      },
+      "dataforseo": {
+        "status": "active"
+      }
+    }
+  ]
+}

@@ -1,0 +1,2819 @@
+{
+  "startedAt": "2026-10-05T05:35:09.426Z",
+  "scope": "Read-only HTTP GET and Cloudflare GET; no deployment, DNS or remote database writes",
+  "pages": [
+    {
+      "url": "https://utahsays.com/right-now",
+      "finalUrl": "https://utahsays.com/right-now",
+      "status": 200,
+      "elapsedMs": 206,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:09 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Utah Right Now — Live Votes, Rising Picks &amp; Close Races | Utah Says",
+      "description": "<meta name=\"description\" content=\"What Utah is voting on right now: the most active questions, rising picks, the closest races and new #1s.\"/>",
+      "canonicals": [
+        "https://utahsays.com/right-now"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/about",
+      "finalUrl": "https://utahsays.com/about",
+      "status": 200,
+      "elapsedMs": 66,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:09 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "How Utah Says Works | Utah Says",
+      "description": "<meta name=\"description\" content=\"Utah Says is a positive community voting site. One vote per person per question, rankings that stay current, and questions that celebrate the best of Utah.\"/>",
+      "canonicals": [
+        "https://utahsays.com/about"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/privacy",
+      "finalUrl": "https://utahsays.com/privacy",
+      "status": 200,
+      "elapsedMs": 58,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:09 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Privacy Policy | Utah Says",
+      "description": "<meta name=\"description\" content=\"How Utah Says handles voting, account, security and analytics data.\"/>",
+      "canonicals": [
+        "https://utahsays.com/privacy"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/terms",
+      "finalUrl": "https://utahsays.com/terms",
+      "status": 200,
+      "elapsedMs": 58,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:09 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Community Terms | Utah Says",
+      "description": "<meta name=\"description\" content=\"The rules for positive questions, real votes and respectful contributions on Utah Says.\"/>",
+      "canonicals": [
+        "https://utahsays.com/terms"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-of-utah",
+      "finalUrl": "https://utahsays.com/best-of-utah",
+      "status": 200,
+      "elapsedMs": 579,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best of Utah 2026 — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Utah&#x27;s favorite burgers, hikes, towns, lakes and more, decided by real votes on Utah Says. See current leaders and open races, then vote for your pick.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-of-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/explore",
+      "finalUrl": "https://utahsays.com/explore",
+      "status": 200,
+      "elapsedMs": 586,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Explore Every Utah Vote — Categories, Cities &amp; Questions | Utah Says",
+      "description": "<meta name=\"description\" content=\"Browse every question on Utah Says by category and city. Vote on the best of Utah and see what Utah says.\"/>",
+      "canonicals": [
+        "https://utahsays.com/explore"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/food",
+      "finalUrl": "https://utahsays.com/food",
+      "status": 200,
+      "elapsedMs": 200,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Food &amp; Drink in Utah — Local Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Burgers, pizza, fry sauce, dirty soda and every bite Utah argues about. Vote for your favorites and see what Utah says.\"/>",
+      "canonicals": [
+        "https://utahsays.com/food"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/",
+      "finalUrl": "https://utahsays.com/",
+      "status": 200,
+      "elapsedMs": 624,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Utah Says — Utah votes. See what Utah says.",
+      "description": "<meta name=\"description\" content=\"Vote on Utah&#x27;s best burgers, hikes, hidden gems and more — then see what Utah says. Utah Says celebrates the best of Utah.\"/>",
+      "canonicals": [
+        "https://utahsays.com"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/places",
+      "finalUrl": "https://utahsays.com/places",
+      "status": 200,
+      "elapsedMs": 181,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Towns &amp; Places in Utah — Local Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Towns, Main Streets, parks and getaways. Vote for the Utah places you love.\"/>",
+      "canonicals": [
+        "https://utahsays.com/places"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/people",
+      "finalUrl": "https://utahsays.com/people",
+      "status": 200,
+      "elapsedMs": 147,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Utah&#x27;s Favorite People — Local Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Celebrate the people who make Utah great — kindly. Shout-outs, not call-outs.\"/>",
+      "canonicals": [
+        "https://utahsays.com/people"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/utah-life",
+      "finalUrl": "https://utahsays.com/utah-life",
+      "status": 200,
+      "elapsedMs": 182,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Utah Life — Traditions, Snacks &amp; Slang Voted by Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Traditions, slang, snacks and the little things that make Utah, Utah.\"/>",
+      "canonicals": [
+        "https://utahsays.com/utah-life"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/outdoors",
+      "finalUrl": "https://utahsays.com/outdoors",
+      "status": 200,
+      "elapsedMs": 192,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Hikes, Lakes &amp; Outdoors in Utah — Local Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Hikes, waterfalls, lakes, ski resorts and views. Utah&#x27;s outdoors, ranked by the people who explore them.\"/>",
+      "canonicals": [
+        "https://utahsays.com/outdoors"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/sports",
+      "finalUrl": "https://utahsays.com/sports",
+      "status": 200,
+      "elapsedMs": 146,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Utah Sports Polls — Teams &amp; Rivalries | Utah Says",
+      "description": "<meta name=\"description\" content=\"Teams, rivalries and game-day traditions.\"/>",
+      "canonicals": [
+        "https://utahsays.com/sports"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/provo",
+      "finalUrl": "https://utahsays.com/provo",
+      "status": 200,
+      "elapsedMs": 163,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best of Provo, Utah — Local Votes &amp; Rankings | Utah Says",
+      "description": "<meta name=\"description\" content=\"Vote on the best of Provo — food, places and more — and see what locals say.\"/>",
+      "canonicals": [
+        "https://utahsays.com/provo"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/fun",
+      "finalUrl": "https://utahsays.com/fun",
+      "status": 200,
+      "elapsedMs": 170,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Fun Utah Polls — Vote &amp; See What Utah Says | Utah Says",
+      "description": "<meta name=\"description\" content=\"Playful questions, friendly debates and fun hypotheticals about Utah.\"/>",
+      "canonicals": [
+        "https://utahsays.com/fun"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/salt-lake-city",
+      "finalUrl": "https://utahsays.com/salt-lake-city",
+      "status": 200,
+      "elapsedMs": 211,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best of Salt Lake City, Utah — Local Votes &amp; Rankings | Utah Says",
+      "description": "<meta name=\"description\" content=\"Vote on the best of Salt Lake City — food, places and more — and see what locals say.\"/>",
+      "canonicals": [
+        "https://utahsays.com/salt-lake-city"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/st-george",
+      "finalUrl": "https://utahsays.com/st-george",
+      "status": 200,
+      "elapsedMs": 205,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best of St. George, Utah — Local Votes &amp; Rankings | Utah Says",
+      "description": "<meta name=\"description\" content=\"Vote on the best of St. George — food, places and more — and see what locals say.\"/>",
+      "canonicals": [
+        "https://utahsays.com/st-george"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/antelope-island",
+      "finalUrl": "https://utahsays.com/c/antelope-island",
+      "status": 200,
+      "elapsedMs": 271,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Antelope Island — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Antelope Island is up for Best Place to Take Visitors, Best Sunset Spot in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/antelope-island"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/things-to-do",
+      "finalUrl": "https://utahsays.com/things-to-do",
+      "status": 200,
+      "elapsedMs": 488,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Things to Do in Utah — Local Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Attractions, activities and weekend plans picked by Utahns.\"/>",
+      "canonicals": [
+        "https://utahsays.com/things-to-do"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/antelope-island-state-park",
+      "finalUrl": "https://utahsays.com/c/antelope-island-state-park",
+      "status": 200,
+      "elapsedMs": 258,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Antelope Island State Park — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Antelope Island State Park is up for Best Utah Activity Under $20, Best Park in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/antelope-island-state-park"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/apollo-burger",
+      "finalUrl": "https://utahsays.com/c/apollo-burger",
+      "status": 200,
+      "elapsedMs": 280,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:10 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Apollo Burger — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Apollo Burger is up for Best Fry Sauce in Utah, Best Burger in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/apollo-burger"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/arches-national-park",
+      "finalUrl": "https://utahsays.com/c/arches-national-park",
+      "status": 200,
+      "elapsedMs": 274,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:11 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Arches National Park — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Arches National Park is up for Best National Park in Utah, Best Place to Take Visitors on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/arches-national-park"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/bear-lake",
+      "finalUrl": "https://utahsays.com/c/bear-lake",
+      "status": 200,
+      "elapsedMs": 286,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:11 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Bear Lake — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Bear Lake is up for Best Weekend Getaway in Utah, Best Summer Heat Escape in Utah, Best Utah Lake for Summer on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/bear-lake"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/bombay-house",
+      "finalUrl": "https://utahsays.com/c/bombay-house",
+      "status": 200,
+      "elapsedMs": 277,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:11 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Bombay House — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Bombay House is up for Best Restaurant in Provo, Best Only-in-Utah Restaurant on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/bombay-house"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/bricks-corner",
+      "finalUrl": "https://utahsays.com/c/bricks-corner",
+      "status": 200,
+      "elapsedMs": 243,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:11 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Bricks Corner — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Bricks Corner is up for Best Pizza in Salt Lake City, Best Pizza in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/bricks-corner"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/black-sheep-cafe",
+      "finalUrl": "https://utahsays.com/c/black-sheep-cafe",
+      "status": 200,
+      "elapsedMs": 598,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:11 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Black Sheep Cafe — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Black Sheep Cafe is up for Best Restaurant in Provo, Best Only-in-Utah Restaurant on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/black-sheep-cafe"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/crown-burgers",
+      "finalUrl": "https://utahsays.com/c/crown-burgers",
+      "status": 200,
+      "elapsedMs": 301,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:11 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Crown Burgers — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Crown Burgers is up for Best Fry Sauce in Utah, Best Burger in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/crown-burgers"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/bridal-veil-falls",
+      "finalUrl": "https://utahsays.com/c/bridal-veil-falls",
+      "status": 200,
+      "elapsedMs": 457,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:11 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Bridal Veil Falls — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Bridal Veil Falls is up for Best Place to Propose in Utah, Best Waterfall in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/bridal-veil-falls"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/dead-horse-point",
+      "finalUrl": "https://utahsays.com/c/dead-horse-point",
+      "status": 200,
+      "elapsedMs": 324,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:11 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Dead Horse Point — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Dead Horse Point is up for Best View in Utah, Best Sunset Spot in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/dead-horse-point"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/este-pizza",
+      "finalUrl": "https://utahsays.com/c/este-pizza",
+      "status": 200,
+      "elapsedMs": 358,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:11 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Este Pizza — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Este Pizza is up for Best Pizza in Salt Lake City, Best Pizza in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/este-pizza"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/delicate-arch",
+      "finalUrl": "https://utahsays.com/c/delicate-arch",
+      "status": 200,
+      "elapsedMs": 410,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:11 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Delicate Arch — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Delicate Arch is up for Best Place to Propose in Utah, Best Sunset Spot in Utah, Best Hike in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/delicate-arch"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/hires-big-h",
+      "finalUrl": "https://utahsays.com/c/hires-big-h",
+      "status": 200,
+      "elapsedMs": 430,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:12 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Hires Big H — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Hires Big H is up for Best Fry Sauce in Utah, Best Burger in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/hires-big-h"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/ensign-peak",
+      "finalUrl": "https://utahsays.com/c/ensign-peak",
+      "status": 200,
+      "elapsedMs": 505,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:12 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Ensign Peak — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Ensign Peak is up for Best Place to Propose in Utah, Best Sunset Spot in Utah, Best Beginner Hike in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/ensign-peak"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/lake-powell",
+      "finalUrl": "https://utahsays.com/c/lake-powell",
+      "status": 200,
+      "elapsedMs": 271,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:12 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Lake Powell — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Lake Powell is up for Best Camping in Utah, Best Utah Lake for Summer on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/lake-powell"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/kanarra-falls",
+      "finalUrl": "https://utahsays.com/c/kanarra-falls",
+      "status": 200,
+      "elapsedMs": 311,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:12 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Kanarra Falls — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Kanarra Falls is up for Best Waterfall in Utah, Best Hike in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/kanarra-falls"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/lehi",
+      "finalUrl": "https://utahsays.com/c/lehi",
+      "status": 200,
+      "elapsedMs": 325,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:12 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Lehi — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Lehi is up for Best Christmas Lights in Utah, Best Utah City to Live In, Best Utah City for Families on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/lehi"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/logan",
+      "finalUrl": "https://utahsays.com/c/logan",
+      "status": 200,
+      "elapsedMs": 346,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:12 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Logan — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Logan is up for Utah&#x27;s Zombie-Proof City, Utah City With the Best Vibe, Best Utah City to Live In on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/logan"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/midway",
+      "finalUrl": "https://utahsays.com/c/midway",
+      "status": 200,
+      "elapsedMs": 196,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:12 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Midway — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Midway is up for Best Small Town in Utah, Most Beautiful Town in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/midway"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/moab",
+      "finalUrl": "https://utahsays.com/c/moab",
+      "status": 200,
+      "elapsedMs": 392,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:12 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Moab — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Moab is up for Utah&#x27;s Zombie-Proof City, Utah City With the Best Vibe, Best Weekend Getaway in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/moab"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/ogden",
+      "finalUrl": "https://utahsays.com/c/ogden",
+      "status": 200,
+      "elapsedMs": 373,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:12 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Ogden — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Ogden is up for Utah City With the Best Vibe, Best Christmas Lights in Utah, Best Utah City to Live In on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/ogden"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/mirror-lake-highway",
+      "finalUrl": "https://utahsays.com/c/mirror-lake-highway",
+      "status": 200,
+      "elapsedMs": 645,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:12 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Mirror Lake Highway — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Mirror Lake Highway is up for Best Utah Road Trip, Best Fall Colors Drive in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/mirror-lake-highway"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/pizza-nono",
+      "finalUrl": "https://utahsays.com/c/pizza-nono",
+      "status": 200,
+      "elapsedMs": 266,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:13 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Pizza Nono — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Pizza Nono is up for Best Pizza in Salt Lake City, Best Pizza in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/pizza-nono"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/park-city",
+      "finalUrl": "https://utahsays.com/c/park-city",
+      "status": 200,
+      "elapsedMs": 633,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:13 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Park City — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Park City is up for Utah&#x27;s Zombie-Proof City, Utah City With the Best Vibe, Best Place to Take Visitors on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/park-city"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/ruths-diner",
+      "finalUrl": "https://utahsays.com/c/ruths-diner",
+      "status": 200,
+      "elapsedMs": 252,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:13 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Ruth&#x27;s Diner — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Ruth&#x27;s Diner is up for Best Breakfast in Utah, Best Only-in-Utah Restaurant on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/ruths-diner"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/provo",
+      "finalUrl": "https://utahsays.com/c/provo",
+      "status": 200,
+      "elapsedMs": 381,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:13 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Provo — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Provo is up for Utah&#x27;s Zombie-Proof City, Utah City With the Best Vibe, Best Christmas Lights in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/provo"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/settebello-pizzeria-napoletana",
+      "finalUrl": "https://utahsays.com/c/settebello-pizzeria-napoletana",
+      "status": 200,
+      "elapsedMs": 221,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:13 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Settebello Pizzeria Napoletana — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Settebello Pizzeria Napoletana is up for Best Pizza in Salt Lake City, Best Pizza in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/settebello-pizzeria-napoletana"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/salt-lake-city",
+      "finalUrl": "https://utahsays.com/c/salt-lake-city",
+      "status": 200,
+      "elapsedMs": 359,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:13 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Salt Lake City — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Salt Lake City is up for Utah&#x27;s Zombie-Proof City, Utah City With the Best Vibe, Best Christmas Lights in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/salt-lake-city"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/springdale",
+      "finalUrl": "https://utahsays.com/c/springdale",
+      "status": 200,
+      "elapsedMs": 223,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:13 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Springdale — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Springdale is up for Best Small Town in Utah, Most Beautiful Town in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/springdale"
+      ],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/sundance-mountain-resort",
+      "finalUrl": "https://utahsays.com/c/sundance-mountain-resort",
+      "status": 200,
+      "elapsedMs": 413,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:13 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Sundance Mountain Resort — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Sundance Mountain Resort is up for Best Place to Propose in Utah, Best Place to Take Your Parents on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/sundance-mountain-resort"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/stewart-falls",
+      "finalUrl": "https://utahsays.com/c/stewart-falls",
+      "status": 200,
+      "elapsedMs": 421,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:13 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Stewart Falls — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Stewart Falls is up for Best Waterfall in Utah, Best Beginner Hike in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/stewart-falls"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/scenic-byway-12",
+      "finalUrl": "https://utahsays.com/c/scenic-byway-12",
+      "status": 200,
+      "elapsedMs": 757,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:13 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Scenic Byway 12 — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Scenic Byway 12 is up for Best Utah Road Trip, Best Fall Colors Drive in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/scenic-byway-12"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/st-george",
+      "finalUrl": "https://utahsays.com/c/st-george",
+      "status": 200,
+      "elapsedMs": 539,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:13 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "St. George — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"St. George is up for Utah&#x27;s Zombie-Proof City, Utah City With the Best Vibe, Best Christmas Lights in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/st-george"
+      ],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/temple-square",
+      "finalUrl": "https://utahsays.com/c/temple-square",
+      "status": 200,
+      "elapsedMs": 269,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Temple Square — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Temple Square is up for Best Place to Take Your Parents, Best Place to Take Visitors on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/temple-square"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/the-pie-pizzeria",
+      "finalUrl": "https://utahsays.com/c/the-pie-pizzeria",
+      "status": 200,
+      "elapsedMs": 272,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "The Pie Pizzeria — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"The Pie Pizzeria is up for Best Pizza in Salt Lake City, Best Pizza in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/the-pie-pizzeria"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/zion-national-park",
+      "finalUrl": "https://utahsays.com/c/zion-national-park",
+      "status": 200,
+      "elapsedMs": 256,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Zion National Park — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Zion National Park is up for Best National Park in Utah, Best Place to Take Your Parents, Best Place to Take Visitors on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/zion-national-park"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-dad-in-utah",
+      "finalUrl": "https://utahsays.com/best-dad-in-utah",
+      "status": 200,
+      "elapsedMs": 216,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Dad in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Who&#x27;s the best dad in Utah? Grill master, minivan captain, king of dad jokes. 1 votes so far.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-dad-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-pro-sports-team-in-utah",
+      "finalUrl": "https://utahsays.com/best-pro-sports-team-in-utah",
+      "status": 200,
+      "elapsedMs": 217,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Utah&#x27;s Favorite Pro Team (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s Utah&#x27;s favorite pro sports team? Basketball, soccer or hockey — who has Utah&#x27;s heart? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-pro-sports-team-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/c/torrey",
+      "finalUrl": "https://utahsays.com/c/torrey",
+      "status": 200,
+      "elapsedMs": 640,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Torrey — Utah Rankings &amp; Votes | Utah Says",
+      "description": "<meta name=\"description\" content=\"Torrey is up for Best Small Town in Utah, Most Beautiful Town in Utah on Utah Says. Vote and see where it ranks.\"/>",
+      "canonicals": [
+        "https://utahsays.com/c/torrey"
+      ],
+      "canonicalInHead": true,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-public-bathroom-in-utah",
+      "finalUrl": "https://utahsays.com/best-public-bathroom-in-utah",
+      "status": 200,
+      "elapsedMs": 409,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Public Bathroom in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best public bathroom in Utah? Road-trip heroes deserve recognition too. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-public-bathroom-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/byu-vs-utah",
+      "finalUrl": "https://utahsays.com/byu-vs-utah",
+      "status": 200,
+      "elapsedMs": 248,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "BYU vs Utah — Which Side Is Utah On? | Utah Says",
+      "description": "<meta name=\"description\" content=\"Cougars or Utes? Vote in the BYU vs Utah poll and see what Utah says. 2 votes so far.\"/>",
+      "canonicals": [
+        "https://utahsays.com/byu-vs-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/is-fry-sauce-utahs-greatest-invention",
+      "finalUrl": "https://utahsays.com/is-fry-sauce-utahs-greatest-invention",
+      "status": 200,
+      "elapsedMs": 184,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Is fry sauce Utah&#x27;s greatest invention? Vote &amp; See What Utah Says | Utah Says",
+      "description": "<meta name=\"description\" content=\"Is fry sauce Utah&#x27;s greatest invention? Ketchup + mayo + Utah pride. Is it the GOAT? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/is-fry-sauce-utahs-greatest-invention"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-utah-activity-under-20",
+      "finalUrl": "https://utahsays.com/best-utah-activity-under-20",
+      "status": 200,
+      "elapsedMs": 265,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Utah Activity Under $20 (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best Utah activity under $20? Big fun, small budget. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-utah-activity-under-20"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/which-utah-city-would-survive-a-zombie-apocalypse",
+      "finalUrl": "https://utahsays.com/which-utah-city-would-survive-a-zombie-apocalypse",
+      "status": 200,
+      "elapsedMs": 295,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Which Utah city would survive a zombie apocalypse? Vote &amp; See What Utah Says | Utah Says",
+      "description": "<meta name=\"description\" content=\"Which Utah city would survive a zombie apocalypse? Food storage, mountain hideouts, everyone owns a generator. Who makes it? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/which-utah-city-would-survive-a-zombie-apocalypse"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-date-spot-in-utah",
+      "finalUrl": "https://utahsays.com/best-date-spot-in-utah",
+      "status": 200,
+      "elapsedMs": 236,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Date Spot in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best date spot in Utah? First date, 50th date — where&#x27;s the magic? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-date-spot-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-place-to-propose-in-utah",
+      "finalUrl": "https://utahsays.com/best-place-to-propose-in-utah",
+      "status": 200,
+      "elapsedMs": 263,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:14 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Place to Propose in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Where&#x27;s the best place to propose in Utah? Red rock, alpine lake or city lights? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-place-to-propose-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-place-to-take-your-parents-in-utah",
+      "finalUrl": "https://utahsays.com/best-place-to-take-your-parents-in-utah",
+      "status": 200,
+      "elapsedMs": 458,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:15 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Place to Take Your Parents (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Where&#x27;s the best place to take your parents when they visit Utah? Scenic, comfortable, and guaranteed to impress Mom and Dad. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-place-to-take-your-parents-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-place-to-take-visitors-in-utah",
+      "finalUrl": "https://utahsays.com/best-place-to-take-visitors-in-utah",
+      "status": 200,
+      "elapsedMs": 441,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:15 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Place to Take Visitors (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Where&#x27;s the best place to take out-of-town visitors in Utah? Friends are in town for one day. Where do you take them? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-place-to-take-visitors-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-christmas-lights-in-utah",
+      "finalUrl": "https://utahsays.com/best-christmas-lights-in-utah",
+      "status": 200,
+      "elapsedMs": 508,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:15 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Christmas Lights in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Which Utah city has the best Christmas lights? Hot chocolate in hand — which city glows brightest? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-christmas-lights-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/which-utah-city-has-the-best-vibe",
+      "finalUrl": "https://utahsays.com/which-utah-city-has-the-best-vibe",
+      "status": 200,
+      "elapsedMs": 510,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:15 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Utah City With the Best Vibe (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Which Utah city has the best vibe? Hard to define, easy to feel. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/which-utah-city-has-the-best-vibe"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-utah-road-trip",
+      "finalUrl": "https://utahsays.com/best-utah-road-trip",
+      "status": 200,
+      "elapsedMs": 291,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:15 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Utah Road Trip (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best Utah road trip? Snacks packed, playlist ready. Which route? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-utah-road-trip"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-way-to-spend-a-saturday-in-utah",
+      "finalUrl": "https://utahsays.com/best-way-to-spend-a-saturday-in-utah",
+      "status": 200,
+      "elapsedMs": 311,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:15 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Utah Saturday (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best way to spend a Saturday in Utah? No plans yet. What&#x27;s the perfect Utah Saturday? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-way-to-spend-a-saturday-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-utah-snack",
+      "finalUrl": "https://utahsays.com/best-utah-snack",
+      "status": 200,
+      "elapsedMs": 325,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:15 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Utah Snack (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best Utah snack? Potluck royalty and drive-thru legends. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-utah-snack"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-utah-slang",
+      "finalUrl": "https://utahsays.com/best-utah-slang",
+      "status": 200,
+      "elapsedMs": 325,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:15 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Utah Slang (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best Utah slang? Oh my heck, you know you&#x27;ve said at least one of these. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-utah-slang"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-utah-tradition",
+      "finalUrl": "https://utahsays.com/best-utah-tradition",
+      "status": 200,
+      "elapsedMs": 340,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:15 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Utah Tradition (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best Utah tradition? The things that make a year in Utah feel like Utah. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-utah-tradition"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-restaurant-in-provo",
+      "finalUrl": "https://utahsays.com/best-restaurant-in-provo",
+      "status": 200,
+      "elapsedMs": 357,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:15 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Restaurants in Provo (2026) — Local Vote | Utah Says",
+      "description": "<meta name=\"description\" content=\"Vote for the best restaurant in Provo, Utah and see which spot locals rank #1. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-restaurant-in-provo"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-hike-in-st-george",
+      "finalUrl": "https://utahsays.com/best-hike-in-st-george",
+      "status": 200,
+      "elapsedMs": 383,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:15 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Hikes in St. George, Utah (2026) — Local Vote | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best hike in St. George? Red rock, candy-striped cliffs and lava tubes — Southern Utah&#x27;s best trail? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-hike-in-st-george"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-coffee-shop-in-salt-lake-city",
+      "finalUrl": "https://utahsays.com/best-coffee-shop-in-salt-lake-city",
+      "status": 200,
+      "elapsedMs": 369,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:15 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Coffee Shops in Salt Lake City (2026) — Local Vote | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best coffee shop in Salt Lake City? Laptop spot, first-date spot or the best latte in town? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-coffee-shop-in-salt-lake-city"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-pizza-in-salt-lake-city",
+      "finalUrl": "https://utahsays.com/best-pizza-in-salt-lake-city",
+      "status": 200,
+      "elapsedMs": 247,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:16 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Pizza in Salt Lake City (2026) — Local Vote | Utah Says",
+      "description": "<meta name=\"description\" content=\"Vote for the best pizza in Salt Lake City and see which pizzeria locals rank #1. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-pizza-in-salt-lake-city"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-park-in-utah",
+      "finalUrl": "https://utahsays.com/best-park-in-utah",
+      "status": 200,
+      "elapsedMs": 311,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:16 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Park in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best park in Utah? Picnics, playgrounds, sunsets — which park is the people&#x27;s favorite? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-park-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-small-town-in-utah",
+      "finalUrl": "https://utahsays.com/best-small-town-in-utah",
+      "status": 200,
+      "elapsedMs": 306,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:16 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Small Town in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best small town in Utah? Population: small. Charm: huge. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-small-town-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-utah-city-to-live-in",
+      "finalUrl": "https://utahsays.com/best-utah-city-to-live-in",
+      "status": 200,
+      "elapsedMs": 335,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:16 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Utah City to Live In (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best Utah city to live in? Commute, community, mountains, sunshine — where would you plant roots? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-utah-city-to-live-in"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-weekend-getaway-in-utah",
+      "finalUrl": "https://utahsays.com/best-weekend-getaway-in-utah",
+      "status": 200,
+      "elapsedMs": 206,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:16 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Weekend Getaway in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best weekend getaway in Utah? Two days, one tank of gas. Where are you going? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-weekend-getaway-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/most-beautiful-town-in-utah",
+      "finalUrl": "https://utahsays.com/most-beautiful-town-in-utah",
+      "status": 200,
+      "elapsedMs": 401,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:16 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Most Beautiful Town in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the most beautiful town in Utah? Mountain towns, red-rock gateways and storybook valleys. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/most-beautiful-town-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-utah-city-for-families",
+      "finalUrl": "https://utahsays.com/best-utah-city-for-families",
+      "status": 200,
+      "elapsedMs": 428,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:16 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Utah City for Families (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best Utah city for families? Parks, schools, community — where would you raise a family? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-utah-city-for-families"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-place-to-escape-the-summer-heat-in-utah",
+      "finalUrl": "https://utahsays.com/best-place-to-escape-the-summer-heat-in-utah",
+      "status": 200,
+      "elapsedMs": 641,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:16 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Summer Heat Escape in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Where&#x27;s the best place to escape the summer heat in Utah? Up the canyon, up in elevation, or into the AC? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-place-to-escape-the-summer-heat-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-national-park-in-utah",
+      "finalUrl": "https://utahsays.com/best-national-park-in-utah",
+      "status": 200,
+      "elapsedMs": 311,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:16 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best National Park in Utah (2026) — The Mighty 5 Ranked by Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Zion, Arches, Bryce Canyon, Canyonlands or Capitol Reef? Vote and see which national park Utah ranks #1. 2 votes so far.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-national-park-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-view-in-utah",
+      "finalUrl": "https://utahsays.com/best-view-in-utah",
+      "status": 200,
+      "elapsedMs": 322,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:16 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best View in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best view in Utah? The one that made you pull over, stop talking and just look. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-view-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-main-street-in-utah",
+      "finalUrl": "https://utahsays.com/best-main-street-in-utah",
+      "status": 200,
+      "elapsedMs": 952,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Main Street in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best Main Street in Utah? Shops, food, lights and that small-town walk. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-main-street-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-ski-resorts-in-utah",
+      "finalUrl": "https://utahsays.com/best-ski-resorts-in-utah",
+      "status": 200,
+      "elapsedMs": 264,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Ski Resorts in Utah (2026) — Voted by Utah Skiers | Utah Says",
+      "description": "<meta name=\"description\" content=\"Vote for your favorite Utah ski resort and see how Snowbird, Alta, Park City, Deer Valley and more rank with locals. 1 votes so far.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-ski-resorts-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-fall-colors-drive-in-utah",
+      "finalUrl": "https://utahsays.com/best-fall-colors-drive-in-utah",
+      "status": 200,
+      "elapsedMs": 169,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Fall Colors Drive in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best fall colors drive in Utah? Aspens turning gold, maples turning red. Which drive wins October? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-fall-colors-drive-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-utah-lake-for-a-summer-day",
+      "finalUrl": "https://utahsays.com/best-utah-lake-for-a-summer-day",
+      "status": 200,
+      "elapsedMs": 185,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Utah Lake for Summer (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best Utah lake for a summer day? Paddleboards, boats, raspberry shakes. Where&#x27;s your lake day? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-utah-lake-for-a-summer-day"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-sunset-spot-in-utah",
+      "finalUrl": "https://utahsays.com/best-sunset-spot-in-utah",
+      "status": 200,
+      "elapsedMs": 543,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Sunset Spot in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Where&#x27;s the best place to watch a sunset in Utah? Red rock glow, salt flat mirrors, city lights — where&#x27;s golden hour best? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-sunset-spot-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-camping-in-utah",
+      "finalUrl": "https://utahsays.com/best-camping-in-utah",
+      "status": 200,
+      "elapsedMs": 558,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Camping in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Where&#x27;s the best camping in Utah? Alpine lakes, red rock and the best stargazing in the country. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-camping-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-waterfall-in-utah",
+      "finalUrl": "https://utahsays.com/best-waterfall-in-utah",
+      "status": 200,
+      "elapsedMs": 186,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Waterfall in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best waterfall in Utah? Desert falls, canyon cascades and alpine plunges. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-waterfall-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-beginner-hike-in-utah",
+      "finalUrl": "https://utahsays.com/best-beginner-hike-in-utah",
+      "status": 200,
+      "elapsedMs": 211,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Beginner Hike in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best beginner hike in Utah? Big payoff, easy trail. Which one do you send first-timers on? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-beginner-hike-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-hikes-in-utah",
+      "finalUrl": "https://utahsays.com/best-hikes-in-utah",
+      "status": 200,
+      "elapsedMs": 282,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Hikes in Utah (2026) — Community Rankings | Utah Says",
+      "description": "<meta name=\"description\" content=\"Vote for the best hike in Utah and see how Angels Landing, Delicate Arch, The Narrows and more rank with locals. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-hikes-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-dirty-soda-in-utah",
+      "finalUrl": "https://utahsays.com/best-dirty-soda-in-utah",
+      "status": 200,
+      "elapsedMs": 285,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Dirty Soda in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Where&#x27;s the best dirty soda in Utah? Coconut, lime, extra pebble ice. Pick your drive-thru. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-dirty-soda-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-late-night-food-in-utah",
+      "finalUrl": "https://utahsays.com/best-late-night-food-in-utah",
+      "status": 200,
+      "elapsedMs": 290,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Late-Night Food in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best late-night food in Utah? It&#x27;s 11:30 p.m. and you&#x27;re hungry. Where are you going? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-late-night-food-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-food-truck-in-utah",
+      "finalUrl": "https://utahsays.com/best-food-truck-in-utah",
+      "status": 200,
+      "elapsedMs": 256,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Food Truck in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best food truck in Utah? Food truck roundups are a Utah summer staple. Who&#x27;s worth the line? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-food-truck-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-breakfast-in-utah",
+      "finalUrl": "https://utahsays.com/best-breakfast-in-utah",
+      "status": 200,
+      "elapsedMs": 207,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:17 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Breakfast in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Where&#x27;s the best breakfast in Utah? Scones, pancakes, biscuits — where does Utah go for the first meal of the day? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-breakfast-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-only-in-utah-restaurant",
+      "finalUrl": "https://utahsays.com/best-only-in-utah-restaurant",
+      "status": 200,
+      "elapsedMs": 249,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:18 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Only-in-Utah Restaurant (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best restaurant you can only find in Utah? No chains from out of state. Where do you take people to eat something truly Utah? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-only-in-utah-restaurant"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-ice-cream-in-utah",
+      "finalUrl": "https://utahsays.com/best-ice-cream-in-utah",
+      "status": 200,
+      "elapsedMs": 277,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:18 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Ice Cream in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best local ice cream in Utah? Campus creameries, family shops and summer-night shakes. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-ice-cream-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-fry-sauce-in-utah",
+      "finalUrl": "https://utahsays.com/best-fry-sauce-in-utah",
+      "status": 200,
+      "elapsedMs": 242,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:18 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Fry Sauce in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Who has the best fry sauce in Utah? It&#x27;s Utah&#x27;s unofficial state condiment. Whose recipe wins? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-fry-sauce-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/?tab=new",
+      "finalUrl": "https://utahsays.com/?tab=new",
+      "status": 200,
+      "elapsedMs": 121,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:18 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Utah Says — Utah votes. See what Utah says.",
+      "description": "<meta name=\"description\" content=\"Vote on Utah&#x27;s best burgers, hikes, hidden gems and more — then see what Utah says. Utah Says celebrates the best of Utah.\"/>",
+      "canonicals": [
+        "https://utahsays.com"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/?tab=food",
+      "finalUrl": "https://utahsays.com/?tab=food",
+      "status": 200,
+      "elapsedMs": 127,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:18 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Utah Says — Utah votes. See what Utah says.",
+      "description": "<meta name=\"description\" content=\"Vote on Utah&#x27;s best burgers, hikes, hidden gems and more — then see what Utah says. Utah Says celebrates the best of Utah.\"/>",
+      "canonicals": [
+        "https://utahsays.com"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-pizza-in-utah",
+      "finalUrl": "https://utahsays.com/best-pizza-in-utah",
+      "status": 200,
+      "elapsedMs": 274,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:18 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Pizza in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Vote for your favorite pizza and see which pizzeria Utah ranks #1. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-pizza-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-burgers-in-utah",
+      "finalUrl": "https://utahsays.com/best-burgers-in-utah",
+      "status": 200,
+      "elapsedMs": 228,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:18 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Burgers in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"Vote for your favorite and see which burger Utah ranks #1. Live community rankings from Utah locals. Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-burgers-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-beginner-hike-in-utah?utm_source=review",
+      "finalUrl": "https://utahsays.com/best-beginner-hike-in-utah?utm_source=review",
+      "status": 200,
+      "elapsedMs": 152,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:18 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Beginner Hike in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best beginner hike in Utah? Big payoff, easy trail. Which one do you send first-timers on? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-beginner-hike-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    }
+  ],
+  "sitemap": {
+    "url": "https://utahsays.com/sitemap.xml",
+    "finalUrl": "https://utahsays.com/sitemap.xml",
+    "status": 200,
+    "elapsedMs": 181,
+    "headers": {
+      "date": "Mon, 05 Oct 2026 05:35:09 GMT",
+      "content-type": "application/xml",
+      "x-us-cache": "HIT",
+      "cf-cache-status": "HIT"
+    },
+    "urls": [
+      "http://localhost:3000/",
+      "http://localhost:3000/right-now",
+      "http://localhost:3000/explore",
+      "http://localhost:3000/best-of-utah",
+      "http://localhost:3000/about",
+      "http://localhost:3000/privacy",
+      "http://localhost:3000/terms",
+      "http://localhost:3000/food",
+      "http://localhost:3000/outdoors",
+      "http://localhost:3000/places",
+      "http://localhost:3000/utah-life",
+      "http://localhost:3000/people",
+      "http://localhost:3000/fun",
+      "http://localhost:3000/sports",
+      "http://localhost:3000/things-to-do",
+      "http://localhost:3000/provo",
+      "http://localhost:3000/salt-lake-city",
+      "http://localhost:3000/st-george",
+      "http://localhost:3000/c/antelope-island",
+      "http://localhost:3000/c/antelope-island-state-park",
+      "http://localhost:3000/c/apollo-burger",
+      "http://localhost:3000/c/arches-national-park",
+      "http://localhost:3000/c/bear-lake",
+      "http://localhost:3000/c/black-sheep-cafe",
+      "http://localhost:3000/c/bombay-house",
+      "http://localhost:3000/c/bricks-corner",
+      "http://localhost:3000/c/bridal-veil-falls",
+      "http://localhost:3000/c/crown-burgers",
+      "http://localhost:3000/c/dead-horse-point",
+      "http://localhost:3000/c/delicate-arch",
+      "http://localhost:3000/c/ensign-peak",
+      "http://localhost:3000/c/este-pizza",
+      "http://localhost:3000/c/hires-big-h",
+      "http://localhost:3000/c/kanarra-falls",
+      "http://localhost:3000/c/lake-powell",
+      "http://localhost:3000/c/lehi",
+      "http://localhost:3000/c/logan",
+      "http://localhost:3000/c/midway",
+      "http://localhost:3000/c/mirror-lake-highway",
+      "http://localhost:3000/c/moab",
+      "http://localhost:3000/c/ogden",
+      "http://localhost:3000/c/park-city",
+      "http://localhost:3000/c/pizza-nono",
+      "http://localhost:3000/c/provo",
+      "http://localhost:3000/c/ruths-diner",
+      "http://localhost:3000/c/salt-lake-city",
+      "http://localhost:3000/c/scenic-byway-12",
+      "http://localhost:3000/c/settebello-pizzeria-napoletana",
+      "http://localhost:3000/c/springdale",
+      "http://localhost:3000/c/st-george",
+      "http://localhost:3000/c/stewart-falls",
+      "http://localhost:3000/c/sundance-mountain-resort",
+      "http://localhost:3000/c/temple-square",
+      "http://localhost:3000/c/the-pie-pizzeria",
+      "http://localhost:3000/c/torrey",
+      "http://localhost:3000/c/zion-national-park",
+      "http://localhost:3000/best-public-bathroom-in-utah",
+      "http://localhost:3000/best-dad-in-utah",
+      "http://localhost:3000/best-pro-sports-team-in-utah",
+      "http://localhost:3000/byu-vs-utah",
+      "http://localhost:3000/is-fry-sauce-utahs-greatest-invention",
+      "http://localhost:3000/which-utah-city-would-survive-a-zombie-apocalypse",
+      "http://localhost:3000/best-utah-activity-under-20",
+      "http://localhost:3000/best-place-to-propose-in-utah",
+      "http://localhost:3000/best-date-spot-in-utah",
+      "http://localhost:3000/which-utah-city-has-the-best-vibe",
+      "http://localhost:3000/best-christmas-lights-in-utah",
+      "http://localhost:3000/best-place-to-take-your-parents-in-utah",
+      "http://localhost:3000/best-place-to-take-visitors-in-utah",
+      "http://localhost:3000/best-utah-road-trip",
+      "http://localhost:3000/best-way-to-spend-a-saturday-in-utah",
+      "http://localhost:3000/best-utah-snack",
+      "http://localhost:3000/best-utah-slang",
+      "http://localhost:3000/best-utah-tradition",
+      "http://localhost:3000/best-hike-in-st-george",
+      "http://localhost:3000/best-coffee-shop-in-salt-lake-city",
+      "http://localhost:3000/best-restaurant-in-provo",
+      "http://localhost:3000/best-pizza-in-salt-lake-city",
+      "http://localhost:3000/best-utah-city-to-live-in",
+      "http://localhost:3000/best-park-in-utah",
+      "http://localhost:3000/best-small-town-in-utah",
+      "http://localhost:3000/best-weekend-getaway-in-utah",
+      "http://localhost:3000/best-utah-city-for-families",
+      "http://localhost:3000/best-main-street-in-utah",
+      "http://localhost:3000/most-beautiful-town-in-utah",
+      "http://localhost:3000/best-place-to-escape-the-summer-heat-in-utah",
+      "http://localhost:3000/best-national-park-in-utah",
+      "http://localhost:3000/best-view-in-utah",
+      "http://localhost:3000/best-sunset-spot-in-utah",
+      "http://localhost:3000/best-ski-resorts-in-utah",
+      "http://localhost:3000/best-camping-in-utah",
+      "http://localhost:3000/best-fall-colors-drive-in-utah",
+      "http://localhost:3000/best-utah-lake-for-a-summer-day",
+      "http://localhost:3000/best-waterfall-in-utah",
+      "http://localhost:3000/best-beginner-hike-in-utah",
+      "http://localhost:3000/best-hikes-in-utah",
+      "http://localhost:3000/best-late-night-food-in-utah",
+      "http://localhost:3000/best-dirty-soda-in-utah",
+      "http://localhost:3000/best-food-truck-in-utah",
+      "http://localhost:3000/best-breakfast-in-utah",
+      "http://localhost:3000/best-only-in-utah-restaurant",
+      "http://localhost:3000/best-ice-cream-in-utah",
+      "http://localhost:3000/best-fry-sauce-in-utah",
+      "http://localhost:3000/best-pizza-in-utah",
+      "http://localhost:3000/best-burgers-in-utah"
+    ]
+  },
+  "sitemapInvalidOrigins": [
+    "http://localhost:3000/",
+    "http://localhost:3000/right-now",
+    "http://localhost:3000/explore",
+    "http://localhost:3000/best-of-utah",
+    "http://localhost:3000/about",
+    "http://localhost:3000/privacy",
+    "http://localhost:3000/terms",
+    "http://localhost:3000/food",
+    "http://localhost:3000/outdoors",
+    "http://localhost:3000/places",
+    "http://localhost:3000/utah-life",
+    "http://localhost:3000/people",
+    "http://localhost:3000/fun",
+    "http://localhost:3000/sports",
+    "http://localhost:3000/things-to-do",
+    "http://localhost:3000/provo",
+    "http://localhost:3000/salt-lake-city",
+    "http://localhost:3000/st-george",
+    "http://localhost:3000/c/antelope-island",
+    "http://localhost:3000/c/antelope-island-state-park",
+    "http://localhost:3000/c/apollo-burger",
+    "http://localhost:3000/c/arches-national-park",
+    "http://localhost:3000/c/bear-lake",
+    "http://localhost:3000/c/black-sheep-cafe",
+    "http://localhost:3000/c/bombay-house",
+    "http://localhost:3000/c/bricks-corner",
+    "http://localhost:3000/c/bridal-veil-falls",
+    "http://localhost:3000/c/crown-burgers",
+    "http://localhost:3000/c/dead-horse-point",
+    "http://localhost:3000/c/delicate-arch",
+    "http://localhost:3000/c/ensign-peak",
+    "http://localhost:3000/c/este-pizza",
+    "http://localhost:3000/c/hires-big-h",
+    "http://localhost:3000/c/kanarra-falls",
+    "http://localhost:3000/c/lake-powell",
+    "http://localhost:3000/c/lehi",
+    "http://localhost:3000/c/logan",
+    "http://localhost:3000/c/midway",
+    "http://localhost:3000/c/mirror-lake-highway",
+    "http://localhost:3000/c/moab",
+    "http://localhost:3000/c/ogden",
+    "http://localhost:3000/c/park-city",
+    "http://localhost:3000/c/pizza-nono",
+    "http://localhost:3000/c/provo",
+    "http://localhost:3000/c/ruths-diner",
+    "http://localhost:3000/c/salt-lake-city",
+    "http://localhost:3000/c/scenic-byway-12",
+    "http://localhost:3000/c/settebello-pizzeria-napoletana",
+    "http://localhost:3000/c/springdale",
+    "http://localhost:3000/c/st-george",
+    "http://localhost:3000/c/stewart-falls",
+    "http://localhost:3000/c/sundance-mountain-resort",
+    "http://localhost:3000/c/temple-square",
+    "http://localhost:3000/c/the-pie-pizzeria",
+    "http://localhost:3000/c/torrey",
+    "http://localhost:3000/c/zion-national-park",
+    "http://localhost:3000/best-public-bathroom-in-utah",
+    "http://localhost:3000/best-dad-in-utah",
+    "http://localhost:3000/best-pro-sports-team-in-utah",
+    "http://localhost:3000/byu-vs-utah",
+    "http://localhost:3000/is-fry-sauce-utahs-greatest-invention",
+    "http://localhost:3000/which-utah-city-would-survive-a-zombie-apocalypse",
+    "http://localhost:3000/best-utah-activity-under-20",
+    "http://localhost:3000/best-place-to-propose-in-utah",
+    "http://localhost:3000/best-date-spot-in-utah",
+    "http://localhost:3000/which-utah-city-has-the-best-vibe",
+    "http://localhost:3000/best-christmas-lights-in-utah",
+    "http://localhost:3000/best-place-to-take-your-parents-in-utah",
+    "http://localhost:3000/best-place-to-take-visitors-in-utah",
+    "http://localhost:3000/best-utah-road-trip",
+    "http://localhost:3000/best-way-to-spend-a-saturday-in-utah",
+    "http://localhost:3000/best-utah-snack",
+    "http://localhost:3000/best-utah-slang",
+    "http://localhost:3000/best-utah-tradition",
+    "http://localhost:3000/best-hike-in-st-george",
+    "http://localhost:3000/best-coffee-shop-in-salt-lake-city",
+    "http://localhost:3000/best-restaurant-in-provo",
+    "http://localhost:3000/best-pizza-in-salt-lake-city",
+    "http://localhost:3000/best-utah-city-to-live-in",
+    "http://localhost:3000/best-park-in-utah",
+    "http://localhost:3000/best-small-town-in-utah",
+    "http://localhost:3000/best-weekend-getaway-in-utah",
+    "http://localhost:3000/best-utah-city-for-families",
+    "http://localhost:3000/best-main-street-in-utah",
+    "http://localhost:3000/most-beautiful-town-in-utah",
+    "http://localhost:3000/best-place-to-escape-the-summer-heat-in-utah",
+    "http://localhost:3000/best-national-park-in-utah",
+    "http://localhost:3000/best-view-in-utah",
+    "http://localhost:3000/best-sunset-spot-in-utah",
+    "http://localhost:3000/best-ski-resorts-in-utah",
+    "http://localhost:3000/best-camping-in-utah",
+    "http://localhost:3000/best-fall-colors-drive-in-utah",
+    "http://localhost:3000/best-utah-lake-for-a-summer-day",
+    "http://localhost:3000/best-waterfall-in-utah",
+    "http://localhost:3000/best-beginner-hike-in-utah",
+    "http://localhost:3000/best-hikes-in-utah",
+    "http://localhost:3000/best-late-night-food-in-utah",
+    "http://localhost:3000/best-dirty-soda-in-utah",
+    "http://localhost:3000/best-food-truck-in-utah",
+    "http://localhost:3000/best-breakfast-in-utah",
+    "http://localhost:3000/best-only-in-utah-restaurant",
+    "http://localhost:3000/best-ice-cream-in-utah",
+    "http://localhost:3000/best-fry-sauce-in-utah",
+    "http://localhost:3000/best-pizza-in-utah",
+    "http://localhost:3000/best-burgers-in-utah"
+  ],
+  "redirects": [
+    {
+      "url": "https://www.utahsays.com/about?utm_source=review",
+      "finalUrl": "https://www.utahsays.com/about?utm_source=review",
+      "status": 301,
+      "elapsedMs": 139,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:18 GMT",
+        "location": "https://utahsays.com/about?utm_source=review"
+      },
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://utahsays.com/about",
+      "finalUrl": "http://utahsays.com/about",
+      "status": 200,
+      "elapsedMs": 573,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:19 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "How Utah Says Works | Utah Says",
+      "description": "<meta name=\"description\" content=\"Utah Says is a positive community voting site. One vote per person per question, rankings that stay current, and questions that celebrate the best of Utah.\"/>",
+      "canonicals": [
+        "https://utahsays.com/about"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.garmgoon-domain.workers.dev/about",
+      "finalUrl": "https://utahsays.garmgoon-domain.workers.dev/about",
+      "status": 301,
+      "elapsedMs": 126,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:19 GMT",
+        "location": "https://utahsays.com/about"
+      },
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    }
+  ],
+  "robots": {
+    "url": "https://utahsays.com/robots.txt",
+    "finalUrl": "https://utahsays.com/robots.txt",
+    "status": 200,
+    "elapsedMs": 49,
+    "headers": {
+      "date": "Mon, 05 Oct 2026 05:35:19 GMT",
+      "content-type": "text/plain"
+    },
+    "body": "User-Agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\nDisallow: /login\nDisallow: /profile\nDisallow: /ask\nDisallow: /s/\nDisallow: /go/\nDisallow: /auth/\n\nSitemap: https://utahsays.com/sitemap.xml\n"
+  },
+  "otherSites": [
+    {
+      "url": "https://garmgoon.com/",
+      "finalUrl": "https://garmgoon.com/",
+      "status": 200,
+      "elapsedMs": 139,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:19 GMT",
+        "content-type": "text/html",
+        "cf-cache-status": "HIT"
+      },
+      "title": "garmgoon",
+      "description": "<meta name=\"description\" content=\"매일 아침 비즈니스 아이디어 카드뉴스와 유튜브 요약을 모아 보는 개인 대시보드\"/>",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://garmgoon.com/family",
+      "finalUrl": "https://garmgoon.com/family",
+      "status": 200,
+      "elapsedMs": 71,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:19 GMT",
+        "content-type": "text/html",
+        "cf-cache-status": "HIT"
+      },
+      "title": "우리 가족 · garmgoon",
+      "description": "<meta name=\"description\" content=\"가족끼리 일기와 메시지를 나누는 공간\"/>",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [
+        "<meta name=\"robots\" content=\"noindex, nofollow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://everydaytutor.net/",
+      "finalUrl": "https://www.everydaytutor.net/",
+      "status": 200,
+      "elapsedMs": 2416,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:21 GMT",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "title": "每日家教｜全台家教資訊搜尋",
+      "description": "<meta name=\"description\" content=\"集中搜尋全台灣公開的家教老師、學生需求、科目、地區與線上教學資訊。\"/>",
+      "canonicals": [
+        "https://www.everydaytutor.net"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://www.everydaytutor.net/tutors/taipei",
+      "finalUrl": "https://www.everydaytutor.net/tutors/taipei",
+      "status": 200,
+      "elapsedMs": 1329,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:23 GMT",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "title": "台北家教資訊 | 每日家教",
+      "description": "<meta name=\"description\" content=\"彙整台北市各行政區公開家教老師與學生徵才需求，比較科目、教學方式與時薪行情。\"/>",
+      "canonicals": [
+        "https://www.everydaytutor.net/tutors/taipei"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://www.everydaytutor.net/tutors/taipei/english",
+      "finalUrl": "https://www.everydaytutor.net/tutors/taipei/english",
+      "status": 200,
+      "elapsedMs": 526,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:23 GMT",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "title": "台北英文家教資訊 | 每日家教",
+      "description": "<meta name=\"description\" content=\"比較台北市英文家教老師與學生需求，查看地區、教學方式、價格及原始刊登來源。\"/>",
+      "canonicals": [
+        "https://www.everydaytutor.net/tutors/taipei/english"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://www.everydaytutor.net/insights/taipei-english-tutor-rates",
+      "finalUrl": "https://www.everydaytutor.net/insights/taipei-english-tutor-rates",
+      "status": 200,
+      "elapsedMs": 518,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:24 GMT",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "title": "2026 台北英文家教費用行情：國小/國中/高中/成人時薪真實統計 | 每日家教",
+      "description": "<meta name=\"description\" content=\"根據 EverydayTutor 統計 176 筆台北英文家教真實案件，2026 年台北英文家教平均時薪為 NT$563，中位數為 NT$500。提供國小、國中、高中學測及成人檢定分級時薪區間、線上 vs 實體課費用比較與預算建議。\"/>",
+      "canonicals": [
+        "https://www.everydaytutor.net/insights/taipei-english-tutor-rates"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://seo.garmgoon.com/mcp",
+      "finalUrl": "https://dawn-field-884e.cloudflareaccess.com/cdn-cgi/access/login/seo.garmgoon.com",
+      "status": 200,
+      "elapsedMs": 569,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:24 GMT",
+        "content-type": "text/html"
+      },
+      "title": "Sign in ・ Cloudflare Access",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [
+        "<meta name=\"robots\" content=\"noindex\" />"
+      ],
+      "localhostInCanonical": false
+    }
+  ],
+  "sitemapVariants": [
+    {
+      "url": "https://utahsays.com/sitemap.xml?review=20261005",
+      "finalUrl": "https://utahsays.com/sitemap.xml?review=20261005",
+      "status": 200,
+      "elapsedMs": 209,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:25 GMT",
+        "content-type": "application/xml",
+        "x-us-cache": "MISS"
+      },
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n<url>\n<loc>https://utahsays.com/</loc>\n<changefreq>hourly</changefreq>\n<priority>1</priority>\n</url>\n<url>\n<loc>https://utahsays.com/right-now</loc>\n<changefreq>hourly</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/explore</loc>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-of-utah</loc>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/about</loc>\n<changefreq>monthly</changefreq>\n<priority>0.3</priority>\n</url>\n<url>\n<loc>https://utahsays.com/privacy</loc>\n<changefreq>yearly</changefreq>\n<priority>0.1</priority>\n</url>\n<url>\n<loc>https://utahsays.com/terms</loc>\n<changefreq>yearly</changefreq>\n<priority>0.1</priority>\n</url>\n<url>\n<loc>https://utahsays.com/food</loc>\n<changefreq>daily</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://utahsays.com/outdoors</loc>\n<changefreq>daily</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://utahsays.com/places</loc>\n<changefreq>daily</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://utahsays.com/utah-life</loc>\n<changefreq>daily</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://utahsays.com/people</loc>\n<changefreq>daily</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://utahsays.com/fun</loc>\n<changefreq>daily</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://utahsays.com/sports</loc>\n<changefreq>daily</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://utahsays.com/things-to-do</loc>\n<changefreq>daily</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://utahsays.com/provo</loc>\n<changefreq>daily</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://utahsays.com/salt-lake-city</loc>\n<changefreq>daily</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://utahsays.com/st-george</loc>\n<changefreq>daily</changefreq>\n<priority>0.7</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/antelope-island</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/antelope-island-state-park</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/apollo-burger</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/arches-national-park</loc>\n<lastmod>2026-10-05T01:35:21.092Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/bear-lake</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/black-sheep-cafe</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/bombay-house</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/bricks-corner</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/bridal-veil-falls</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/crown-burgers</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/dead-horse-point</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/delicate-arch</loc>\n<lastmod>2026-10-05T00:39:26.570Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/ensign-peak</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/este-pizza</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/hires-big-h</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/kanarra-falls</loc>\n<lastmod>2026-10-05T00:39:26.570Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/lake-powell</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/lehi</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/logan</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/midway</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/mirror-lake-highway</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/moab</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/ogden</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/park-city</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/pizza-nono</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/provo</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/ruths-diner</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/salt-lake-city</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/scenic-byway-12</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/settebello-pizzeria-napoletana</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/springdale</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/st-george</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/stewart-falls</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/sundance-mountain-resort</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/temple-square</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/the-pie-pizzeria</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/torrey</loc>\n<lastmod>2026-10-04T07:24:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/c/zion-national-park</loc>\n<lastmod>2026-10-05T01:35:21.092Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.6</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-public-bathroom-in-utah</loc>\n<lastmod>2026-10-04T07:23:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-dad-in-utah</loc>\n<lastmod>2026-10-04T18:35:59.520Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-pro-sports-team-in-utah</loc>\n<lastmod>2026-10-04T07:21:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/byu-vs-utah</loc>\n<lastmod>2026-10-05T01:35:21.928Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/is-fry-sauce-utahs-greatest-invention</loc>\n<lastmod>2026-10-04T07:19:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/which-utah-city-would-survive-a-zombie-apocalypse</loc>\n<lastmod>2026-10-04T07:18:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-utah-activity-under-20</loc>\n<lastmod>2026-10-04T07:17:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-place-to-propose-in-utah</loc>\n<lastmod>2026-10-04T07:16:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-date-spot-in-utah</loc>\n<lastmod>2026-10-04T07:15:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/which-utah-city-has-the-best-vibe</loc>\n<lastmod>2026-10-04T07:14:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-christmas-lights-in-utah</loc>\n<lastmod>2026-10-04T07:13:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-place-to-take-your-parents-in-utah</loc>\n<lastmod>2026-10-04T07:12:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-place-to-take-visitors-in-utah</loc>\n<lastmod>2026-10-04T07:11:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-utah-road-trip</loc>\n<lastmod>2026-10-04T07:10:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-way-to-spend-a-saturday-in-utah</loc>\n<lastmod>2026-10-04T07:09:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-utah-snack</loc>\n<lastmod>2026-10-04T07:08:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-utah-slang</loc>\n<lastmod>2026-10-04T07:07:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-utah-tradition</loc>\n<lastmod>2026-10-04T07:06:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-hike-in-st-george</loc>\n<lastmod>2026-10-04T07:05:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-coffee-shop-in-salt-lake-city</loc>\n<lastmod>2026-10-04T07:04:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-restaurant-in-provo</loc>\n<lastmod>2026-10-04T07:03:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-pizza-in-salt-lake-city</loc>\n<lastmod>2026-10-04T07:02:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-utah-city-to-live-in</loc>\n<lastmod>2026-10-04T07:01:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-park-in-utah</loc>\n<lastmod>2026-10-04T07:00:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-small-town-in-utah</loc>\n<lastmod>2026-10-04T06:59:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-weekend-getaway-in-utah</loc>\n<lastmod>2026-10-04T06:58:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-utah-city-for-families</loc>\n<lastmod>2026-10-04T06:57:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-main-street-in-utah</loc>\n<lastmod>2026-10-04T06:56:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/most-beautiful-town-in-utah</loc>\n<lastmod>2026-10-04T06:55:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-place-to-escape-the-summer-heat-in-utah</loc>\n<lastmod>2026-10-04T06:54:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-national-park-in-utah</loc>\n<lastmod>2026-10-05T01:35:21.092Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-view-in-utah</loc>\n<lastmod>2026-10-04T06:52:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-sunset-spot-in-utah</loc>\n<lastmod>2026-10-04T06:51:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-ski-resorts-in-utah</loc>\n<lastmod>2026-10-04T18:27:59.105Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-camping-in-utah</loc>\n<lastmod>2026-10-04T06:49:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-fall-colors-drive-in-utah</loc>\n<lastmod>2026-10-04T06:48:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-utah-lake-for-a-summer-day</loc>\n<lastmod>2026-10-04T06:47:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-waterfall-in-utah</loc>\n<lastmod>2026-10-04T06:46:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-beginner-hike-in-utah</loc>\n<lastmod>2026-10-04T06:45:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-hikes-in-utah</loc>\n<lastmod>2026-10-05T00:39:26.570Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-late-night-food-in-utah</loc>\n<lastmod>2026-10-04T06:43:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-dirty-soda-in-utah</loc>\n<lastmod>2026-10-04T06:42:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-food-truck-in-utah</loc>\n<lastmod>2026-10-04T06:41:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-breakfast-in-utah</loc>\n<lastmod>2026-10-04T06:40:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-only-in-utah-restaurant</loc>\n<lastmod>2026-10-04T06:39:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-ice-cream-in-utah</loc>\n<lastmod>2026-10-04T06:38:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-fry-sauce-in-utah</loc>\n<lastmod>2026-10-04T06:37:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-pizza-in-utah</loc>\n<lastmod>2026-10-04T06:36:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n<url>\n<loc>https://utahsays.com/best-burgers-in-utah</loc>\n<lastmod>2026-10-04T06:35:39.899Z</lastmod>\n<changefreq>daily</changefreq>\n<priority>0.8</priority>\n</url>\n</urlset>\n"
+    },
+    {
+      "url": "https://utahsays.com/robots.txt?review=20261005",
+      "finalUrl": "https://utahsays.com/robots.txt?review=20261005",
+      "status": 200,
+      "elapsedMs": 62,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:35:25 GMT",
+        "content-type": "text/plain"
+      },
+      "body": "User-Agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\nDisallow: /login\nDisallow: /profile\nDisallow: /ask\nDisallow: /s/\nDisallow: /go/\nDisallow: /auth/\n\nSitemap: https://utahsays.com/sitemap.xml\n"
+    }
+  ],
+  "deployments": {
+    "status": 200,
+    "data": {
+      "result": {
+        "deployments": [
+          {
+            "id": "981fb42e-5c2f-4218-9542-c5a800ec1c91",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "fd518b71-ca95-492b-8102-e1af1c0edfbf",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T05:30:41.806384Z"
+          },
+          {
+            "id": "f8fb550a-a5e8-4ee3-8c6d-1e8f041cb7c6",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "c1e8b519-b235-4bfc-9348-00bba5cfab58",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T04:51:23.846479Z"
+          },
+          {
+            "id": "a219213f-e013-45fe-bb09-0c4a2729da00",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "b16e38f1-bbf6-4600-8b20-4aab553ffe9a",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T03:17:20.8126Z"
+          },
+          {
+            "id": "6250823a-f7a2-416f-aefe-e520d83d9ed4",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "750265fd-9b0a-4402-abc8-fa685ae824b9",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T03:03:29.058069Z"
+          },
+          {
+            "id": "93862792-06c6-4208-95b2-1e93d785418e",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "46d390c2-dc3c-400a-b65b-086644515583",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T02:44:29.920619Z"
+          },
+          {
+            "id": "e319253d-a86a-4c3f-87f7-4c32be399da2",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "secret"
+            },
+            "versions": [
+              {
+                "version_id": "b46a5a4d-bc36-4423-8cb1-b8a4ef15bb9f",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T02:44:16.181503Z"
+          },
+          {
+            "id": "eea1df18-c08e-4f7b-9537-f424b712f35f",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "secret"
+            },
+            "versions": [
+              {
+                "version_id": "77070a74-fcbb-4846-a3cd-f3e5530887c6",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T01:58:52.997215Z"
+          },
+          {
+            "id": "cd578418-e153-442b-9450-ab54c76012f1",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "secret"
+            },
+            "versions": [
+              {
+                "version_id": "5d7c7876-870f-4b21-87bc-486abe20daf8",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T01:58:50.11436Z"
+          },
+          {
+            "id": "154af877-99a1-485d-aff9-72f5a89dd64d",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "56376de7-de0f-4120-91bf-90abea16e729",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T01:30:32.119882Z"
+          },
+          {
+            "id": "9faa11c7-c1c8-45a8-8791-1fa07815422c",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "e63b68da-7dfe-4cab-8661-33181966e98b",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T01:29:39.08329Z"
+          }
+        ]
+      },
+      "success": true,
+      "errors": [],
+      "messages": [],
+      "result_info": {
+        "page": 1,
+        "per_page": 10,
+        "count": 10,
+        "total_count": 20,
+        "total_pages": 2
+      }
+    }
+  },
+  "workerSettings": {
+    "status": 200,
+    "success": true,
+    "publicVars": [
+      {
+        "name": "ALLOW_INDEXING",
+        "text": "true",
+        "type": "plain_text"
+      },
+      {
+        "name": "NEXT_PUBLIC_SITE_URL",
+        "text": "https://utahsays.com",
+        "type": "plain_text"
+      }
+    ],
+    "errors": []
+  },
+  "finishedAt": "2026-10-05T05:35:25.700Z"
+}

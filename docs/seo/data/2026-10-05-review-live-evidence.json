@@ -1,0 +1,1422 @@
+{
+  "startedAt": "2026-10-05T05:33:44.317Z",
+  "scope": "Read-only HTTP GET and Cloudflare GET; no deployment, DNS or remote database writes",
+  "pages": [
+    {
+      "url": "http://localhost:3000/",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/right-now",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/explore",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-of-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/about",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/privacy",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/terms",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/food",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/outdoors",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/places",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/utah-life",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/people",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/fun",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/sports",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/things-to-do",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/provo",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/salt-lake-city",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/st-george",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/antelope-island",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/antelope-island-state-park",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/apollo-burger",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/arches-national-park",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/bear-lake",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/black-sheep-cafe",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/bombay-house",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/bricks-corner",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/bridal-veil-falls",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/crown-burgers",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/dead-horse-point",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/delicate-arch",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/ensign-peak",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/este-pizza",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/kanarra-falls",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/hires-big-h",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/lake-powell",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/lehi",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/logan",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/midway",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/mirror-lake-highway",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/moab",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/ogden",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/park-city",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/pizza-nono",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/provo",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/ruths-diner",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/salt-lake-city",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/scenic-byway-12",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/settebello-pizzeria-napoletana",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/springdale",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/st-george",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/stewart-falls",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/sundance-mountain-resort",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/temple-square",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/the-pie-pizzeria",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/torrey",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/c/zion-national-park",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-public-bathroom-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-dad-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-pro-sports-team-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/byu-vs-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/is-fry-sauce-utahs-greatest-invention",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/which-utah-city-would-survive-a-zombie-apocalypse",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-utah-activity-under-20",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-place-to-propose-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-date-spot-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/which-utah-city-has-the-best-vibe",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-christmas-lights-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-place-to-take-your-parents-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-place-to-take-visitors-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-utah-road-trip",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-way-to-spend-a-saturday-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-utah-snack",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-utah-slang",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-utah-tradition",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-hike-in-st-george",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-coffee-shop-in-salt-lake-city",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-restaurant-in-provo",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-pizza-in-salt-lake-city",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-utah-city-to-live-in",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-park-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-small-town-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-weekend-getaway-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-utah-city-for-families",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-main-street-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/most-beautiful-town-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-place-to-escape-the-summer-heat-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-national-park-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-view-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-sunset-spot-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-ski-resorts-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-camping-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-fall-colors-drive-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-utah-lake-for-a-summer-day",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-waterfall-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-beginner-hike-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-hikes-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-late-night-food-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-dirty-soda-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-food-truck-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-breakfast-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-only-in-utah-restaurant",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-ice-cream-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-fry-sauce-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-pizza-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://localhost:3000/best-burgers-in-utah",
+      "error": "fetch failed",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/best-beginner-hike-in-utah?utm_source=review",
+      "finalUrl": "https://utahsays.com/best-beginner-hike-in-utah?utm_source=review",
+      "status": 200,
+      "elapsedMs": 295,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:44 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Best Beginner Hike in Utah (2026) — Voted by Utah Locals | Utah Says",
+      "description": "<meta name=\"description\" content=\"What&#x27;s the best beginner hike in Utah? Big payoff, easy trail. Which one do you send first-timers on? Be one of the first to vote.\"/>",
+      "canonicals": [
+        "https://utahsays.com/best-beginner-hike-in-utah"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow, max-image-preview:large, max-snippet:-1\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/?tab=food",
+      "finalUrl": "https://utahsays.com/?tab=food",
+      "status": 200,
+      "elapsedMs": 296,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:44 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Utah Says — Utah votes. See what Utah says.",
+      "description": "<meta name=\"description\" content=\"Vote on Utah&#x27;s best burgers, hikes, hidden gems and more — then see what Utah says. Utah Says celebrates the best of Utah.\"/>",
+      "canonicals": [
+        "https://utahsays.com"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.com/?tab=new",
+      "finalUrl": "https://utahsays.com/?tab=new",
+      "status": 200,
+      "elapsedMs": 6803,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:51 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "Utah Says — Utah votes. See what Utah says.",
+      "description": "<meta name=\"description\" content=\"Vote on Utah&#x27;s best burgers, hikes, hidden gems and more — then see what Utah says. Utah Says celebrates the best of Utah.\"/>",
+      "canonicals": [
+        "https://utahsays.com"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    }
+  ],
+  "sitemap": {
+    "url": "https://utahsays.com/sitemap.xml",
+    "finalUrl": "https://utahsays.com/sitemap.xml",
+    "status": 200,
+    "elapsedMs": 175,
+    "headers": {
+      "date": "Mon, 05 Oct 2026 05:33:44 GMT",
+      "content-type": "application/xml",
+      "x-us-cache": "HIT",
+      "cf-cache-status": "HIT"
+    },
+    "urls": [
+      "http://localhost:3000/",
+      "http://localhost:3000/right-now",
+      "http://localhost:3000/explore",
+      "http://localhost:3000/best-of-utah",
+      "http://localhost:3000/about",
+      "http://localhost:3000/privacy",
+      "http://localhost:3000/terms",
+      "http://localhost:3000/food",
+      "http://localhost:3000/outdoors",
+      "http://localhost:3000/places",
+      "http://localhost:3000/utah-life",
+      "http://localhost:3000/people",
+      "http://localhost:3000/fun",
+      "http://localhost:3000/sports",
+      "http://localhost:3000/things-to-do",
+      "http://localhost:3000/provo",
+      "http://localhost:3000/salt-lake-city",
+      "http://localhost:3000/st-george",
+      "http://localhost:3000/c/antelope-island",
+      "http://localhost:3000/c/antelope-island-state-park",
+      "http://localhost:3000/c/apollo-burger",
+      "http://localhost:3000/c/arches-national-park",
+      "http://localhost:3000/c/bear-lake",
+      "http://localhost:3000/c/black-sheep-cafe",
+      "http://localhost:3000/c/bombay-house",
+      "http://localhost:3000/c/bricks-corner",
+      "http://localhost:3000/c/bridal-veil-falls",
+      "http://localhost:3000/c/crown-burgers",
+      "http://localhost:3000/c/dead-horse-point",
+      "http://localhost:3000/c/delicate-arch",
+      "http://localhost:3000/c/ensign-peak",
+      "http://localhost:3000/c/este-pizza",
+      "http://localhost:3000/c/hires-big-h",
+      "http://localhost:3000/c/kanarra-falls",
+      "http://localhost:3000/c/lake-powell",
+      "http://localhost:3000/c/lehi",
+      "http://localhost:3000/c/logan",
+      "http://localhost:3000/c/midway",
+      "http://localhost:3000/c/mirror-lake-highway",
+      "http://localhost:3000/c/moab",
+      "http://localhost:3000/c/ogden",
+      "http://localhost:3000/c/park-city",
+      "http://localhost:3000/c/pizza-nono",
+      "http://localhost:3000/c/provo",
+      "http://localhost:3000/c/ruths-diner",
+      "http://localhost:3000/c/salt-lake-city",
+      "http://localhost:3000/c/scenic-byway-12",
+      "http://localhost:3000/c/settebello-pizzeria-napoletana",
+      "http://localhost:3000/c/springdale",
+      "http://localhost:3000/c/st-george",
+      "http://localhost:3000/c/stewart-falls",
+      "http://localhost:3000/c/sundance-mountain-resort",
+      "http://localhost:3000/c/temple-square",
+      "http://localhost:3000/c/the-pie-pizzeria",
+      "http://localhost:3000/c/torrey",
+      "http://localhost:3000/c/zion-national-park",
+      "http://localhost:3000/best-public-bathroom-in-utah",
+      "http://localhost:3000/best-dad-in-utah",
+      "http://localhost:3000/best-pro-sports-team-in-utah",
+      "http://localhost:3000/byu-vs-utah",
+      "http://localhost:3000/is-fry-sauce-utahs-greatest-invention",
+      "http://localhost:3000/which-utah-city-would-survive-a-zombie-apocalypse",
+      "http://localhost:3000/best-utah-activity-under-20",
+      "http://localhost:3000/best-place-to-propose-in-utah",
+      "http://localhost:3000/best-date-spot-in-utah",
+      "http://localhost:3000/which-utah-city-has-the-best-vibe",
+      "http://localhost:3000/best-christmas-lights-in-utah",
+      "http://localhost:3000/best-place-to-take-your-parents-in-utah",
+      "http://localhost:3000/best-place-to-take-visitors-in-utah",
+      "http://localhost:3000/best-utah-road-trip",
+      "http://localhost:3000/best-way-to-spend-a-saturday-in-utah",
+      "http://localhost:3000/best-utah-snack",
+      "http://localhost:3000/best-utah-slang",
+      "http://localhost:3000/best-utah-tradition",
+      "http://localhost:3000/best-hike-in-st-george",
+      "http://localhost:3000/best-coffee-shop-in-salt-lake-city",
+      "http://localhost:3000/best-restaurant-in-provo",
+      "http://localhost:3000/best-pizza-in-salt-lake-city",
+      "http://localhost:3000/best-utah-city-to-live-in",
+      "http://localhost:3000/best-park-in-utah",
+      "http://localhost:3000/best-small-town-in-utah",
+      "http://localhost:3000/best-weekend-getaway-in-utah",
+      "http://localhost:3000/best-utah-city-for-families",
+      "http://localhost:3000/best-main-street-in-utah",
+      "http://localhost:3000/most-beautiful-town-in-utah",
+      "http://localhost:3000/best-place-to-escape-the-summer-heat-in-utah",
+      "http://localhost:3000/best-national-park-in-utah",
+      "http://localhost:3000/best-view-in-utah",
+      "http://localhost:3000/best-sunset-spot-in-utah",
+      "http://localhost:3000/best-ski-resorts-in-utah",
+      "http://localhost:3000/best-camping-in-utah",
+      "http://localhost:3000/best-fall-colors-drive-in-utah",
+      "http://localhost:3000/best-utah-lake-for-a-summer-day",
+      "http://localhost:3000/best-waterfall-in-utah",
+      "http://localhost:3000/best-beginner-hike-in-utah",
+      "http://localhost:3000/best-hikes-in-utah",
+      "http://localhost:3000/best-late-night-food-in-utah",
+      "http://localhost:3000/best-dirty-soda-in-utah",
+      "http://localhost:3000/best-food-truck-in-utah",
+      "http://localhost:3000/best-breakfast-in-utah",
+      "http://localhost:3000/best-only-in-utah-restaurant",
+      "http://localhost:3000/best-ice-cream-in-utah",
+      "http://localhost:3000/best-fry-sauce-in-utah",
+      "http://localhost:3000/best-pizza-in-utah",
+      "http://localhost:3000/best-burgers-in-utah"
+    ]
+  },
+  "redirects": [
+    {
+      "url": "https://www.utahsays.com/about?utm_source=review",
+      "finalUrl": "https://www.utahsays.com/about?utm_source=review",
+      "status": 301,
+      "elapsedMs": 198,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:51 GMT",
+        "location": "https://utahsays.com/about?utm_source=review"
+      },
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "http://utahsays.com/about",
+      "finalUrl": "http://utahsays.com/about",
+      "status": 200,
+      "elapsedMs": 132,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:51 GMT",
+        "content-type": "text/html; charset=utf-8",
+        "x-us-cache": "MISS"
+      },
+      "title": "How Utah Says Works | Utah Says",
+      "description": "<meta name=\"description\" content=\"Utah Says is a positive community voting site. One vote per person per question, rankings that stay current, and questions that celebrate the best of Utah.\"/>",
+      "canonicals": [
+        "https://utahsays.com/about"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://utahsays.garmgoon-domain.workers.dev/about",
+      "finalUrl": "https://utahsays.garmgoon-domain.workers.dev/about",
+      "status": 301,
+      "elapsedMs": 144,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:51 GMT",
+        "location": "https://utahsays.com/about"
+      },
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    }
+  ],
+  "robots": {
+    "url": "https://utahsays.com/robots.txt",
+    "finalUrl": "https://utahsays.com/robots.txt",
+    "status": 200,
+    "elapsedMs": 50,
+    "headers": {
+      "date": "Mon, 05 Oct 2026 05:33:51 GMT",
+      "content-type": "text/plain"
+    },
+    "body": "User-Agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin\nDisallow: /login\nDisallow: /profile\nDisallow: /ask\nDisallow: /s/\nDisallow: /go/\nDisallow: /auth/\n\nSitemap: https://utahsays.com/sitemap.xml\n"
+  },
+  "otherSites": [
+    {
+      "url": "https://garmgoon.com/",
+      "finalUrl": "https://garmgoon.com/",
+      "status": 200,
+      "elapsedMs": 177,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:52 GMT",
+        "content-type": "text/html",
+        "cf-cache-status": "HIT"
+      },
+      "title": "garmgoon",
+      "description": "<meta name=\"description\" content=\"매일 아침 비즈니스 아이디어 카드뉴스와 유튜브 요약을 모아 보는 개인 대시보드\"/>",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://garmgoon.com/family",
+      "finalUrl": "https://garmgoon.com/family",
+      "status": 200,
+      "elapsedMs": 52,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:52 GMT",
+        "content-type": "text/html",
+        "cf-cache-status": "HIT"
+      },
+      "title": "우리 가족 · garmgoon",
+      "description": "<meta name=\"description\" content=\"가족끼리 일기와 메시지를 나누는 공간\"/>",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [
+        "<meta name=\"robots\" content=\"noindex, nofollow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://everydaytutor.net/",
+      "finalUrl": "https://www.everydaytutor.net/",
+      "status": 200,
+      "elapsedMs": 1479,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:53 GMT",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "title": "每日家教｜全台家教資訊搜尋",
+      "description": "<meta name=\"description\" content=\"集中搜尋全台灣公開的家教老師、學生需求、科目、地區與線上教學資訊。\"/>",
+      "canonicals": [
+        "https://www.everydaytutor.net"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://www.everydaytutor.net/tutors/taipei",
+      "finalUrl": "https://www.everydaytutor.net/tutors/taipei",
+      "status": 200,
+      "elapsedMs": 1051,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:54 GMT",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "title": "台北家教資訊 | 每日家教",
+      "description": "<meta name=\"description\" content=\"彙整台北市各行政區公開家教老師與學生徵才需求，比較科目、教學方式與時薪行情。\"/>",
+      "canonicals": [
+        "https://www.everydaytutor.net/tutors/taipei"
+      ],
+      "canonicalInHead": false,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://www.everydaytutor.net/tutors/taipei/english",
+      "finalUrl": "https://www.everydaytutor.net/tutors/taipei/english",
+      "status": 200,
+      "elapsedMs": 952,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:55 GMT",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "title": "台北英文家教資訊 | 每日家教",
+      "description": "<meta name=\"description\" content=\"比較台北市英文家教老師與學生需求，查看地區、教學方式、價格及原始刊登來源。\"/>",
+      "canonicals": [
+        "https://www.everydaytutor.net/tutors/taipei/english"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://www.everydaytutor.net/insights/taipei-english-tutor-rates",
+      "finalUrl": "https://www.everydaytutor.net/insights/taipei-english-tutor-rates",
+      "status": 200,
+      "elapsedMs": 488,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:55 GMT",
+        "content-type": "text/html; charset=utf-8"
+      },
+      "title": "2026 台北英文家教費用行情：國小/國中/高中/成人時薪真實統計 | 每日家教",
+      "description": "<meta name=\"description\" content=\"根據 EverydayTutor 統計 176 筆台北英文家教真實案件，2026 年台北英文家教平均時薪為 NT$563，中位數為 NT$500。提供國小、國中、高中學測及成人檢定分級時薪區間、線上 vs 實體課費用比較與預算建議。\"/>",
+      "canonicals": [
+        "https://www.everydaytutor.net/insights/taipei-english-tutor-rates"
+      ],
+      "canonicalInHead": true,
+      "robots": [
+        "<meta name=\"robots\" content=\"index, follow\"/>"
+      ],
+      "localhostInCanonical": false
+    },
+    {
+      "url": "https://seo.garmgoon.com/mcp",
+      "finalUrl": "https://dawn-field-884e.cloudflareaccess.com/cdn-cgi/access/login/seo.garmgoon.com",
+      "status": 200,
+      "elapsedMs": 552,
+      "headers": {
+        "date": "Mon, 05 Oct 2026 05:33:56 GMT",
+        "content-type": "text/html"
+      },
+      "title": "Sign in ・ Cloudflare Access",
+      "canonicals": [],
+      "canonicalInHead": false,
+      "robots": [
+        "<meta name=\"robots\" content=\"noindex\" />"
+      ],
+      "localhostInCanonical": false
+    }
+  ],
+  "deployments": {
+    "status": 200,
+    "data": {
+      "result": {
+        "deployments": [
+          {
+            "id": "981fb42e-5c2f-4218-9542-c5a800ec1c91",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "fd518b71-ca95-492b-8102-e1af1c0edfbf",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T05:30:41.806384Z"
+          },
+          {
+            "id": "f8fb550a-a5e8-4ee3-8c6d-1e8f041cb7c6",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "c1e8b519-b235-4bfc-9348-00bba5cfab58",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T04:51:23.846479Z"
+          },
+          {
+            "id": "a219213f-e013-45fe-bb09-0c4a2729da00",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "b16e38f1-bbf6-4600-8b20-4aab553ffe9a",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T03:17:20.8126Z"
+          },
+          {
+            "id": "6250823a-f7a2-416f-aefe-e520d83d9ed4",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "750265fd-9b0a-4402-abc8-fa685ae824b9",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T03:03:29.058069Z"
+          },
+          {
+            "id": "93862792-06c6-4208-95b2-1e93d785418e",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "46d390c2-dc3c-400a-b65b-086644515583",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T02:44:29.920619Z"
+          },
+          {
+            "id": "e319253d-a86a-4c3f-87f7-4c32be399da2",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "secret"
+            },
+            "versions": [
+              {
+                "version_id": "b46a5a4d-bc36-4423-8cb1-b8a4ef15bb9f",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T02:44:16.181503Z"
+          },
+          {
+            "id": "eea1df18-c08e-4f7b-9537-f424b712f35f",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "secret"
+            },
+            "versions": [
+              {
+                "version_id": "77070a74-fcbb-4846-a3cd-f3e5530887c6",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T01:58:52.997215Z"
+          },
+          {
+            "id": "cd578418-e153-442b-9450-ab54c76012f1",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "secret"
+            },
+            "versions": [
+              {
+                "version_id": "5d7c7876-870f-4b21-87bc-486abe20daf8",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T01:58:50.11436Z"
+          },
+          {
+            "id": "154af877-99a1-485d-aff9-72f5a89dd64d",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "56376de7-de0f-4120-91bf-90abea16e729",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T01:30:32.119882Z"
+          },
+          {
+            "id": "9faa11c7-c1c8-45a8-8791-1fa07815422c",
+            "source": "wrangler",
+            "strategy": "percentage",
+            "author_email": "garmgoondev@gmail.com",
+            "annotations": {
+              "workers/triggered_by": "deployment"
+            },
+            "versions": [
+              {
+                "version_id": "e63b68da-7dfe-4cab-8661-33181966e98b",
+                "percentage": 100
+              }
+            ],
+            "created_on": "2026-10-05T01:29:39.08329Z"
+          }
+        ]
+      },
+      "success": true,
+      "errors": [],
+      "messages": [],
+      "result_info": {
+        "page": 1,
+        "per_page": 10,
+        "count": 10,
+        "total_count": 20,
+        "total_pages": 2
+      }
+    }
+  },
+  "workerSettings": {
+    "status": 200,
+    "success": true,
+    "publicVars": [
+      {
+        "name": "ALLOW_INDEXING",
+        "text": "true",
+        "type": "plain_text"
+      },
+      {
+        "name": "NEXT_PUBLIC_SITE_URL",
+        "text": "https://utahsays.com",
+        "type": "plain_text"
+      }
+    ],
+    "errors": []
+  },
+  "finishedAt": "2026-10-05T05:33:57.149Z"
+}
