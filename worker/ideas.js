@@ -3,7 +3,7 @@ import { chatJSON, hasLLM } from "./llm.js";
 import { collectAll, collectBackfill, GROUP_CAPS, SOURCES, REDDIT_SUBS } from "./sources.js";
 import { discussionFromContext, queuedContext, redditContext, redditMode, redditPostUrl, claimRedditFeed, fetchRedditCandidates, finishRedditFeed } from "./reddit.js";
 import { loadPreferences, preferenceBoost, preferencePrompt } from "./prefs.js";
-import { fetchText, localDay, log, parseJSON, stripHtml, timeZone, truncate } from "./util.js";
+import { fetchText, getState, localDay, log, parseJSON, stripHtml, timeZone, truncate } from "./util.js";
 
 const SCORE_BATCH = 60;
 const SUMMARY_BATCH = 10;
@@ -276,7 +276,11 @@ ${comments.map((c, i) => `[${i + 1}] ${c.text}`).join("\n\n") || "(수집된 댓
   const category = CATEGORY_NAMES.includes(out?.category) ? out.category : "기타";
   const tags = (Array.isArray(out?.tags) ? out.tags : []).slice(0, 4).map((t) => String(t).replace(/^#/, ""));
 
-  const existingSummary = Array.isArray(item.summary) ? item.summary : parseJSON(item.summary, []);
+  const stored = Array.isArray(item.summary) ? item.summary : parseJSON(item.summary, []);
+  const existingSummary = (Array.isArray(stored) ? stored : [])
+    .map((s) => truncate(String(s ?? "").trim(), 280))
+    .filter(Boolean)
+    .slice(0, 3);
   const finalSummary = summary.length > 0 ? summary : existingSummary;
 
   // 필수 항목 검증: 요약이 없으면 불완전 카드로 간주하여 재시도 유도
@@ -310,6 +314,18 @@ function plainCard(item, context = null) {
   };
 }
 
+// 내용 문제(JSON 파싱 실패, 요약 누락)는 3번째 실패에서 건너뛴다.
+// 일시 장애(시간 초과, 네트워크, 429·5xx, 빈 응답)는 다음 실행 주기마다 더 오래 재시도한다.
+const MAX_CONTENT_ATTEMPTS = 3;
+const MAX_TRANSIENT_ATTEMPTS = 8;
+
+export function isTransientError(err) {
+  if (!err) return false;
+  if (err.name === "TimeoutError" || err.name === "AbortError" || err instanceof TypeError) return true;
+  const message = String(err.message || "");
+  return /^OpenRouter (408|409|425|429|5\d\d)\b/.test(message) || message.startsWith("OpenRouter 빈 응답");
+}
+
 // 선정된 글을 SUMMARY_BATCH개씩 카드로 만든다.
 export async function summarizeIdeas(env, day) {
   const { results: batch } = await env.DB.prepare("SELECT * FROM items WHERE day = ? AND status = 'selected' ORDER BY rank LIMIT ?")
@@ -329,15 +345,34 @@ export async function summarizeIdeas(env, day) {
   const stmts = [];
   for (const [i, r] of cards.entries()) {
     const it = batch[i];
-    // 세 번 실패하면 불완전한 카드를 피드에 올리지 않고 건너뜀 (요약/번역 누락 카드 노출 방지)
+    // 재시도 한도를 넘으면 불완전한 카드를 피드에 올리지 않고 건너뜀 (요약/번역 누락 카드 노출 방지)
     const c = r.status === "fulfilled" ? r.value : null;
+    // 일시 장애 횟수는 attempts와 따로 state에 세어, 장애가 내용 재시도 기회를 깎지 않게 한다.
+    const transientKey = `card:transient:${it.id}`;
     if (r.status === "rejected") {
-      await log(env, "warn", `카드 생성 실패 (${it.title}): ${r.reason?.message}`);
-      if (it.attempts >= 2) {
+      const transient = isTransientError(r.reason);
+      await log(env, "warn", `카드 생성 실패${transient ? " (일시 장애)" : ""} (${it.title}): ${r.reason?.message}`);
+      if (transient) {
+        const failures = Number(await getState(env, transientKey) || 0) + 1;
+        if (failures >= MAX_TRANSIENT_ATTEMPTS) {
+          stmts.push(env.DB.prepare("UPDATE items SET status = 'skipped' WHERE id = ?").bind(it.id));
+          stmts.push(env.DB.prepare("DELETE FROM state WHERE key = ?").bind(transientKey));
+        } else {
+          stmts.push(
+            env.DB.prepare(
+              "INSERT INTO state (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
+            ).bind(transientKey, String(failures), Date.now()),
+          );
+        }
+        continue;
+      }
+      if (it.attempts + 1 >= MAX_CONTENT_ATTEMPTS) {
         stmts.push(env.DB.prepare("UPDATE items SET status = 'skipped', attempts = attempts + 1 WHERE id = ?").bind(it.id));
+        stmts.push(env.DB.prepare("DELETE FROM state WHERE key = ?").bind(transientKey));
         continue;
       }
     }
+    if (c) stmts.push(env.DB.prepare("DELETE FROM state WHERE key = ?").bind(transientKey));
     stmts.push(
       c
         ? env.DB.prepare(

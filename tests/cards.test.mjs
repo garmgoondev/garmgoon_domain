@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { database } from "./db.mjs";
 import worker from "../worker/index.js";
 import { sessionCookie } from "../worker/auth.js";
-import { selectIdeas } from "../worker/ideas.js";
+import { isTransientError, selectIdeas, summarizeIdeas } from "../worker/ideas.js";
 import { loadPreferences, preferenceBoost, preferencePrompt } from "../worker/prefs.js";
 import { fetchRedditRss, rateLimitFrom } from "../worker/reddit.js";
 import { localDay, timeZone } from "../worker/util.js";
@@ -134,4 +134,66 @@ test("Reddit rate-limit headers keep the request gate closed until the window re
   assert.ok(gate >= before + 900_000);
   const last = JSON.parse(env.sqlite.prepare("SELECT value FROM state WHERE key = 'reddit:rss:last-result'").get().value);
   assert.equal(last.limit.remaining, 0);
+});
+
+test("transient LLM errors are distinguished from content errors", () => {
+  assert.equal(isTransientError(Object.assign(new Error("timed out"), { name: "TimeoutError" })), true);
+  assert.equal(isTransientError(new TypeError("fetch failed")), true);
+  assert.equal(isTransientError(new Error("OpenRouter 429: rate limited")), true);
+  assert.equal(isTransientError(new Error("OpenRouter 503: unavailable")), true);
+  assert.equal(isTransientError(new Error("OpenRouter 빈 응답 (finish_reason: length)")), true);
+  assert.equal(isTransientError(new Error("OpenRouter 400: bad request")), false);
+  assert.equal(isTransientError(new Error("JSON 파싱 실패: nope")), false);
+  assert.equal(isTransientError(new Error("카드 생성 불완전: 필수 항목 누락")), false);
+});
+
+test("card generation keeps retrying through outages but skips repeated content failures", async (t) => {
+  const env = setup(t, { OPENROUTER_API_KEY: "test-key" });
+  const select = (attempts) => {
+    const id = addItem(env, { status: "selected" });
+    env.sqlite.prepare("UPDATE items SET attempts = ?, summary = NULL WHERE id = ?").run(attempts, id);
+    return id;
+  };
+  const row = (id) => ({ ...env.sqlite.prepare("SELECT status, attempts FROM items WHERE id = ?").get(id) });
+  const outages = (id) => env.sqlite.prepare("SELECT value FROM state WHERE key = ?").get(`card:transient:${id}`)?.value ?? null;
+  const respond = (fn) => t.mock.method(globalThis, "fetch", fn);
+  const outage = async () => new Response("unavailable", { status: 503 });
+  const empty = async () => Response.json({ choices: [{ message: { content: JSON.stringify({ headline: "x", summary: [] }) } }] });
+  const ok = async () => Response.json({ choices: [{ message: { content: JSON.stringify({ headline: "카드", summary: ["요약"] }) } }] });
+
+  // Outages are counted apart from content attempts and give up on the eighth one.
+  respond(outage);
+  const early = select(2);
+  await summarizeIdeas(env, DAY);
+  assert.deepEqual(row(early), { status: "selected", attempts: 2 });
+  assert.equal(outages(early), "1");
+  env.sqlite.prepare("INSERT INTO state (key, value, updated_at) VALUES (?, '7', 0) ON CONFLICT(key) DO UPDATE SET value = '7'").run(`card:transient:${early}`);
+  await summarizeIdeas(env, DAY);
+  assert.deepEqual(row(early), { status: "skipped", attempts: 2 });
+  assert.equal(outages(early), null);
+
+  // Two outages, then one content failure, then success: the card is still published.
+  const mixed = select(0);
+  respond(outage); await summarizeIdeas(env, DAY); await summarizeIdeas(env, DAY);
+  respond(empty); await summarizeIdeas(env, DAY);
+  assert.deepEqual(row(mixed), { status: "selected", attempts: 1 });
+  respond(ok); await summarizeIdeas(env, DAY);
+  assert.equal(row(mixed).status, "published");
+  assert.equal(outages(mixed), null);
+
+  // Content failures alone are still skipped on the third attempt.
+  respond(empty);
+  const content = select(2);
+  await summarizeIdeas(env, DAY);
+  assert.deepEqual(row(content), { status: "skipped", attempts: 3 });
+});
+
+test("a stored summary that is not an array is never published", async (t) => {
+  const env = setup(t, { OPENROUTER_API_KEY: "test-key" });
+  const id = addItem(env, { status: "selected" });
+  env.sqlite.prepare("UPDATE items SET attempts = 0, summary = ? WHERE id = ?").run(JSON.stringify({ not: "an array" }), id);
+  t.mock.method(globalThis, "fetch", async () => Response.json({ choices: [{ message: { content: JSON.stringify({ headline: "x", summary: [] }) } }] }));
+  await summarizeIdeas(env, DAY);
+  const stored = env.sqlite.prepare("SELECT status, attempts FROM items WHERE id = ?").get(id);
+  assert.deepEqual({ ...stored }, { status: "selected", attempts: 1 });
 });

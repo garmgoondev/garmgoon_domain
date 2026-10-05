@@ -16,7 +16,7 @@ export default function IdeaCard({ card, index, keywords = [], isNew, authed, sc
   const c = categoryStyle(card.category);
   const kind = card.kind ? KINDS[card.kind] : null;
   const hasReactions = card.points != null || card.comments != null;
-  const summaryLines = (card.summary || []).filter(Boolean);
+  const summaryLines = Array.isArray(card.summary) ? card.summary.filter(Boolean) : [];
   return (
     <article className={`ncard${vote === -1 ? " disliked" : ""}`} style={cardVars(card.category)}>
       {keywords.length ? <span className="kwBadge">🔔 {keywords.join(", ")}</span> : null}
