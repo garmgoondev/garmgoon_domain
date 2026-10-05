@@ -2,7 +2,14 @@
 
 // 나만 쓰는 SaaS 도구 모음. 새 도구를 만들면 이 목록에 추가한다.
 // 예: { emoji: "🧮", name: "마진 계산기", description: "원가와 수수료로 판매가를 계산", href: "/tools/margin" }
-const TOOLS = [];
+const TOOLS = [
+  {
+    emoji: "⚡",
+    name: "자동화 통합 현황판",
+    description: "내 도메인, 서버, PC에서 가동 중인 6대 자동화 상태 모니터링",
+    href: "/automations",
+  },
+];
 
 const EMPTY_SLOTS = 6;
 
