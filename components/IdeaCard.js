@@ -2,7 +2,6 @@
 
 import { categoryStyle, KINDS } from "../lib/categories";
 import RedditDiscussion from "./RedditDiscussion";
-
 export function cardVars(category) {
   const c = categoryStyle(category);
   return { "--c-bg": c.bg, "--c-fg": c.fg, "--c-accent": c.accent };
@@ -17,6 +16,7 @@ export default function IdeaCard({ card, index, keywords = [], isNew, authed, sc
   const c = categoryStyle(card.category);
   const kind = card.kind ? KINDS[card.kind] : null;
   const hasReactions = card.points != null || card.comments != null;
+  const summaryLines = (card.summary || []).filter(Boolean);
   return (
     <article className={`ncard${vote === -1 ? " disliked" : ""}`} style={cardVars(card.category)}>
       {keywords.length ? <span className="kwBadge">🔔 {keywords.join(", ")}</span> : null}
@@ -48,9 +48,9 @@ export default function IdeaCard({ card, index, keywords = [], isNew, authed, sc
         </small>
       ) : null}
 
-      {card.summary.length ? (
+      {summaryLines.length ? (
         <ul className="ncardSummary">
-          {card.summary.map((s, i) => (
+          {summaryLines.map((s, i) => (
             <li key={i}>{s}</li>
           ))}
         </ul>
