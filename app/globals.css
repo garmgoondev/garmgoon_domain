@@ -4,7 +4,7 @@
   --surface-2: #f7f8fa;
   --text: #15171c;
   --text-2: #5b6170;
-  --text-3: #6b7280;
+  --text-3: #58606e;
   --line: #e6e8ee;
   --brand: #ff5a36;
   --brand-soft: #fff0eb;
@@ -602,6 +602,7 @@ button {
 @media (prefers-color-scheme: dark) {
   .ncard {
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    filter: saturate(0.92) brightness(0.94);
   }
 }
 
@@ -641,9 +642,10 @@ button {
   gap: 5px;
   padding: 4px 10px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--c-fg) 16%, transparent);
+  background: color-mix(in srgb, #000 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-fg) 25%, transparent);
   font-size: var(--fs-xs);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .ncardNum {
@@ -684,6 +686,16 @@ button {
   border-radius: inherit;
 }
 
+/* 텍스트 선택/복사 및 모바일 스크롤 시 불필요한 링크 클릭 방지 */
+.ncardSummary,
+.ncardPoint,
+.ncardSignal,
+.ncardDiscussion {
+  position: relative;
+  z-index: 2;
+  user-select: text;
+}
+
 .ncardSummary {
   margin: 0;
   padding: 0;
@@ -698,7 +710,7 @@ button {
 .ncardSummary li {
   position: relative;
   padding-left: 14px;
-  opacity: 0.95;
+  opacity: 1;
 }
 
 .ncardSummary li::before {
@@ -747,7 +759,8 @@ button {
 .ncardPoint {
   padding: 10px 12px;
   border-radius: 14px;
-  background: color-mix(in srgb, var(--c-fg) 14%, transparent);
+  background: color-mix(in srgb, #000 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-fg) 20%, transparent);
   font-size: var(--fs-md);
   line-height: 1.55;
 }
@@ -756,7 +769,7 @@ button {
   display: block;
   font-size: var(--fs-xs);
   font-weight: 800;
-  opacity: 0.85;
+  opacity: 1;
   margin-bottom: 2px;
 }
 
@@ -807,34 +820,49 @@ button {
   flex: none;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .ncardOpen {
-  padding: 5px 10px;
+  padding: 5px 11px;
   border-radius: 999px;
   background: var(--c-fg);
   color: var(--c-bg);
   font-weight: 800;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
-/* 스크랩 버튼은 카드 링크 위에 떠 있어야 눌린다 */
+.ncard:hover .ncardOpen {
+  opacity: 0.92;
+  transform: translateX(1px);
+}
+
+/* 스크랩·투표 버튼은 카드 링크 위에 떠 있어야 눌린다 (터치 영역 확보) */
 .ncardScrap {
   position: relative;
   z-index: 2;
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
   border: none;
   border-radius: 50%;
   background: color-mix(in srgb, var(--c-fg) 18%, transparent);
   color: inherit;
   font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 
 .ncardScrap:hover {
   background: color-mix(in srgb, var(--c-fg) 30%, transparent);
+}
+
+.ncardScrap:active {
+  transform: scale(0.92);
 }
 
 /* 좋아요·싫어요. 누르지 않은 상태는 흐리게, 누른 쪽은 또렷하게 */
