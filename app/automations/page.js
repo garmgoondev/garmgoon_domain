@@ -1,7 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+function formatRelativeTime(dateStr) {
+  if (!dateStr || dateStr === "—") return null;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  const diffSec = Math.max(0, Math.floor((Date.now() - d.getTime()) / 1000));
+  if (diffSec < 60) return "방금 전";
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}분 전`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}시간 전`;
+  return `${Math.floor(diffSec / 86400)}일 전`;
+}
 
 const AUTOMATIONS = [
   // --- [1] 활성 자동화 (Active) ---
@@ -438,10 +449,38 @@ export default function AutomationsPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedId, setExpandedId] = useState(null);
+  const [liveHeartbeats, setLiveHeartbeats] = useState({});
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState(null);
+
+  const fetchLiveStatus = async () => {
+    try {
+      setIsRefreshing(true);
+      const res = await fetch("/api/automations/status");
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.heartbeats) {
+          setLiveHeartbeats(data.heartbeats);
+          setLastSyncTime(new Date());
+        }
+      }
+    } catch (err) {
+      console.warn("Could not fetch real-time heartbeats:", err);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLiveStatus();
+    const interval = setInterval(fetchLiveStatus, 25000);
+    return () => clearInterval(interval);
+  }, []);
 
   const categories = ["all", ...new Set(AUTOMATIONS.map((a) => a.category))];
 
   const filtered = AUTOMATIONS.filter((item) => {
+    const hb = liveHeartbeats[item.id];
     const matchStatus =
       statusFilter === "all" ? true : item.status === statusFilter;
     const matchCategory =
@@ -453,12 +492,14 @@ export default function AutomationsPage() {
       item.category.toLowerCase().includes(q) ||
       item.engine.toLowerCase().includes(q) ||
       item.channel.toLowerCase().includes(q) ||
-      (item.lastRunText || "").toLowerCase().includes(q);
+      (item.lastRunText || "").toLowerCase().includes(q) ||
+      (hb?.message || "").toLowerCase().includes(q);
     return matchStatus && matchCategory && matchSearch;
   });
 
   const activeCount = AUTOMATIONS.filter((a) => a.status === "active").length;
   const inactiveCount = AUTOMATIONS.filter((a) => a.status === "inactive").length;
+  const liveFailures = Object.values(liveHeartbeats).filter((h) => h.status === "failure").length;
 
   const toggleExpand = (id) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -469,9 +510,9 @@ export default function AutomationsPage() {
       <div className="pageHead">
         <div>
           <div className="eyebrow">⚡ OPERATIONS &amp; AUTOMATION HUB</div>
-          <h1 className="pageTitle">도메인 자동화 통합 현황판</h1>
+          <h1 className="pageTitle">도메인 자동화 실시간 현황판</h1>
           <p className="pageDesc">
-            전체 <b>{AUTOMATIONS.length}개 자동화 파이프라인</b>의 실시간 가동 상태, 최근 실행 성공 여부, 스케줄을 한눈에 점검합니다.
+            전체 <b>{AUTOMATIONS.length}개 파이프라인</b>의 실시간 하트비트, 최근 작업 성공 여부, 실행 주기를 한눈에 모니터링합니다.
           </p>
         </div>
       </div>
@@ -534,23 +575,25 @@ export default function AutomationsPage() {
           }}
         >
           <div style={{ color: "var(--text-2)", fontSize: "var(--fs-xs)", fontWeight: 600 }}>
-            최근 작업 건전성
+            실시간 실행 건전성
           </div>
           <div
             style={{
               fontSize: "20px",
               fontWeight: 800,
-              color: "#00a676",
+              color: liveFailures > 0 ? "var(--danger)" : "#00a676",
               marginTop: "4px",
               display: "flex",
               alignItems: "center",
               gap: "6px",
             }}
           >
-            <span>✓ 100% 정상 가동</span>
+            <span>{liveFailures > 0 ? `⚠️ ${liveFailures}건 실패` : "✓ 100% 정상 가동"}</span>
           </div>
           <div style={{ fontSize: "11px", color: "var(--text-3)", marginTop: "2px" }}>
-            활성 14건 최근 작업 전체 성공
+            {lastSyncTime
+              ? `실시간 연동됨 (${lastSyncTime.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })})`
+              : "하트비트 연결 대기 중"}
           </div>
         </div>
 
@@ -618,7 +661,7 @@ export default function AutomationsPage() {
         </div>
       </div>
 
-      {/* 툴바: 보기 모드 전환 및 검색창 */}
+      {/* 툴바: 상태 필터, 새로고침, 검색, 보기 모드 */}
       <div
         style={{
           display: "flex",
@@ -629,7 +672,7 @@ export default function AutomationsPage() {
           marginBottom: "16px",
         }}
       >
-        {/* 상태 필터 버튼 */}
+        {/* 상태 필터 버튼 & 새로고침 */}
         <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
           <button
             type="button"
@@ -683,6 +726,37 @@ export default function AutomationsPage() {
             }}
           >
             🟡 대기 ({inactiveCount})
+          </button>
+
+          <button
+            type="button"
+            onClick={fetchLiveStatus}
+            disabled={isRefreshing}
+            title="실시간 하트비트 동기화"
+            style={{
+              padding: "6px 10px",
+              borderRadius: "8px",
+              fontSize: "12px",
+              fontWeight: 600,
+              border: "1px solid var(--line)",
+              background: "var(--surface)",
+              color: "var(--text-2)",
+              cursor: isRefreshing ? "wait" : "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                transform: isRefreshing ? "rotate(180deg)" : "none",
+                transition: "transform 0.4s ease",
+              }}
+            >
+              ↻
+            </span>
+            <span>{isRefreshing ? "갱신 중..." : "실시간 동기화"}</span>
           </button>
         </div>
 
@@ -859,7 +933,7 @@ export default function AutomationsPage() {
                     textTransform: "uppercase",
                   }}
                 >
-                  <th style={{ padding: "12px 16px", width: "190px" }}>상태 / 최근 실행 결과</th>
+                  <th style={{ padding: "12px 16px", width: "210px" }}>상태 / 실시간 실행 결과</th>
                   <th style={{ padding: "12px 16px" }}>자동화 파이프라인</th>
                   <th style={{ padding: "12px 16px", width: "170px" }}>실행 주기 &amp; 엔진</th>
                   <th style={{ padding: "12px 16px", width: "160px" }}>알림 / 출력처</th>
@@ -870,6 +944,28 @@ export default function AutomationsPage() {
                 {filtered.map((item, idx) => {
                   const isActive = item.status === "active";
                   const isExpanded = expandedId === item.id;
+                  const hb = liveHeartbeats[item.id];
+                  const hasHb = Boolean(hb);
+                  const isSuccess = hasHb ? hb.status === "success" : item.lastSuccess === true;
+                  const isFailure = hasHb ? hb.status === "failure" : false;
+                  const isRunning = hasHb ? hb.status === "running" : false;
+                  const displayStatusText = isRunning
+                    ? "실행 중..."
+                    : isFailure
+                    ? "실행 실패"
+                    : item.statusText;
+                  const displayRunText = isRunning
+                    ? "현재 실행 중"
+                    : isFailure
+                    ? "최근 실행 실패"
+                    : hasHb
+                    ? "실시간 실행 성공"
+                    : item.lastRunText;
+                  const displayRunAt = hasHb
+                    ? `${formatRelativeTime(hb.last_run_at)} (${new Date(hb.last_run_at).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })})`
+                    : item.lastRunAt;
+                  const displayRunDetail = hasHb ? hb.message || item.lastRunDetail : item.lastRunDetail;
+
                   return (
                     <tr
                       key={item.id}
@@ -893,20 +989,34 @@ export default function AutomationsPage() {
                               width: "7px",
                               height: "7px",
                               borderRadius: "50%",
-                              background: isActive ? "#00a676" : "#e68a00",
+                              background: isFailure ? "var(--danger)" : isActive ? "#00a676" : "#e68a00",
                               flexShrink: 0,
                             }}
                           />
                           <strong
                             style={{
                               fontSize: "12px",
-                              color: isActive ? "#00a676" : "#e68a00",
+                              color: isFailure ? "var(--danger)" : isActive ? "#00a676" : "#e68a00",
                             }}
                           >
-                            {item.statusText}
+                            {displayStatusText}
                           </strong>
+                          {hasHb && (
+                            <span
+                              style={{
+                                fontSize: "9px",
+                                color: "#00a676",
+                                background: "rgba(0,166,118,0.12)",
+                                padding: "1px 5px",
+                                borderRadius: "4px",
+                                fontWeight: 700,
+                              }}
+                            >
+                              LIVE
+                            </span>
+                          )}
                         </div>
-                        {item.lastSuccess === true ? (
+                        {isSuccess ? (
                           <div style={{ marginTop: "4px" }}>
                             <span
                               style={{
@@ -921,7 +1031,7 @@ export default function AutomationsPage() {
                                 borderRadius: "4px",
                               }}
                             >
-                              ✓ {item.lastRunText}
+                              ✓ {displayRunText}
                             </span>
                             <div
                               style={{
@@ -931,7 +1041,28 @@ export default function AutomationsPage() {
                                 paddingLeft: "2px",
                               }}
                             >
-                              {item.lastRunAt}
+                              {displayRunAt}
+                            </div>
+                          </div>
+                        ) : isFailure ? (
+                          <div style={{ marginTop: "4px" }}>
+                            <span
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "3px",
+                                fontSize: "11px",
+                                fontWeight: 700,
+                                color: "var(--danger)",
+                                background: "rgba(229, 72, 77, 0.1)",
+                                padding: "1px 6px",
+                                borderRadius: "4px",
+                              }}
+                            >
+                              ✕ {displayRunText}
+                            </span>
+                            <div style={{ fontSize: "10px", color: "var(--danger)", marginTop: "2px" }}>
+                              {displayRunAt}
                             </div>
                           </div>
                         ) : (
@@ -949,7 +1080,7 @@ export default function AutomationsPage() {
                                 borderRadius: "4px",
                               }}
                             >
-                              — {item.lastRunText}
+                              — {displayRunText}
                             </span>
                           </div>
                         )}
@@ -1021,19 +1152,23 @@ export default function AutomationsPage() {
                               </p>
                             </div>
 
-                            {item.lastRunDetail && (
+                            {displayRunDetail && (
                               <div
                                 style={{
                                   marginBottom: "10px",
                                   padding: "8px 10px",
-                                  background: "rgba(0, 166, 118, 0.08)",
+                                  background: isFailure
+                                    ? "rgba(229, 72, 77, 0.08)"
+                                    : "rgba(0, 166, 118, 0.08)",
                                   borderRadius: "6px",
                                   fontSize: "12px",
                                   color: "var(--text)",
                                 }}
                               >
-                                <strong style={{ color: "#00a676" }}>✓ 최근 실행 내역: </strong>
-                                {item.lastRunDetail}
+                                <strong style={{ color: isFailure ? "var(--danger)" : "#00a676" }}>
+                                  {isFailure ? "✕ 실행 오류 보고: " : "✓ 최근 실행 내역: "}
+                                </strong>
+                                {displayRunDetail}
                               </div>
                             )}
 
@@ -1140,6 +1275,27 @@ export default function AutomationsPage() {
         >
           {filtered.map((item) => {
             const isActive = item.status === "active";
+            const hb = liveHeartbeats[item.id];
+            const hasHb = Boolean(hb);
+            const isSuccess = hasHb ? hb.status === "success" : item.lastSuccess === true;
+            const isFailure = hasHb ? hb.status === "failure" : false;
+            const isRunning = hasHb ? hb.status === "running" : false;
+            const displayStatusText = isRunning
+              ? "실행 중..."
+              : isFailure
+              ? "실행 실패"
+              : item.statusText;
+            const displayRunText = isRunning
+              ? "현재 실행 중"
+              : isFailure
+              ? "최근 실행 실패"
+              : hasHb
+              ? "실시간 실행 성공"
+              : item.lastRunText;
+            const displayRunAt = hasHb
+              ? `${formatRelativeTime(hb.last_run_at)} (${new Date(hb.last_run_at).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })})`
+              : item.lastRunAt;
+
             return (
               <div
                 key={item.id}
@@ -1192,32 +1348,50 @@ export default function AutomationsPage() {
                       </div>
                     </div>
 
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "5px",
-                        fontSize: "11px",
-                        fontWeight: 700,
-                        color: isActive ? "#00a676" : "#e68a00",
-                        background: isActive
-                          ? "rgba(0, 166, 118, 0.12)"
-                          : "rgba(230, 138, 0, 0.12)",
-                        padding: "3px 8px",
-                        borderRadius: "999px",
-                        flexShrink: 0,
-                      }}
-                    >
+                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                      {hasHb && (
+                        <span
+                          style={{
+                            fontSize: "9px",
+                            color: "#00a676",
+                            background: "rgba(0,166,118,0.12)",
+                            padding: "2px 5px",
+                            borderRadius: "4px",
+                            fontWeight: 700,
+                          }}
+                        >
+                          LIVE
+                        </span>
+                      )}
                       <span
                         style={{
-                          width: "6px",
-                          height: "6px",
-                          borderRadius: "50%",
-                          background: isActive ? "#00a676" : "#e68a00",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "5px",
+                          fontSize: "11px",
+                          fontWeight: 700,
+                          color: isFailure ? "var(--danger)" : isActive ? "#00a676" : "#e68a00",
+                          background: isFailure
+                            ? "rgba(229, 72, 77, 0.12)"
+                            : isActive
+                            ? "rgba(0, 166, 118, 0.12)"
+                            : "rgba(230, 138, 0, 0.12)",
+                          padding: "3px 8px",
+                          borderRadius: "999px",
+                          flexShrink: 0,
                         }}
-                      />
-                      {item.statusText}
-                    </span>
+                      >
+                        <span
+                          style={{
+                            width: "6px",
+                            height: "6px",
+                            borderRadius: "50%",
+                            background: isFailure ? "var(--danger)" : isActive ? "#00a676" : "#e68a00",
+                          }}
+                        />
+                        {displayStatusText}
+                      </span>
+                    </div>
                   </div>
 
                   {/* 최근 실행 결과 띠지 */}
@@ -1229,21 +1403,25 @@ export default function AutomationsPage() {
                       padding: "6px 10px",
                       borderRadius: "6px",
                       marginBottom: "10px",
-                      background: item.lastSuccess === true ? "rgba(0, 166, 118, 0.08)" : "var(--surface-2)",
+                      background: isFailure
+                        ? "rgba(229, 72, 77, 0.08)"
+                        : isSuccess
+                        ? "rgba(0, 166, 118, 0.08)"
+                        : "var(--surface-2)",
                       fontSize: "12px",
                     }}
                   >
                     <span
                       style={{
                         fontWeight: 700,
-                        color: item.lastSuccess === true ? "#00a676" : "var(--text-3)",
+                        color: isFailure ? "var(--danger)" : isSuccess ? "#00a676" : "var(--text-3)",
                       }}
                     >
-                      {item.lastSuccess === true ? "✓ " : "— "}
-                      {item.lastRunText}
+                      {isSuccess ? "✓ " : isFailure ? "✕ " : "— "}
+                      {displayRunText}
                     </span>
                     <span style={{ fontSize: "11px", color: "var(--text-3)" }}>
-                      {item.lastRunAt}
+                      {displayRunAt}
                     </span>
                   </div>
 
@@ -1381,7 +1559,7 @@ export default function AutomationsPage() {
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <span style={{ fontSize: "20px" }}>🔒</span>
           <div style={{ fontSize: "13px", color: "var(--text-2)" }}>
-            <b>비공개 관리자 전용 페이지입니다.</b> 로그인한 계정에서만 접근할 수 있습니다.
+            <b>비공개 관리자 전용 페이지입니다.</b> D1 데이터베이스와 실시간 하트비트로 연동되어 있습니다.
           </div>
         </div>
         <Link

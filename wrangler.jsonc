@@ -51,7 +51,9 @@
     "TIMEZONE": "America/Denver",
     "COLLECT_HOUR": "6",
     // COLLECT_HOUR부터 이 간격(시간)마다 새 글을 모은다
-    "COLLECT_INTERVAL_HOURS": "4"
+    "COLLECT_INTERVAL_HOURS": "4",
+    // 자동화 실시간 하트비트 수신 토큰
+    "AUTOMATION_HEARTBEAT_TOKEN": "gg_hb_7f9a2e8c5b1d4039e8a716c5b9f3e2"
   },
   "observability": {
     "enabled": true

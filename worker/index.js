@@ -434,6 +434,13 @@ async function handleApi(request, env, url, ctx) {
   if (path === "/api/reports") return getReports(env);
   if (path === "/api/typing/leaderboard") return getTypingLeaderboard(env, url);
   if (path === "/api/typing/scores" && request.method === "POST") return submitTypingScore(env, request);
+  if (path === "/api/automations/status") return getAutomationsStatus(env);
+  if (path === "/api/automations/heartbeat" && request.method === "POST") {
+    if (!isAuthorizedForHeartbeat(request, env, authed)) {
+      return httpError(401, "인증 토큰이 유효하지 않습니다.");
+    }
+    return postAutomationHeartbeat(request, env);
+  }
 
   const m = path.match(/^\/api\/p\/([a-z]+)(?:\/([^/]+))?$/);
   if (!m) return httpError(404, "없는 API");
@@ -448,6 +455,49 @@ async function handleApi(request, env, url, ctx) {
   if (resource === "status") return statusApi(env);
   if (resource === "run" && request.method === "POST") return runApi(env, request);
   return httpError(404, "없는 API");
+}
+
+function isAuthorizedForHeartbeat(request, env, authed) {
+  if (authed) return true;
+  const authHeader = request.headers.get("authorization") || "";
+  const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+  const validTokens = [env.AUTOMATION_HEARTBEAT_TOKEN, env.ADMIN_PASSWORD].filter(Boolean).map((t) => String(t).trim());
+  if (token && validTokens.includes(token)) return true;
+  const url = new URL(request.url);
+  const queryKey = (url.searchParams.get("key") || "").trim();
+  if (queryKey && validTokens.includes(queryKey)) return true;
+  return false;
+}
+
+async function getAutomationsStatus(env) {
+  try {
+    const { results } = await env.DB.prepare(
+      "SELECT id, status, last_run_at, message, duration_ms, updated_at FROM automation_heartbeats"
+    ).all();
+    const heartbeats = Object.fromEntries((results || []).map((r) => [r.id, r]));
+    return json({ ok: true, heartbeats });
+  } catch (e) {
+    console.error("Failed to query heartbeats:", e);
+    return json({ ok: true, heartbeats: {} });
+  }
+}
+
+async function postAutomationHeartbeat(request, env) {
+  const body = await readBody(request);
+  const { id, status = "success", message = "", duration_ms = 0 } = body;
+  if (!id) return httpError(400, "id is required");
+  const lastRunAt = body.last_run_at || new Date().toISOString();
+  await env.DB.prepare(
+    `INSERT INTO automation_heartbeats (id, status, last_run_at, message, duration_ms, updated_at)
+     VALUES (?, ?, ?, ?, ?, datetime('now'))
+     ON CONFLICT(id) DO UPDATE SET
+       status = excluded.status,
+       last_run_at = excluded.last_run_at,
+       message = excluded.message,
+       duration_ms = excluded.duration_ms,
+       updated_at = datetime('now')`
+  ).bind(id, status, lastRunAt, message, duration_ms).run();
+  return json({ ok: true, id, status, last_run_at: lastRunAt });
 }
 
 export default {
@@ -469,8 +519,51 @@ export default {
   },
 
   async scheduled(_event, env, ctx) {
-    ctx.waitUntil(tick(env));
-    if (env.FILES) ctx.waitUntil(cleanupFamilyFiles(env).catch((e) => console.error(e)));
-    ctx.waitUntil(sendDigests(env).catch((e) => console.error(e)));
+    const start = Date.now();
+    ctx.waitUntil(
+      (async () => {
+        try {
+          await tick(env);
+          if (env.FILES) await cleanupFamilyFiles(env).catch((e) => console.error(e));
+          await sendDigests(env).catch((e) => console.error(e));
+          if (env.DB) {
+            await env.DB.prepare(
+              `INSERT INTO automation_heartbeats (id, status, last_run_at, message, duration_ms, updated_at)
+               VALUES (?, 'success', ?, ?, ?, datetime('now'))
+               ON CONFLICT(id) DO UPDATE SET
+                 status = excluded.status,
+                 last_run_at = excluded.last_run_at,
+                 message = excluded.message,
+                 duration_ms = excluded.duration_ms,
+                 updated_at = datetime('now')`
+            ).bind(
+              "garmgoon-feed-pipeline",
+              new Date().toISOString(),
+              "10분 주기 RSS 피드 수집 및 다이제스트 완료",
+              Date.now() - start
+            ).run().catch((e) => console.error("Heartbeat error:", e));
+          }
+        } catch (err) {
+          console.error("Scheduled cron error:", err);
+          if (env.DB) {
+            await env.DB.prepare(
+              `INSERT INTO automation_heartbeats (id, status, last_run_at, message, duration_ms, updated_at)
+               VALUES (?, 'failure', ?, ?, ?, datetime('now'))
+               ON CONFLICT(id) DO UPDATE SET
+                 status = excluded.status,
+                 last_run_at = excluded.last_run_at,
+                 message = excluded.message,
+                 duration_ms = excluded.duration_ms,
+                 updated_at = datetime('now')`
+            ).bind(
+              "garmgoon-feed-pipeline",
+              new Date().toISOString(),
+              String(err.message || err),
+              Date.now() - start
+            ).run().catch(() => {});
+          }
+        }
+      })()
+    );
   },
 };
