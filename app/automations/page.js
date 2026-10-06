@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import "./automations.css";
 
 function formatRelativeTime(dateStr) {
   if (!dateStr || dateStr === "—") return null;
@@ -443,6 +444,286 @@ const AUTOMATIONS = [
   },
 ];
 
+const CHANNEL_ICONS = [
+  [/telegram/i, "✈️"],
+  [/obsidian/i, "📓"],
+  [/push/i, "🔔"],
+  [/resend|이메일|email/i, "✉️"],
+  [/webhook/i, "🔗"],
+  [/dashboard|대시보드/i, "📊"],
+  [/supabase|d1|sqlite|database/i, "🗄️"],
+  [/github/i, "📦"],
+  [/facebook|meta|instagram|threads|x api/i, "📣"],
+  [/report|리포트|드래프트|로그/i, "📁"],
+];
+
+// "본문 (부연)" 형태를 본문과 부연으로 나눈다
+function splitParen(text) {
+  const m = /^(.*?)\s*\((.*)\)\s*$/.exec(text || "");
+  return m ? { main: m[1], note: m[2] } : { main: text || "", note: "" };
+}
+
+function parseChannels(channel) {
+  return channel.split(/\s+\+\s+/).map((part) => {
+    const { main, note } = splitParen(part);
+    const icon = CHANNEL_ICONS.find(([re]) => re.test(part))?.[1] || "📤";
+    return { label: main, note, icon };
+  });
+}
+
+function formatDuration(ms) {
+  const n = Number(ms);
+  if (!n || n <= 0) return null;
+  if (n < 1000) return `${Math.round(n)}ms`;
+  if (n < 60000) return `${(n / 1000).toFixed(1)}s`;
+  return `${Math.round(n / 60000)}m`;
+}
+
+function formatClock(dateStr) {
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
+  return d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
+}
+
+// 정적 데이터와 실시간 하트비트를 합쳐 화면에 보여줄 상태를 만든다
+function getRunState(item, hb) {
+  const hasHb = Boolean(hb);
+  const isActive = item.status === "active";
+  const isRunning = hasHb && hb.status === "running";
+  const isFailure = hasHb && hb.status === "failure";
+  const isSuccess = hasHb ? hb.status === "success" : item.lastSuccess === true;
+  const tone = isFailure ? "bad" : isRunning ? "run" : isActive ? "ok" : "warn";
+  const statusText = isRunning ? "실행 중..." : isFailure ? "실행 실패" : item.statusText;
+  const runText = isRunning
+    ? "현재 실행 중"
+    : isFailure
+    ? "최근 실행 실패"
+    : hasHb
+    ? "실시간 실행 성공"
+    : item.lastRunText;
+  const clock = hasHb ? formatClock(hb.last_run_at) : null;
+  const relative = hasHb ? formatRelativeTime(hb.last_run_at) : null;
+  const runAt = hasHb
+    ? relative
+    : item.lastRunAt && item.lastRunAt !== "—"
+    ? item.lastRunAt
+    : item.lastRunText;
+  const runAtFull = hasHb ? `${relative}${clock ? ` (${clock})` : ""}` : item.lastRunAt;
+  const runDetail = hasHb ? hb.message || item.lastRunDetail : item.lastRunDetail;
+  const runTone = isFailure ? "bad" : isRunning ? "run" : isSuccess ? "ok" : "idle";
+  const runIcon = isFailure ? "✕" : isRunning ? "◌" : isSuccess ? "✓" : "—";
+  return {
+    hasHb,
+    isActive,
+    isRunning,
+    isFailure,
+    isSuccess,
+    tone,
+    statusText,
+    runText,
+    runAt,
+    runAtFull,
+    clock,
+    runDetail,
+    runTone,
+    runIcon,
+    duration: hasHb ? formatDuration(hb.duration_ms) : null,
+  };
+}
+
+const Svg = ({ children, ...props }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    {...props}
+  >
+    {children}
+  </svg>
+);
+
+const IconRefresh = () => (
+  <Svg>
+    <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+    <path d="M21 3v6h-6" />
+  </Svg>
+);
+const IconSearch = () => (
+  <Svg>
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" />
+  </Svg>
+);
+const IconRows = () => (
+  <Svg>
+    <path d="M3 6h18M3 12h18M3 18h18" />
+  </Svg>
+);
+const IconGrid = () => (
+  <Svg>
+    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+    <rect x="14" y="3" width="7" height="7" rx="1.5" />
+    <rect x="3" y="14" width="7" height="7" rx="1.5" />
+    <rect x="14" y="14" width="7" height="7" rx="1.5" />
+  </Svg>
+);
+const IconClock = () => (
+  <Svg>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7v5l3 2" />
+  </Svg>
+);
+const IconCpu = () => (
+  <Svg>
+    <rect x="5" y="5" width="14" height="14" rx="2" />
+    <path d="M9 9h6v6H9zM9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3" />
+  </Svg>
+);
+const IconChevron = ({ dir = "down" }) => (
+  <Svg>
+    {dir === "down" && <path d="m6 9 6 6 6-6" />}
+    {dir === "left" && <path d="m15 6-6 6 6 6" />}
+    {dir === "right" && <path d="m9 6 6 6-6 6" />}
+  </Svg>
+);
+
+function StatusPills({ run }) {
+  return (
+    <div className="axStatusTop">
+      <span className="axPill" data-tone={run.tone}>
+        <span className="axDot" data-pulse={run.isRunning ? "true" : "false"} />
+        {run.statusText}
+      </span>
+      {run.hasHb && (
+        <span className="axLive" title="D1 실시간 하트비트 연동됨">
+          <span className="axDot" data-pulse="true" />
+          LIVE
+        </span>
+      )}
+    </div>
+  );
+}
+
+function RunLine({ run }) {
+  return (
+    <div className="axRunLine" title={`${run.runText} · ${run.runAtFull}`}>
+      <b data-tone={run.runTone}>{run.runIcon}</b>
+      <span className="axRunAt">
+        {run.runAt}
+        {run.clock && <span style={{ color: "var(--text-3)" }}> · {run.clock}</span>}
+      </span>
+      {run.duration && <span className="axMs">{run.duration}</span>}
+    </div>
+  );
+}
+
+function ScheduleMeta({ item }) {
+  const sched = splitParen(item.schedule);
+  const engine = splitParen(item.engine);
+  return (
+    <div className="axStack">
+      <div className="axMeta" data-strong="true" title={item.schedule}>
+        <IconClock />
+        <span>
+          {sched.main}
+          {sched.note && <span style={{ color: "var(--text-3)", fontWeight: 500 }}> · {sched.note}</span>}
+        </span>
+      </div>
+      <div className="axMeta" data-mono="true" title={item.engine}>
+        <IconCpu />
+        <span>
+          {engine.main}
+          {engine.note && <span style={{ color: "var(--text-3)" }}> · {engine.note}</span>}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function ChannelBadges({ item, withNote = true }) {
+  const channels = parseChannels(item.channel);
+  const notes = channels.map((c) => c.note).filter(Boolean).join(" · ");
+  return (
+    <div title={item.channel}>
+      <div className="axChannels">
+        {channels.map((c) => (
+          <span key={c.label} className="axChannel">
+            <span className="axChannelIcon" aria-hidden="true">
+              {c.icon}
+            </span>
+            <span>{c.label}</span>
+          </span>
+        ))}
+      </div>
+      {withNote && notes && <div className="axNote">{notes}</div>}
+    </div>
+  );
+}
+
+function DomainTags({ domains, max = 3 }) {
+  const shown = domains.slice(0, max);
+  const rest = domains.length - shown.length;
+  return (
+    <div className="axDomains">
+      {shown.map((d) => (
+        <span key={d} className="axTag" data-kind="domain">
+          {d}
+        </span>
+      ))}
+      {rest > 0 && (
+        <span className="axTag" data-kind="more" title={domains.slice(max).join(", ")}>
+          +{rest}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function RunCallout({ run }) {
+  if (!run.runDetail) return null;
+  const title = run.isFailure
+    ? "✕ 실행 오류 보고"
+    : run.isRunning
+    ? "◌ 현재 실행 중"
+    : run.isSuccess
+    ? "✓ 최근 실행 내역"
+    : "⏸ 현재 상태";
+  return (
+    <div className="axCallout" data-tone={run.isFailure ? "bad" : run.isRunning ? "run" : run.isSuccess ? "ok" : "warn"}>
+      <b>
+        {title}
+        {run.runAtFull && run.runAtFull !== "—" ? ` · ${run.runAtFull}` : ""}
+        {run.duration ? ` · ${run.duration}` : ""}
+      </b>
+      {run.runDetail}
+    </div>
+  );
+}
+
+function ReactivationCallout({ item, run }) {
+  if (run.isActive || !item.reactivation) return null;
+  return (
+    <div className="axCallout" data-tone="warn">
+      <b>💡 재활성화 방법</b>
+      <span>{item.reactivation}</span>
+    </div>
+  );
+}
+
+function Highlights({ items, className }) {
+  return (
+    <ul className={className}>
+      {items.map((h, i) => (
+        <li key={i}>{h}</li>
+      ))}
+    </ul>
+  );
+}
+
 export default function AutomationsPage() {
   const [viewMode, setViewMode] = useState("compact"); // 'compact' (한눈에 보기) | 'cards' (상세 카드)
   const [statusFilter, setStatusFilter] = useState("all"); // 'all' | 'active' | 'inactive'
@@ -452,6 +733,8 @@ export default function AutomationsPage() {
   const [liveHeartbeats, setLiveHeartbeats] = useState({});
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState(null);
+  const chipsRef = useRef(null);
+  const [chipFade, setChipFade] = useState({ l: false, r: false });
 
   const fetchLiveStatus = async () => {
     try {
@@ -477,7 +760,31 @@ export default function AutomationsPage() {
     return () => clearInterval(interval);
   }, []);
 
+  // 칩 영역 좌우 끝에 더 볼 칩이 있으면 페이드와 화살표를 보여준다
+  const updateChipFade = () => {
+    const el = chipsRef.current;
+    if (!el) return;
+    const l = el.scrollLeft > 4;
+    const r = el.scrollLeft + el.clientWidth < el.scrollWidth - 4;
+    setChipFade((prev) => (prev.l === l && prev.r === r ? prev : { l, r }));
+  };
+
+  useEffect(() => {
+    updateChipFade();
+    window.addEventListener("resize", updateChipFade);
+    return () => window.removeEventListener("resize", updateChipFade);
+  }, []);
+
+  const scrollChips = (dir) => {
+    const el = chipsRef.current;
+    if (el) el.scrollBy({ left: dir * el.clientWidth * 0.6, behavior: "smooth" });
+  };
+
   const categories = ["all", ...new Set(AUTOMATIONS.map((a) => a.category))];
+  const categoryCounts = AUTOMATIONS.reduce((acc, a) => {
+    acc[a.category] = (acc[a.category] || 0) + 1;
+    return acc;
+  }, {});
 
   const filtered = AUTOMATIONS.filter((item) => {
     const hb = liveHeartbeats[item.id];
@@ -500,13 +807,27 @@ export default function AutomationsPage() {
   const activeCount = AUTOMATIONS.filter((a) => a.status === "active").length;
   const inactiveCount = AUTOMATIONS.filter((a) => a.status === "inactive").length;
   const liveFailures = Object.values(liveHeartbeats).filter((h) => h.status === "failure").length;
+  const liveCount = Object.keys(liveHeartbeats).length;
+  const uptimePct = Math.round((activeCount / AUTOMATIONS.length) * 100);
 
   const toggleExpand = (id) => {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
+  const resetFilters = () => {
+    setStatusFilter("all");
+    setCategoryFilter("all");
+    setSearchQuery("");
+  };
+
+  const statusTabs = [
+    { key: "all", label: "전체", count: AUTOMATIONS.length, tone: "all" },
+    { key: "active", label: "정상 가동", count: activeCount, tone: "ok" },
+    { key: "inactive", label: "대기", count: inactiveCount, tone: "warn" },
+  ];
+
   return (
-    <>
+    <div className="ax">
       <div className="pageHead">
         <div>
           <div className="eyebrow">⚡ OPERATIONS &amp; AUTOMATION HUB</div>
@@ -517,1022 +838,314 @@ export default function AutomationsPage() {
         </div>
       </div>
 
-      {/* 요약 메트릭 카드 */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "14px",
-          marginBottom: "24px",
-        }}
-      >
-        <div
-          style={{
-            background: "var(--surface)",
-            padding: "16px 18px",
-            borderRadius: "var(--radius)",
-            border: "1px solid var(--line)",
-            boxShadow: "var(--shadow)",
-          }}
-        >
-          <div style={{ color: "var(--text-2)", fontSize: "var(--fs-xs)", fontWeight: 600 }}>
-            총 파이프라인 수
+      {/* 요약 메트릭 */}
+      <div className="axMetrics">
+        <div className="axMetric" data-tone="brand">
+          <div className="axMetricLabel">총 파이프라인</div>
+          <div className="axMetricValue">
+            {AUTOMATIONS.length}
+            <small>개</small>
           </div>
-          <div
-            style={{
-              fontSize: "24px",
-              fontWeight: 800,
-              color: "var(--text)",
-              marginTop: "4px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            {AUTOMATIONS.length}개
-            <span
-              style={{
-                fontSize: "11px",
-                color: "#00a676",
-                background: "rgba(0, 166, 118, 0.12)",
-                padding: "2px 8px",
-                borderRadius: "999px",
-                fontWeight: 700,
-              }}
-            >
-              🟢 {activeCount} 활성
-            </span>
+          <div className="axBar" aria-hidden="true">
+            <span style={{ width: `${uptimePct}%` }} />
+            <span style={{ width: `${100 - uptimePct}%` }} />
+          </div>
+          <div className="axMetricSub">
+            가동 {activeCount} · 대기 {inactiveCount}
           </div>
         </div>
 
-        <div
-          style={{
-            background: "var(--surface)",
-            padding: "16px 18px",
-            borderRadius: "var(--radius)",
-            border: "1px solid var(--line)",
-            boxShadow: "var(--shadow)",
-          }}
-        >
-          <div style={{ color: "var(--text-2)", fontSize: "var(--fs-xs)", fontWeight: 600 }}>
-            실시간 실행 건전성
+        <div className="axMetric" data-tone="ok">
+          <div className="axMetricLabel">정상 가동</div>
+          <div className="axMetricValue" data-tone="ok">
+            {activeCount}
+            <small>개</small>
           </div>
-          <div
-            style={{
-              fontSize: "20px",
-              fontWeight: 800,
-              color: liveFailures > 0 ? "var(--danger)" : "#00a676",
-              marginTop: "4px",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-            }}
-          >
-            <span>{liveFailures > 0 ? `⚠️ ${liveFailures}건 실패` : "✓ 100% 정상 가동"}</span>
+          <div className="axMetricSub">전체의 {uptimePct}% 활성</div>
+        </div>
+
+        <div className="axMetric" data-tone="warn">
+          <div className="axMetricLabel">대기 / 보류</div>
+          <div className="axMetricValue" data-tone="warn">
+            {inactiveCount}
+            <small>개</small>
           </div>
-          <div style={{ fontSize: "11px", color: "var(--text-3)", marginTop: "2px" }}>
+          <div className="axMetricSub">재활성화 절차 준비 완료</div>
+        </div>
+
+        <div className="axMetric" data-tone={liveFailures > 0 ? "bad" : "ok"}>
+          <div className="axMetricLabel">
+            실시간 헬스체크
+            {lastSyncTime && (
+              <span className="axLive">
+                <span className="axDot" data-pulse="true" />
+                LIVE
+              </span>
+            )}
+          </div>
+          <div className="axMetricValue" data-tone={liveFailures > 0 ? "bad" : "ok"}>
+            {liveFailures > 0 ? (
+              <>
+                {liveFailures}
+                <small>건 실패</small>
+              </>
+            ) : (
+              <>
+                정상<small>{liveCount ? `${liveCount}개 수신` : ""}</small>
+              </>
+            )}
+          </div>
+          <div className="axMetricSub">
             {lastSyncTime
-              ? `실시간 연동됨 (${lastSyncTime.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })})`
+              ? `${lastSyncTime.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })} 동기화 · 25초 주기`
               : "하트비트 연결 대기 중"}
-          </div>
-        </div>
-
-        <div
-          style={{
-            background: "var(--surface)",
-            padding: "16px 18px",
-            borderRadius: "var(--radius)",
-            border: "1px solid var(--line)",
-            boxShadow: "var(--shadow)",
-          }}
-        >
-          <div style={{ color: "var(--text-2)", fontSize: "var(--fs-xs)", fontWeight: 600 }}>
-            대기 / 보류 템플릿
-          </div>
-          <div
-            style={{
-              fontSize: "24px",
-              fontWeight: 800,
-              color: "#e68a00",
-              marginTop: "4px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            {inactiveCount}개
-            <span
-              style={{
-                fontSize: "11px",
-                color: "#e68a00",
-                background: "rgba(230, 138, 0, 0.12)",
-                padding: "2px 8px",
-                borderRadius: "999px",
-                fontWeight: 700,
-              }}
-            >
-              🟡 준비 완료
-            </span>
-          </div>
-        </div>
-
-        <div
-          style={{
-            background: "var(--surface)",
-            padding: "16px 18px",
-            borderRadius: "var(--radius)",
-            border: "1px solid var(--line)",
-            boxShadow: "var(--shadow)",
-          }}
-        >
-          <div style={{ color: "var(--text-2)", fontSize: "var(--fs-xs)", fontWeight: 600 }}>
-            통합 알림 채널
-          </div>
-          <div
-            style={{
-              fontSize: "18px",
-              fontWeight: 800,
-              color: "var(--text)",
-              marginTop: "6px",
-            }}
-          >
-            📱 Telegram Bot
           </div>
         </div>
       </div>
 
       {/* 툴바: 상태 필터, 새로고침, 검색, 보기 모드 */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "12px",
-          marginBottom: "16px",
-        }}
-      >
-        {/* 상태 필터 버튼 & 새로고침 */}
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+      <div className="axToolbar">
+        <div className="axToolGroup">
+          <div className="axSeg" role="group" aria-label="상태 필터">
+            {statusTabs.map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                className="axSegBtn"
+                aria-pressed={statusFilter === t.key}
+                onClick={() => setStatusFilter(t.key)}
+              >
+                {t.label}
+                <span className="axCount" data-tone={t.tone}>
+                  {t.count}
+                </span>
+              </button>
+            ))}
+          </div>
           <button
             type="button"
-            onClick={() => setStatusFilter("all")}
-            style={{
-              padding: "6px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: statusFilter === "all" ? 700 : 500,
-              border: "1px solid",
-              borderColor: statusFilter === "all" ? "var(--brand)" : "var(--line)",
-              background: statusFilter === "all" ? "var(--brand-soft)" : "var(--surface)",
-              color: statusFilter === "all" ? "var(--brand)" : "var(--text)",
-              cursor: "pointer",
-            }}
-          >
-            전체 ({AUTOMATIONS.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter("active")}
-            style={{
-              padding: "6px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: statusFilter === "active" ? 700 : 500,
-              border: "1px solid",
-              borderColor: statusFilter === "active" ? "#00a676" : "var(--line)",
-              background:
-                statusFilter === "active" ? "rgba(0, 166, 118, 0.12)" : "var(--surface)",
-              color: statusFilter === "active" ? "#00a676" : "var(--text)",
-              cursor: "pointer",
-            }}
-          >
-            🟢 정상 가동 ({activeCount})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter("inactive")}
-            style={{
-              padding: "6px 14px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              fontWeight: statusFilter === "inactive" ? 700 : 500,
-              border: "1px solid",
-              borderColor: statusFilter === "inactive" ? "#e68a00" : "var(--line)",
-              background:
-                statusFilter === "inactive" ? "rgba(230, 138, 0, 0.12)" : "var(--surface)",
-              color: statusFilter === "inactive" ? "#e68a00" : "var(--text)",
-              cursor: "pointer",
-            }}
-          >
-            🟡 대기 ({inactiveCount})
-          </button>
-
-          <button
-            type="button"
+            className="axIconBtn"
             onClick={fetchLiveStatus}
             disabled={isRefreshing}
+            data-busy={isRefreshing ? "true" : "false"}
             title="실시간 하트비트 동기화"
-            style={{
-              padding: "6px 10px",
-              borderRadius: "8px",
-              fontSize: "12px",
-              fontWeight: 600,
-              border: "1px solid var(--line)",
-              background: "var(--surface)",
-              color: "var(--text-2)",
-              cursor: isRefreshing ? "wait" : "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px",
-            }}
           >
-            <span
-              style={{
-                display: "inline-block",
-                transform: isRefreshing ? "rotate(180deg)" : "none",
-                transition: "transform 0.4s ease",
-              }}
-            >
-              ↻
-            </span>
-            <span>{isRefreshing ? "갱신 중..." : "실시간 동기화"}</span>
+            <IconRefresh />
+            {isRefreshing ? "갱신 중..." : "실시간 동기화"}
           </button>
         </div>
 
-        {/* 뷰 모드 토글 (한눈에 보기 vs 카드형) + 검색 */}
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              background: "var(--surface)",
-              border: "1px solid var(--line)",
-              borderRadius: "8px",
-              padding: "4px 10px",
-              gap: "6px",
-            }}
-          >
-            <span style={{ fontSize: "14px", opacity: 0.6 }}>🔍</span>
+        <div className="axToolGroup">
+          <label className="axSearch">
+            <IconSearch />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="자동화 검색..."
-              style={{
-                border: "none",
-                background: "transparent",
-                outline: "none",
-                fontSize: "13px",
-                color: "var(--text)",
-                width: "130px",
-              }}
+              aria-label="자동화 검색"
             />
             {searchQuery && (
               <button
                 type="button"
+                className="axSearchClear"
                 onClick={() => setSearchQuery("")}
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  cursor: "pointer",
-                  fontSize: "12px",
-                  color: "var(--text-3)",
-                }}
+                aria-label="검색어 지우기"
               >
                 ✕
               </button>
             )}
-          </div>
-
-          <div
-            style={{
-              display: "inline-flex",
-              background: "var(--surface)",
-              border: "1px solid var(--line)",
-              borderRadius: "8px",
-              padding: "2px",
-            }}
-          >
+          </label>
+          <div className="axSeg" role="group" aria-label="보기 방식">
             <button
               type="button"
+              className="axSegBtn"
+              aria-pressed={viewMode === "compact"}
               onClick={() => setViewMode("compact")}
               title="한 화면에 많이 볼 수 있는 컴팩트 목록형"
-              style={{
-                padding: "6px 12px",
-                borderRadius: "6px",
-                fontSize: "12px",
-                fontWeight: viewMode === "compact" ? 700 : 500,
-                border: "none",
-                background: viewMode === "compact" ? "var(--brand)" : "transparent",
-                color: viewMode === "compact" ? "#fff" : "var(--text-2)",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "5px",
-                transition: "all 0.15s ease",
-              }}
             >
-              <span>📋</span> 한눈에 보기
+              <IconRows />
+              한눈에 보기
             </button>
             <button
               type="button"
+              className="axSegBtn"
+              aria-pressed={viewMode === "cards"}
               onClick={() => setViewMode("cards")}
               title="상세 카드형 보기"
-              style={{
-                padding: "6px 12px",
-                borderRadius: "6px",
-                fontSize: "12px",
-                fontWeight: viewMode === "cards" ? 700 : 500,
-                border: "none",
-                background: viewMode === "cards" ? "var(--brand)" : "transparent",
-                color: viewMode === "cards" ? "#fff" : "var(--text-2)",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "5px",
-                transition: "all 0.15s ease",
-              }}
             >
-              <span>🗂️</span> 카드형
+              <IconGrid />
+              카드형
             </button>
           </div>
         </div>
       </div>
 
-      {/* 카테고리 칩 필터 */}
-      <div
-        style={{
-          display: "flex",
-          gap: "6px",
-          marginBottom: "20px",
-          overflowX: "auto",
-          paddingBottom: "4px",
-        }}
-      >
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            onClick={() => setCategoryFilter(cat)}
-            style={{
-              padding: "4px 10px",
-              borderRadius: "999px",
-              fontSize: "12px",
-              fontWeight: categoryFilter === cat ? 700 : 500,
-              border: "1px solid",
-              borderColor: categoryFilter === cat ? "var(--brand)" : "var(--line)",
-              background: categoryFilter === cat ? "var(--brand)" : "var(--surface)",
-              color: categoryFilter === cat ? "#fff" : "var(--text-2)",
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-              transition: "all 0.15s ease",
-            }}
-          >
-            {cat === "all" ? "모든 분야" : cat}
+      {/* 카테고리 칩 필터 (스크롤바 숨김) */}
+      <div className="axChipsWrap">
+        {chipFade.l && (
+          <button type="button" className="axChipsArrow" data-side="l" onClick={() => scrollChips(-1)} aria-label="이전 분야">
+            <IconChevron dir="left" />
           </button>
-        ))}
+        )}
+        <div
+          ref={chipsRef}
+          className="axChips"
+          data-fade-l={chipFade.l ? "true" : "false"}
+          data-fade-r={chipFade.r ? "true" : "false"}
+          onScroll={updateChipFade}
+        >
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              className="axChip"
+              aria-pressed={categoryFilter === cat}
+              onClick={() => setCategoryFilter(cat)}
+            >
+              {cat === "all" ? "모든 분야" : cat}
+              <span className="axChipN">{cat === "all" ? AUTOMATIONS.length : categoryCounts[cat]}</span>
+            </button>
+          ))}
+        </div>
+        {chipFade.r && (
+          <button type="button" className="axChipsArrow" data-side="r" onClick={() => scrollChips(1)} aria-label="다음 분야">
+            <IconChevron dir="right" />
+          </button>
+        )}
       </div>
 
-      {/* ======================================================== */}
-      {/* [1] 컴팩트 목록형 뷰 (High-Density Table View) - DEFAULT */}
-      {/* ======================================================== */}
-      {viewMode === "compact" && (
-        <div
-          style={{
-            background: "var(--surface)",
-            border: "1px solid var(--line)",
-            borderRadius: "var(--radius)",
-            overflow: "hidden",
-            boxShadow: "var(--shadow)",
-          }}
-        >
-          <div
-            style={{
-              overflowX: "auto",
-              WebkitOverflowScrolling: "touch",
-            }}
-          >
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                textAlign: "left",
-                fontSize: "13px",
-              }}
-            >
-              <thead>
-                <tr
-                  style={{
-                    background: "var(--surface-2)",
-                    borderBottom: "1px solid var(--line)",
-                    color: "var(--text-2)",
-                    fontSize: "11px",
-                    fontWeight: 700,
-                    letterSpacing: "0.03em",
-                    textTransform: "uppercase",
-                  }}
-                >
-                  <th style={{ padding: "12px 16px", width: "210px" }}>상태 / 실시간 실행 결과</th>
-                  <th style={{ padding: "12px 16px" }}>자동화 파이프라인</th>
-                  <th style={{ padding: "12px 16px", width: "170px" }}>실행 주기 &amp; 엔진</th>
-                  <th style={{ padding: "12px 16px", width: "160px" }}>알림 / 출력처</th>
-                  <th style={{ padding: "12px 16px", width: "80px", textAlign: "center" }}>상세</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((item, idx) => {
-                  const isActive = item.status === "active";
-                  const isExpanded = expandedId === item.id;
-                  const hb = liveHeartbeats[item.id];
-                  const hasHb = Boolean(hb);
-                  const isSuccess = hasHb ? hb.status === "success" : item.lastSuccess === true;
-                  const isFailure = hasHb ? hb.status === "failure" : false;
-                  const isRunning = hasHb ? hb.status === "running" : false;
-                  const displayStatusText = isRunning
-                    ? "실행 중..."
-                    : isFailure
-                    ? "실행 실패"
-                    : item.statusText;
-                  const displayRunText = isRunning
-                    ? "현재 실행 중"
-                    : isFailure
-                    ? "최근 실행 실패"
-                    : hasHb
-                    ? "실시간 실행 성공"
-                    : item.lastRunText;
-                  const displayRunAt = hasHb
-                    ? `${formatRelativeTime(hb.last_run_at)} (${new Date(hb.last_run_at).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })})`
-                    : item.lastRunAt;
-                  const displayRunDetail = hasHb ? hb.message || item.lastRunDetail : item.lastRunDetail;
-
-                  return (
-                    <tr
-                      key={item.id}
-                      onClick={() => toggleExpand(item.id)}
-                      style={{
-                        borderBottom: "1px solid var(--line)",
-                        cursor: "pointer",
-                        background: isExpanded
-                          ? "var(--surface-2)"
-                          : idx % 2 === 1
-                          ? "rgba(0,0,0,0.015)"
-                          : "var(--surface)",
-                        transition: "background 0.15s ease",
-                      }}
-                    >
-                      {/* 상태 & 최근 성공 결과 */}
-                      <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                          <span
-                            style={{
-                              width: "7px",
-                              height: "7px",
-                              borderRadius: "50%",
-                              background: isFailure ? "var(--danger)" : isActive ? "#00a676" : "#e68a00",
-                              flexShrink: 0,
-                            }}
-                          />
-                          <strong
-                            style={{
-                              fontSize: "12px",
-                              color: isFailure ? "var(--danger)" : isActive ? "#00a676" : "#e68a00",
-                            }}
-                          >
-                            {displayStatusText}
-                          </strong>
-                          {hasHb && (
-                            <span
-                              style={{
-                                fontSize: "9px",
-                                color: "#00a676",
-                                background: "rgba(0,166,118,0.12)",
-                                padding: "1px 5px",
-                                borderRadius: "4px",
-                                fontWeight: 700,
-                              }}
-                            >
-                              LIVE
-                            </span>
-                          )}
-                        </div>
-                        {isSuccess ? (
-                          <div style={{ marginTop: "4px" }}>
-                            <span
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "3px",
-                                fontSize: "11px",
-                                fontWeight: 700,
-                                color: "#00a676",
-                                background: "rgba(0, 166, 118, 0.1)",
-                                padding: "1px 6px",
-                                borderRadius: "4px",
-                              }}
-                            >
-                              ✓ {displayRunText}
-                            </span>
-                            <div
-                              style={{
-                                fontSize: "10px",
-                                color: "var(--text-3)",
-                                marginTop: "2px",
-                                paddingLeft: "2px",
-                              }}
-                            >
-                              {displayRunAt}
-                            </div>
-                          </div>
-                        ) : isFailure ? (
-                          <div style={{ marginTop: "4px" }}>
-                            <span
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "3px",
-                                fontSize: "11px",
-                                fontWeight: 700,
-                                color: "var(--danger)",
-                                background: "rgba(229, 72, 77, 0.1)",
-                                padding: "1px 6px",
-                                borderRadius: "4px",
-                              }}
-                            >
-                              ✕ {displayRunText}
-                            </span>
-                            <div style={{ fontSize: "10px", color: "var(--danger)", marginTop: "2px" }}>
-                              {displayRunAt}
-                            </div>
-                          </div>
-                        ) : (
-                          <div style={{ marginTop: "4px" }}>
-                            <span
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "3px",
-                                fontSize: "11px",
-                                fontWeight: 600,
-                                color: "var(--text-3)",
-                                background: "var(--surface-2)",
-                                padding: "1px 6px",
-                                borderRadius: "4px",
-                              }}
-                            >
-                              — {displayRunText}
-                            </span>
-                          </div>
-                        )}
-                      </td>
-
-                      {/* 자동화 명칭 & 분야 */}
-                      <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                          <span style={{ fontSize: "20px", flexShrink: 0 }}>{item.icon}</span>
-                          <div>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                              <strong
-                                style={{
-                                  fontSize: "14px",
-                                  color: "var(--text)",
-                                  lineHeight: 1.3,
-                                }}
-                              >
-                                {item.title}
-                              </strong>
-                              <span
-                                style={{
-                                  fontSize: "10px",
-                                  fontWeight: 700,
-                                  color: "var(--text-3)",
-                                  background: "var(--surface-2)",
-                                  padding: "1px 6px",
-                                  borderRadius: "4px",
-                                }}
-                              >
-                                {item.category}
-                              </span>
-                            </div>
-                            <div
-                              style={{
-                                fontSize: "12px",
-                                color: "var(--text-2)",
-                                marginTop: "3px",
-                                maxWidth: "520px",
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                              }}
-                            >
-                              {item.description}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 펼쳤을 때 나타나는 인라인 세부 정보 */}
-                        {isExpanded && (
-                          <div
-                            onClick={(e) => e.stopPropagation()}
-                            style={{
-                              marginTop: "12px",
-                              padding: "14px",
-                              background: "var(--surface)",
-                              borderRadius: "10px",
-                              border: "1px solid var(--line)",
-                              cursor: "default",
-                            }}
-                          >
-                            <div style={{ marginBottom: "8px" }}>
-                              <strong style={{ fontSize: "12px", color: "var(--text)" }}>
-                                📌 상세 설명:
-                              </strong>
-                              <p style={{ margin: "4px 0 0 0", color: "var(--text-2)", lineHeight: 1.5 }}>
-                                {item.description}
-                              </p>
-                            </div>
-
-                            {displayRunDetail && (
-                              <div
-                                style={{
-                                  marginBottom: "10px",
-                                  padding: "8px 10px",
-                                  background: isFailure
-                                    ? "rgba(229, 72, 77, 0.08)"
-                                    : "rgba(0, 166, 118, 0.08)",
-                                  borderRadius: "6px",
-                                  fontSize: "12px",
-                                  color: "var(--text)",
-                                }}
-                              >
-                                <strong style={{ color: isFailure ? "var(--danger)" : "#00a676" }}>
-                                  {isFailure ? "✕ 실행 오류 보고: " : "✓ 최근 실행 내역: "}
-                                </strong>
-                                {displayRunDetail}
-                              </div>
-                            )}
-
-                            <div>
-                              <strong style={{ fontSize: "12px", color: "var(--text)" }}>
-                                🎯 점검 포인트 &amp; 주요 특징:
-                              </strong>
-                              <ul style={{ margin: "4px 0 0 0", paddingLeft: "18px", color: "var(--text-2)", lineHeight: 1.5 }}>
-                                {item.highlights.map((h, i) => (
-                                  <li key={i}>{h}</li>
-                                ))}
-                              </ul>
-                            </div>
-
-                            {!isActive && item.reactivation && (
-                              <div
-                                style={{
-                                  marginTop: "10px",
-                                  padding: "8px 10px",
-                                  background: "rgba(230, 138, 0, 0.08)",
-                                  border: "1px solid rgba(230, 138, 0, 0.25)",
-                                  borderRadius: "6px",
-                                  fontSize: "12px",
-                                }}
-                              >
-                                <strong style={{ color: "#e68a00" }}>💡 재활성화 방법: </strong>
-                                <span style={{ color: "var(--text)" }}>{item.reactivation}</span>
-                              </div>
-                            )}
-
-                            <div style={{ marginTop: "10px", fontSize: "11px", color: "var(--text-3)" }}>
-                              <strong>연동 도메인: </strong>
-                              {item.domains.join(", ")}
-                            </div>
-                          </div>
-                        )}
-                      </td>
-
-                      {/* 주기 & 엔진 */}
-                      <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
-                        <div style={{ fontWeight: 600, color: "var(--text)", fontSize: "12px" }}>
-                          {item.schedule}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "11px",
-                            color: "var(--text-3)",
-                            fontFamily: "monospace",
-                            marginTop: "2px",
-                          }}
-                        >
-                          {item.engine}
-                        </div>
-                      </td>
-
-                      {/* 알림 / 채널 */}
-                      <td style={{ padding: "12px 16px", verticalAlign: "middle" }}>
-                        <div style={{ fontWeight: 600, color: "var(--text)", fontSize: "12px" }}>
-                          {item.channel}
-                        </div>
-                      </td>
-
-                      {/* 펼치기 버튼 */}
-                      <td style={{ padding: "12px 16px", textAlign: "center", verticalAlign: "middle" }}>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleExpand(item.id);
-                          }}
-                          style={{
-                            padding: "4px 8px",
-                            borderRadius: "6px",
-                            border: "1px solid var(--line)",
-                            background: isExpanded ? "var(--brand-soft)" : "var(--surface)",
-                            color: isExpanded ? "var(--brand)" : "var(--text-2)",
-                            fontSize: "11px",
-                            fontWeight: 600,
-                            cursor: "pointer",
-                          }}
-                        >
-                          {isExpanded ? "▲ 닫기" : "▼ 상세"}
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      {filtered.length === 0 && (
+        <div className="axTable">
+          <div className="axEmpty">
+            <div>🔎</div>
+            조건에 맞는 자동화가 없습니다.
+            <br />
+            <button type="button" className="axIconBtn" onClick={resetFilters}>
+              필터 초기화
+            </button>
           </div>
         </div>
       )}
 
       {/* ======================================================== */}
-      {/* [2] 카드형 뷰 (Grid Cards View) - 옵션 선택 시 전환 */}
+      {/* [1] 컴팩트 목록형 뷰 (High-Density Table View) - DEFAULT */}
       {/* ======================================================== */}
-      {viewMode === "cards" && (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
-            gap: "18px",
-          }}
-        >
+      {viewMode === "compact" && filtered.length > 0 && (
+        <div className="axTable">
+          <div className="axHead">
+            <div>자동화 파이프라인 · {filtered.length}</div>
+            <div>상태 · 최근 실행</div>
+            <div>실행 주기 · 엔진</div>
+            <div className="axColChannel">
+              알림 · 출력처
+            </div>
+            <div />
+          </div>
+
           {filtered.map((item) => {
-            const isActive = item.status === "active";
-            const hb = liveHeartbeats[item.id];
-            const hasHb = Boolean(hb);
-            const isSuccess = hasHb ? hb.status === "success" : item.lastSuccess === true;
-            const isFailure = hasHb ? hb.status === "failure" : false;
-            const isRunning = hasHb ? hb.status === "running" : false;
-            const displayStatusText = isRunning
-              ? "실행 중..."
-              : isFailure
-              ? "실행 실패"
-              : item.statusText;
-            const displayRunText = isRunning
-              ? "현재 실행 중"
-              : isFailure
-              ? "최근 실행 실패"
-              : hasHb
-              ? "실시간 실행 성공"
-              : item.lastRunText;
-            const displayRunAt = hasHb
-              ? `${formatRelativeTime(hb.last_run_at)} (${new Date(hb.last_run_at).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })})`
-              : item.lastRunAt;
+            const isExpanded = expandedId === item.id;
+            const run = getRunState(item, liveHeartbeats[item.id]);
+            const detailId = `ax-detail-${item.id}`;
 
             return (
               <div
                 key={item.id}
-                style={{
-                  background: "var(--surface)",
-                  border: "1px solid var(--line)",
-                  borderRadius: "var(--radius)",
-                  padding: "20px",
-                  boxShadow: "var(--shadow)",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  opacity: isActive ? 1 : 0.94,
-                }}
+                className="axRow"
+               
+                data-tone={run.tone}
+                data-open={isExpanded ? "true" : "false"}
+                data-inactive={run.isActive ? "false" : "true"}
               >
-                <div>
-                  {/* 카드 상단: 아이콘 + 제목 + 상태 */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      justifyContent: "space-between",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <span style={{ fontSize: "28px" }}>{item.icon}</span>
-                      <div>
-                        <span
-                          style={{
-                            fontSize: "11px",
-                            color: isActive ? "var(--brand)" : "var(--text-3)",
-                            fontWeight: 700,
-                            textTransform: "uppercase",
-                          }}
-                        >
-                          {item.category}
-                        </span>
-                        <h2
-                          style={{
-                            fontSize: "16px",
-                            fontWeight: 800,
-                            color: "var(--text)",
-                            margin: 0,
-                            lineHeight: 1.3,
-                          }}
-                        >
-                          {item.title}
-                        </h2>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                      {hasHb && (
-                        <span
-                          style={{
-                            fontSize: "9px",
-                            color: "#00a676",
-                            background: "rgba(0,166,118,0.12)",
-                            padding: "2px 5px",
-                            borderRadius: "4px",
-                            fontWeight: 700,
-                          }}
-                        >
-                          LIVE
-                        </span>
-                      )}
-                      <span
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "5px",
-                          fontSize: "11px",
-                          fontWeight: 700,
-                          color: isFailure ? "var(--danger)" : isActive ? "#00a676" : "#e68a00",
-                          background: isFailure
-                            ? "rgba(229, 72, 77, 0.12)"
-                            : isActive
-                            ? "rgba(0, 166, 118, 0.12)"
-                            : "rgba(230, 138, 0, 0.12)",
-                          padding: "3px 8px",
-                          borderRadius: "999px",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: "6px",
-                            height: "6px",
-                            borderRadius: "50%",
-                            background: isFailure ? "var(--danger)" : isActive ? "#00a676" : "#e68a00",
-                          }}
-                        />
-                        {displayStatusText}
+                <div className="axRowMain" onClick={() => toggleExpand(item.id)}>
+                  {/* 파이프라인: 아이콘 + 제목 + 분야 + 설명 + 도메인 */}
+                  <div className="axCell axColPipe">
+                    <div className="axPipe">
+                      <span className="axIconTile" aria-hidden="true">
+                        {item.icon}
                       </span>
-                    </div>
-                  </div>
-
-                  {/* 최근 실행 결과 띠지 */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "6px 10px",
-                      borderRadius: "6px",
-                      marginBottom: "10px",
-                      background: isFailure
-                        ? "rgba(229, 72, 77, 0.08)"
-                        : isSuccess
-                        ? "rgba(0, 166, 118, 0.08)"
-                        : "var(--surface-2)",
-                      fontSize: "12px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontWeight: 700,
-                        color: isFailure ? "var(--danger)" : isSuccess ? "#00a676" : "var(--text-3)",
-                      }}
-                    >
-                      {isSuccess ? "✓ " : isFailure ? "✕ " : "— "}
-                      {displayRunText}
-                    </span>
-                    <span style={{ fontSize: "11px", color: "var(--text-3)" }}>
-                      {displayRunAt}
-                    </span>
-                  </div>
-
-                  <p
-                    style={{
-                      fontSize: "13px",
-                      color: "var(--text-2)",
-                      lineHeight: 1.5,
-                      marginBottom: "12px",
-                    }}
-                  >
-                    {item.description}
-                  </p>
-
-                  {/* 하이라이트 */}
-                  <div
-                    style={{
-                      background: "var(--surface-2)",
-                      borderRadius: "10px",
-                      padding: "10px 12px",
-                      marginBottom: "12px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "11px",
-                        color: "var(--text-3)",
-                        fontWeight: 700,
-                        marginBottom: "4px",
-                      }}
-                    >
-                      점검 포인트
-                    </div>
-                    <ul
-                      style={{
-                        margin: 0,
-                        paddingLeft: "16px",
-                        fontSize: "12px",
-                        color: "var(--text)",
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      {item.highlights.map((h, i) => (
-                        <li key={i}>{h}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {!isActive && item.reactivation && (
-                    <div
-                      style={{
-                        background: "rgba(230, 138, 0, 0.08)",
-                        border: "1px solid rgba(230, 138, 0, 0.25)",
-                        borderRadius: "10px",
-                        padding: "8px 10px",
-                        marginBottom: "12px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          fontWeight: 700,
-                          color: "#e68a00",
-                          marginBottom: "2px",
-                        }}
-                      >
-                        💡 재활성화 방법
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          color: "var(--text)",
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        {item.reactivation}
+                      <div className="axPipeBody">
+                        <div className="axPipeTitle">
+                          <strong>{item.title}</strong>
+                          <span className="axTag" data-kind="cat">
+                            {item.category}
+                          </span>
+                        </div>
+                        <p className="axDesc">{item.description}</p>
+                        <DomainTags domains={item.domains} />
                       </div>
                     </div>
-                  )}
+                  </div>
+
+                  {/* 상태 + 최근 실행 결과 */}
+                  <div className="axCell axColStatus">
+                    <div className="axStack axStatusCell">
+                      <StatusPills run={run} />
+                      <RunLine run={run} />
+                    </div>
+                  </div>
+
+                  {/* 주기 & 엔진 */}
+                  <div className="axCell axColSched">
+                    <ScheduleMeta item={item} />
+                  </div>
+
+                  {/* 알림 / 채널 */}
+                  <div className="axCell axColChannel">
+                    <ChannelBadges item={item} />
+                  </div>
+
+                  {/* 펼치기 버튼 */}
+                  <div className="axCell axColChev">
+                    <button
+                      type="button"
+                      className="axChevron"
+                      aria-expanded={isExpanded}
+                      aria-controls={detailId}
+                      aria-label={isExpanded ? "상세 닫기" : "상세 보기"}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleExpand(item.id);
+                      }}
+                    >
+                      <IconChevron />
+                    </button>
+                  </div>
                 </div>
 
-                {/* 메타 풋터 */}
-                <div
-                  style={{
-                    borderTop: "1px solid var(--line)",
-                    paddingTop: "10px",
-                    fontSize: "12px",
-                    display: "grid",
-                    gridTemplateColumns: "1fr 1fr",
-                    gap: "6px",
-                  }}
-                >
+                {/* 펼쳤을 때 나타나는 세부 정보 */}
+                <div className="axCollapse" data-open={isExpanded ? "true" : "false"} id={detailId} inert={!isExpanded}>
                   <div>
-                    <span style={{ color: "var(--text-3)", display: "block", fontSize: "10px" }}>
-                      ⏰ 주기
-                    </span>
-                    <span style={{ color: "var(--text)", fontWeight: 600 }}>{item.schedule}</span>
-                  </div>
-                  <div>
-                    <span style={{ color: "var(--text-3)", display: "block", fontSize: "10px" }}>
-                      🔔 채널
-                    </span>
-                    <span style={{ color: "var(--text)", fontWeight: 600 }}>{item.channel}</span>
-                  </div>
-                  <div style={{ gridColumn: "1 / -1" }}>
-                    <span style={{ color: "var(--text-3)", display: "block", fontSize: "10px" }}>
-                      ⚙️ 엔진
-                    </span>
-                    <span style={{ color: "var(--text-2)", fontFamily: "monospace", fontSize: "11px" }}>
-                      {item.engine}
-                    </span>
+                    <div className="axDetail">
+                      <div className="axPanel">
+                        <h3 className="axPanelTitle">📌 상세 설명</h3>
+                        <p>{item.description}</p>
+                        <RunCallout run={run} />
+                        <ReactivationCallout item={item} run={run} />
+                      </div>
+
+                      <div className="axDetailSide">
+                        <div className="axPanel">
+                          <h3 className="axPanelTitle">🎯 점검 포인트 &amp; 주요 특징</h3>
+                          <Highlights items={item.highlights} />
+                        </div>
+                        <div className="axPanel">
+                          <h3 className="axPanelTitle">⚙️ 구성</h3>
+                          <dl className="axKv">
+                            <dt>주기</dt>
+                            <dd>{item.schedule}</dd>
+                            <dt>엔진</dt>
+                            <dd className="mono">{item.engine}</dd>
+                            <dt>출력처</dt>
+                            <dd>{item.channel}</dd>
+                            <dt>도메인</dt>
+                            <dd>
+                              <DomainTags domains={item.domains} max={item.domains.length} />
+                            </dd>
+                          </dl>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1541,39 +1154,64 @@ export default function AutomationsPage() {
         </div>
       )}
 
-      {/* 하단 안내 배너 */}
-      <div
-        style={{
-          marginTop: "28px",
-          padding: "16px 20px",
-          background: "var(--surface)",
-          border: "1px dashed var(--line)",
-          borderRadius: "var(--radius)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "12px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{ fontSize: "20px" }}>🔒</span>
-          <div style={{ fontSize: "13px", color: "var(--text-2)" }}>
-            <b>비공개 관리자 전용 페이지입니다.</b> D1 데이터베이스와 실시간 하트비트로 연동되어 있습니다.
-          </div>
+      {/* ======================================================== */}
+      {/* [2] 카드형 뷰 (Grid Cards View) - 옵션 선택 시 전환 */}
+      {/* ======================================================== */}
+      {viewMode === "cards" && filtered.length > 0 && (
+        <div className="axGrid">
+          {filtered.map((item) => {
+            const run = getRunState(item, liveHeartbeats[item.id]);
+
+            return (
+              <article key={item.id} className="axCard" data-tone={run.tone}>
+                <div className="axCardHead">
+                  <span className="axIconTile" aria-hidden="true">
+                    {item.icon}
+                  </span>
+                  <div className="axCardStatus">
+                    <StatusPills run={run} />
+                  </div>
+                </div>
+
+                <h2 className="axCardTitle">{item.title}</h2>
+                <div className="axCardCat">
+                  <span className="axTag" data-kind="cat">
+                    {item.category}
+                  </span>
+                </div>
+
+                <p className="axDesc">{item.description}</p>
+
+                <div className="axCardRun">
+                  <RunLine run={run} />
+                  <span style={{ color: "var(--text-3)", whiteSpace: "nowrap" }}>{run.runText}</span>
+                </div>
+
+                <Highlights items={item.highlights} className="axCardHl" />
+
+                <ReactivationCallout item={item} run={run} />
+
+                <DomainTags domains={item.domains} />
+
+                <div className="axCardSpacer" />
+
+                <div className="axCardFoot">
+                  <ScheduleMeta item={item} />
+                  <ChannelBadges item={item} withNote={false} />
+                </div>
+              </article>
+            );
+          })}
         </div>
-        <Link
-          href="/tools"
-          style={{
-            fontSize: "12px",
-            fontWeight: 700,
-            color: "var(--brand)",
-            textDecoration: "none",
-          }}
-        >
-          ← SaaS 도구함으로 돌아가기
-        </Link>
+      )}
+
+      {/* 하단 안내 */}
+      <div className="axFoot">
+        <div>
+          🔒 <b>비공개 관리자 전용 페이지입니다.</b> D1 데이터베이스와 실시간 하트비트로 연동되어 있습니다.
+        </div>
+        <Link href="/tools">← SaaS 도구함으로 돌아가기</Link>
       </div>
-    </>
+    </div>
   );
 }
