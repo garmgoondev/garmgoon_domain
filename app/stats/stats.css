@@ -1,0 +1,641 @@
+/* ---------- 사이트 통계 및 종합 대시보드 스타일 ---------- */
+
+.stRoot {
+  --st-r: 16px;
+  --st-r-sm: 10px;
+  --st-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Consolas, monospace;
+}
+
+/* 상단 타이틀 영역 */
+.stHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.stTitleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stHeadActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stRefreshBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  border-radius: var(--st-r-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stRefreshBtn:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.stRefreshBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 사이트 선택 네비게이션 탭 (Pills) */
+.stSiteNav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 24px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.stSiteNav::-webkit-scrollbar {
+  height: 4px;
+}
+
+.stSiteNav::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
+
+.stSiteTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 15px;
+  border-radius: 9999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(20, 23, 31, 0.03);
+}
+
+.stSiteTab:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--text-3);
+  transform: translateY(-1px);
+}
+
+.stSiteTab.active {
+  background: var(--text);
+  color: var(--surface);
+  border-color: var(--text);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.stSiteTab .tabIcon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.stSiteTab .tabBadge {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-weight: 700;
+}
+
+.stSiteTab.active .tabBadge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+/* 주요 KPI 카드 그리드 */
+.stMetrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 900px) {
+  .stMetrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .stMetrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stMetricCard {
+  position: relative;
+  overflow: hidden;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--st-r);
+  box-shadow: 0 1px 3px rgba(20, 23, 31, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stMetricCard:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(20, 23, 31, 0.06);
+}
+
+.stMetricCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--card-accent, var(--line));
+}
+
+.stMetricCard[data-tone="blue"] { --card-accent: #3b82f6; }
+.stMetricCard[data-tone="purple"] { --card-accent: #8b5cf6; }
+.stMetricCard[data-tone="green"] { --card-accent: #10b981; }
+.stMetricCard[data-tone="orange"] { --card-accent: #ff5a36; }
+
+.stMetricLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stMetricValue {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--text);
+  font-family: var(--st-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.stMetricSub {
+  margin-top: 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stPositive {
+  color: #00a676;
+  font-weight: 600;
+}
+
+/* 비교 테이블 (전체 사이트 모드) */
+.stTableWrap {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--st-r);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(20, 23, 31, 0.04);
+  margin-bottom: 24px;
+}
+
+.stTableHeader {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stTableHeader h3 {
+  margin: 0;
+  font-size: var(--fs-base);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stTableScroll {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.stTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+
+.stTable th {
+  background: var(--surface-2);
+  padding: 12px 16px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text-2);
+  border-bottom: 1px solid var(--line);
+  letter-spacing: 0.02em;
+}
+
+.stTable td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.stTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.stTable tbody tr {
+  transition: background 0.12s ease;
+}
+
+.stTable tbody tr:hover {
+  background: var(--surface-2);
+}
+
+.stSiteCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stSiteIcon {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.stSiteTitle {
+  font-weight: 700;
+  color: var(--text);
+  font-size: var(--fs-md);
+}
+
+.stSiteDomain {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  font-family: var(--st-mono);
+}
+
+.stStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  font-family: var(--st-mono);
+}
+
+.stStatusBadge.ok {
+  background: rgba(0, 166, 118, 0.1);
+  color: #00774f;
+  border: 1px solid rgba(0, 166, 118, 0.25);
+}
+
+.stStatusBadge.warn {
+  background: rgba(230, 138, 0, 0.1);
+  color: #a35a00;
+  border: 1px solid rgba(230, 138, 0, 0.25);
+}
+
+.stStatusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.stActionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  border-radius: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--brand);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.stActionBtn:hover {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+}
+
+/* 사이트 상세 뷰 (Drilldown) */
+.stDetailHero {
+  padding: 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--st-r);
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(20, 23, 31, 0.04);
+}
+
+.stDetailHeaderRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.stDetailIdentity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stDetailIdentity .heroIcon {
+  font-size: 32px;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stDetailIdentity h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stDomainLink {
+  font-family: var(--st-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.stDomainLink:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+.stDetailBadges {
+  display: flex;
+  gap: 6px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.stDetailBadge {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--text-2);
+}
+
+.stDetailBadge.active {
+  background: rgba(0, 166, 118, 0.08);
+  border-color: rgba(0, 166, 118, 0.2);
+  color: #00774f;
+}
+
+.stDetailControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stPingBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--st-r-sm);
+  font-size: var(--fs-xs);
+  font-family: var(--st-mono);
+}
+
+/* 차트 카드 */
+.stChartCard {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--st-r);
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(20, 23, 31, 0.04);
+}
+
+.stChartHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stChartTitle {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stChartTabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface-2);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+.stChartTab {
+  padding: 5px 12px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stChartTab.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.stChartSvgWrap {
+  width: 100%;
+  height: 180px;
+}
+
+.stChartSvg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* 2단 상세 그리드 (키워드 & 페이지) */
+.stGrid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 860px) {
+  .stGrid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stCard {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--st-r);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(20, 23, 31, 0.04);
+}
+
+.stCardHeader {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stCardHeader h3 {
+  margin: 0;
+  font-size: var(--fs-base);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stCardBody {
+  padding: 16px 20px;
+}
+
+/* 키워드 태그 */
+.stQueryTag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(255, 90, 54, 0.1);
+  color: var(--brand);
+}
+
+/* 우선순위 액션 박스 */
+.stActionBox {
+  background: linear-gradient(135deg, rgba(255, 90, 54, 0.04), rgba(59, 130, 246, 0.04));
+  border: 1px dashed var(--line);
+  border-radius: var(--st-r);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.stActionBox h3 {
+  margin: 0 0 12px 0;
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stActionList {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+}
+
+.stActionList li {
+  position: relative;
+}
+
+/* 반응형 다크모드 미세조정 */
+@media (prefers-color-scheme: dark) {
+  .stStatusBadge.ok {
+    background: rgba(61, 219, 165, 0.12);
+    color: #3ddba5;
+    border-color: rgba(61, 219, 165, 0.25);
+  }
+  .stStatusBadge.warn {
+    background: rgba(245, 176, 65, 0.12);
+    color: #f5b041;
+    border-color: rgba(245, 176, 65, 0.25);
+  }
+  .stPositive {
+    color: #3ddba5;
+  }
+  .stSiteTab.active {
+    background: #ffffff;
+    color: #15171c;
+  }
+}

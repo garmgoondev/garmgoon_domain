@@ -11,6 +11,7 @@ const NAV = [
   { href: "/youtube", label: "유튜브" },
   { href: "/trends", label: "주간 트렌드" },
   { href: "/automations", label: "자동화 ⚡", private: true },
+  { href: "/stats", label: "통계 📊", private: true },
   { href: "/games", label: "게임 🎮" },
   { href: "/family", label: "가족 🏠", family: true },
   { href: "/tools", label: "SaaS 도구", private: true },

@@ -6,6 +6,7 @@
     "test:reddit": "node --test tests/reddit.test.mjs tests/reddit-runtime.test.mjs",
     "test:cards": "node --test tests/cards.test.mjs",
     "test:auth": "node --test tests/auth.test.mjs",
+    "test:stats": "node --test tests/stats.test.mjs",
     "test:family": "node --test tests/family.test.mjs tests/family-board.test.mjs",
     "test:family:ui": "node tests/family-ui.mjs",
     "test:family:board-ui": "node tests/family-board-ui.mjs",

@@ -10,8 +10,9 @@ import { DAY, getState, httpError, json, localDay, localParts, localWeekStart, p
 import { addChannel, videoFromRow } from "./youtube.js";
 import { redditMode } from "./reddit.js";
 import { loadPreferences, preferenceBoost, preferenceSummary } from "./prefs.js";
+import { getStatsSummaryApi, pingDomainApi, pingAllDomainsApi } from "./stats.js";
 
-const PRIVATE_PAGES = /^\/(tools|scrap|settings|automations)(\/|\.html|\.txt|$)/;
+const PRIVATE_PAGES = /^\/(tools|scrap|settings|automations|stats)(\/|\.html|\.txt|$)/;
 const NOTE_STATUSES = ["idea", "review", "doing", "hold"];
 
 async function readBody(request) {
@@ -435,6 +436,9 @@ async function handleApi(request, env, url, ctx) {
   if (path === "/api/typing/leaderboard") return getTypingLeaderboard(env, url);
   if (path === "/api/typing/scores" && request.method === "POST") return submitTypingScore(env, request);
   if (path === "/api/automations/status") return getAutomationsStatus(env);
+  if (path === "/api/stats/summary") return getStatsSummaryApi(env, url);
+  if (path === "/api/stats/ping") return pingDomainApi(env, url);
+  if (path === "/api/stats/live-check") return pingAllDomainsApi(env);
   if (path === "/api/automations/heartbeat" && request.method === "POST") {
     if (!isAuthorizedForHeartbeat(request, env, authed)) {
       return httpError(401, "인증 토큰이 유효하지 않습니다.");
