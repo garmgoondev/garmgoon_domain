@@ -17,15 +17,18 @@ test("GET /api/stats/summary returns aggregated totals and site metrics", async 
   const data = await res.json();
   assert.equal(data.ok, true);
   assert.ok(data.totals);
-  assert.equal(data.totals.totalSites >= 10, true);
+  assert.equal(data.totals.totalSites, 7);
   assert.ok(Array.isArray(data.sites));
-  assert.equal(data.sites.length >= 10, true);
+  assert.equal(data.sites.length, 7);
 
-  // garmgoon.com and seo.garmgoon.com must be excluded
+  // garmgoon.com, seo.garmgoon.com, cartuner, mmb, gagebase must be excluded
   assert.equal(data.sites.some((s) => s.id === "garmgoon"), false);
   assert.equal(data.sites.some((s) => s.id === "seohub"), false);
+  assert.equal(data.sites.some((s) => s.id === "cartuner"), false);
+  assert.equal(data.sites.some((s) => s.id === "mmb"), false);
+  assert.equal(data.sites.some((s) => s.id === "gagebase"), false);
 
-  // EverydayTutor checks
+  // Active sites checks
   const everydaytutor = data.sites.find((s) => s.id === "everydaytutor");
   assert.ok(everydaytutor);
   assert.equal(everydaytutor.domain, "everydaytutor.net");
@@ -33,7 +36,6 @@ test("GET /api/stats/summary returns aggregated totals and site metrics", async 
   assert.ok(Array.isArray(everydaytutor.topQueries));
   assert.ok(Array.isArray(everydaytutor.history?.["7d"]));
 
-  // Newly added sites checks
   const mine98 = data.sites.find((s) => s.id === "mine98");
   assert.ok(mine98);
   assert.equal(mine98.domain, "mine98.com");
@@ -43,18 +45,6 @@ test("GET /api/stats/summary returns aggregated totals and site metrics", async 
   const kimedit = data.sites.find((s) => s.id === "kimedit");
   assert.ok(kimedit);
   assert.equal(kimedit.domain, "vfeed.vercel.app");
-
-  const cartuner = data.sites.find((s) => s.id === "cartuner");
-  assert.ok(cartuner);
-  assert.equal(cartuner.domain, "car-tuner.garmgoon-domain.workers.dev");
-
-  const mmb = data.sites.find((s) => s.id === "mmb");
-  assert.ok(mmb);
-  assert.equal(mmb.domain, "modern-mountain-builders-demo.vercel.app");
-
-  const gagebase = data.sites.find((s) => s.id === "gagebase");
-  assert.ok(gagebase);
-  assert.equal(gagebase.domain, "gagebase.pages.dev");
 
   // Test ?period=7d and ?period=90d
   const res7d = await worker.fetch(new Request("https://garmgoon.test/api/stats/summary?period=7d"), env);
@@ -75,4 +65,11 @@ test("GET /api/stats/ping validates domain parameter and security check", async 
   // Disallowed / foreign domain
   const resInvalid = await worker.fetch(new Request("https://garmgoon.test/api/stats/ping?domain=evil.com"), env);
   assert.equal(resInvalid.status, 400);
+
+  // Excluded domains must now be rejected
+  const resExcluded = await worker.fetch(
+    new Request("https://garmgoon.test/api/stats/ping?domain=car-tuner.garmgoon-domain.workers.dev"),
+    env
+  );
+  assert.equal(resExcluded.status, 400);
 });
