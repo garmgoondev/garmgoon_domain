@@ -321,15 +321,15 @@ export default function StatsPage() {
 
             <div className="stMetric" data-accent="purple">
               <div className="stMetricHeader">
-                <span className="stMetricTitle">중앙 관제 및 오디트</span>
-                <span className="stMetricSource">SEO Hub</span>
+                <span className="stMetricTitle">총 색인 대상 페이지</span>
+                <span className="stMetricSource">인덱싱 현황</span>
               </div>
               <div className="stMetricValue">
-                {totals.totalConversions}
-                <small>건</small>
+                {totals.totalIndexedPages || 0}
+                <small>개 페이지</small>
               </div>
               <div className="stMetricFoot">
-                <span>완료된 사이트별 테크니컬 오디트 리포트</span>
+                <span>{sites.length}개 웹 서비스 검색엔진 노출 대상 URL</span>
               </div>
             </div>
           </div>
@@ -484,6 +484,18 @@ export default function StatsPage() {
                 <span className="stActionBullet">4</span>
                 <div>
                   <b>[EcoCarpet Utah]</b> 신규 Cloudflare Pages 구축 완료에 따른 본 도메인(ecocarpetutah.com) 정식 DNS 이전 준비
+                </div>
+              </li>
+              <li className="stActionItem">
+                <span className="stActionBullet">5</span>
+                <div>
+                  <b>[웹지뢰찾기]</b> 국내 월 43.6만 건 검색량 공략을 위한 온페이지 타이틀 및 보스 키(ESC 엑셀 위장) 메타 디스크립션 최적화 &amp; 구글 서치 콘솔 색인 제출
+                </div>
+              </li>
+              <li className="stActionItem">
+                <span className="stActionBullet">6</span>
+                <div>
+                  <b>[KimEdit]</b> 영상 크리에이터 및 프리랜서 영상 편집자 커뮤니티 초기 베타 런칭 안내 및 Supabase/R2 세션 모니터링
                 </div>
               </li>
             </ul>

@@ -17,16 +17,44 @@ test("GET /api/stats/summary returns aggregated totals and site metrics", async 
   const data = await res.json();
   assert.equal(data.ok, true);
   assert.ok(data.totals);
-  assert.equal(data.totals.totalSites >= 7, true);
+  assert.equal(data.totals.totalSites >= 10, true);
   assert.ok(Array.isArray(data.sites));
-  assert.equal(data.sites.length >= 7, true);
+  assert.equal(data.sites.length >= 10, true);
 
+  // garmgoon.com and seo.garmgoon.com must be excluded
+  assert.equal(data.sites.some((s) => s.id === "garmgoon"), false);
+  assert.equal(data.sites.some((s) => s.id === "seohub"), false);
+
+  // EverydayTutor checks
   const everydaytutor = data.sites.find((s) => s.id === "everydaytutor");
   assert.ok(everydaytutor);
   assert.equal(everydaytutor.domain, "everydaytutor.net");
   assert.ok(everydaytutor.overview);
   assert.ok(Array.isArray(everydaytutor.topQueries));
   assert.ok(Array.isArray(everydaytutor.history?.["7d"]));
+
+  // Newly added sites checks
+  const mine98 = data.sites.find((s) => s.id === "mine98");
+  assert.ok(mine98);
+  assert.equal(mine98.domain, "mine98.com");
+  assert.equal(mine98.dataStatus, "new");
+  assert.equal(mine98.overview.clicks28d, 0);
+
+  const kimedit = data.sites.find((s) => s.id === "kimedit");
+  assert.ok(kimedit);
+  assert.equal(kimedit.domain, "vfeed.vercel.app");
+
+  const cartuner = data.sites.find((s) => s.id === "cartuner");
+  assert.ok(cartuner);
+  assert.equal(cartuner.domain, "car-tuner.garmgoon-domain.workers.dev");
+
+  const mmb = data.sites.find((s) => s.id === "mmb");
+  assert.ok(mmb);
+  assert.equal(mmb.domain, "modern-mountain-builders-demo.vercel.app");
+
+  const gagebase = data.sites.find((s) => s.id === "gagebase");
+  assert.ok(gagebase);
+  assert.equal(gagebase.domain, "gagebase.pages.dev");
 
   // Test ?period=7d and ?period=90d
   const res7d = await worker.fetch(new Request("https://garmgoon.test/api/stats/summary?period=7d"), env);

@@ -12,9 +12,15 @@ const ALLOWED_DOMAINS = new Set([
   "ecocarpetutah.com",
   "webomok.com",
   "www.webomok.com",
+  "mine98.com",
+  "www.mine98.com",
+  "mine98.pages.dev",
+  "vfeed.vercel.app",
+  "car-tuner.garmgoon-domain.workers.dev",
+  "modern-mountain-builders-demo.vercel.app",
+  "gagebase.pages.dev",
   "garmgoon.com",
   "www.garmgoon.com",
-  "seo.garmgoon.com",
 ]);
 
 /**
