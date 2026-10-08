@@ -2,21 +2,40 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { SITES_METRICS, getAggregatedStats } from "../../lib/stats-data";
+import { SITES_METRICS, PERIODS, getAggregatedStats, getAllPeriodTotals } from "../../lib/stats-data";
 import { useApi, api } from "../../lib/api";
 import "./stats.css";
 
 export default function StatsPage() {
   const { data: apiData, loading, reload } = useApi("/api/stats/summary");
   const sites = apiData?.sites || SITES_METRICS;
-  const totals = apiData?.totals || getAggregatedStats(sites);
 
   const [activeSiteId, setActiveSiteId] = useState("all");
+  const [period, setPeriod] = useState("28d");
   const [chartMetric, setChartMetric] = useState("impressions");
   const [pingStatus, setPingStatus] = useState({});
   const [isPingingAll, setIsPingingAll] = useState(false);
 
   const selectedSite = activeSiteId === "all" ? null : sites.find((s) => s.id === activeSiteId) || sites[0];
+
+  // 현재 선택된 기간의 전체 합산 통계
+  const totals = apiData?.periodTotals?.[period] || getAggregatedStats(sites, period);
+  const periodLabel = period === "7d" ? "최근 7일" : period === "90d" ? "최근 90일" : "최근 28일";
+
+  // 사이트별 기간별 데이터 추출 헬퍼
+  const getSitePeriodData = (site, p = period) => {
+    return site.overview?.periods?.[p] || {
+      clicks: site.overview?.clicks28d ?? 0,
+      impressions: site.overview?.impressions28d ?? 0,
+      ctr: site.overview?.ctr ?? 0,
+      avgPosition: site.overview?.avgPosition ?? 0,
+      users: site.overview?.users28d ?? 0,
+      sessions: site.overview?.sessions28d ?? 0,
+      engagementRate: site.overview?.engagementRate ?? 0,
+      avgDuration: site.overview?.avgDuration ?? "-",
+      conversions: site.overview?.conversions?.count ?? 0,
+    };
+  };
 
   // 단일 도메인 실시간 핑 테스트
   const handlePing = async (domain, id) => {
@@ -84,12 +103,11 @@ export default function StatsPage() {
     const paddingY = 28;
 
     const points = values.map((val, idx) => {
-      const x = paddingX + (idx / (values.length - 1)) * (width - paddingX * 2);
+      const x = paddingX + (idx / Math.max(1, values.length - 1)) * (width - paddingX * 2);
       const y = height - paddingY - (val / maxVal) * (height - paddingY * 2);
       return { x, y, val, date: history[idx].date };
     });
 
-    // 부드러운 곡선 패스 생성
     let pathD = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
     for (let i = 0; i < points.length - 1; i++) {
       const p0 = points[i === 0 ? 0 : i - 1];
@@ -104,7 +122,6 @@ export default function StatsPage() {
     }
 
     const areaD = `${pathD} L ${points[points.length - 1].x.toFixed(1)} ${height - paddingY} L ${points[0].x.toFixed(1)} ${height - paddingY} Z`;
-
     const accentColor = chartMetric === "impressions" ? "#3b82f6" : chartMetric === "clicks" ? "var(--brand)" : "#00a676";
 
     return (
@@ -117,7 +134,7 @@ export default function StatsPage() {
             </linearGradient>
           </defs>
 
-          {/* 은은한 수평 가이드선 */}
+          {/* 수평 가이드선 */}
           <line x1={paddingX} y1={paddingY} x2={width - paddingX} y2={paddingY} stroke="var(--line)" strokeDasharray="3 3" strokeOpacity="0.8" />
           <line
             x1={paddingX}
@@ -136,10 +153,10 @@ export default function StatsPage() {
             stroke="var(--line)"
           />
 
-          {/* 그라디언트 영역 */}
+          {/* 그라디언트 채우기 */}
           <path d={areaD} fill={`url(#chart-grad-${chartMetric})`} />
 
-          {/* 부드러운 곡선 */}
+          {/* 부드러운 스플라인 곡선 */}
           <path d={pathD} fill="none" stroke={accentColor} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
 
           {/* 데이터 포인트 & 레이블 */}
@@ -170,11 +187,25 @@ export default function StatsPage() {
           </div>
           <h1 className="pageTitle">사이트 통합 통계 대시보드</h1>
           <p className="pageDesc">
-            운영 중인 {sites.length}개 웹사이트의 검색 유입, 사용자 행동 및 실시간 가동 상태를 사이트별로 통합 관제합니다.
+            운영 중인 {sites.length}개 웹사이트의 검색 유입, 사용자 행동 및 실시간 가동 상태를 기간별로 비교·관제합니다.
           </p>
         </div>
 
         <div className="stHeadActions">
+          {/* 기간 필터 세그먼트 (GA4 / GSC 스타일) */}
+          <div className="stSeg" role="tablist" aria-label="조회 기간 선택">
+            {PERIODS.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                className={`stSegBtn${period === p.id ? " active" : ""}`}
+                onClick={() => setPeriod(p.id)}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
           <button
             type="button"
             className="stBtn"
@@ -190,10 +221,11 @@ export default function StatsPage() {
             ) : (
               <>
                 <span>⚡</span>
-                <span>전체 실시간 점검</span>
+                <span>전체 핑 점검</span>
               </>
             )}
           </button>
+
           <button
             type="button"
             className="stBtn"
@@ -237,7 +269,7 @@ export default function StatsPage() {
       {/* ======================================================== */}
       {activeSiteId === "all" ? (
         <>
-          {/* 상단 4대 핵심 KPI 카드 */}
+          {/* 상단 4대 핵심 KPI 카드 (선택 기간 반영) */}
           <div className="stMetrics">
             <div className="stMetric" data-accent="ok">
               <div className="stMetricHeader">
@@ -257,11 +289,11 @@ export default function StatsPage() {
 
             <div className="stMetric" data-accent="blue">
               <div className="stMetricHeader">
-                <span className="stMetricTitle">최근 28일 순방문자</span>
+                <span className="stMetricTitle">{periodLabel} 총 순방문자</span>
                 <span className="stMetricSource">GA4 · CF</span>
               </div>
               <div className="stMetricValue">
-                {totals.totalUsers28d}
+                {totals.totalUsers}
                 <small>명</small>
               </div>
               <div className="stMetricFoot">
@@ -271,12 +303,12 @@ export default function StatsPage() {
 
             <div className="stMetric" data-accent="brand">
               <div className="stMetricHeader">
-                <span className="stMetricTitle">구글 검색 총 성과</span>
+                <span className="stMetricTitle">구글 검색 총 성과 ({periodLabel})</span>
                 <span className="stMetricSource">GSC</span>
               </div>
               <div className="stMetricValue">
-                {totals.totalClicks28d}
-                <small> 클릭 / {totals.totalImpressions28d} 노출</small>
+                {totals.totalClicks}
+                <small> 클릭 / {totals.totalImpressions} 노출</small>
               </div>
               <div className="stMetricFoot">
                 <span>평균 CTR</span>
@@ -286,7 +318,7 @@ export default function StatsPage() {
 
             <div className="stMetric" data-accent="purple">
               <div className="stMetricHeader">
-                <span className="stMetricTitle">비즈니스 전환 액션</span>
+                <span className="stMetricTitle">비즈니스 전환 ({periodLabel})</span>
                 <span className="stMetricSource">목표 달성</span>
               </div>
               <div className="stMetricValue">
@@ -304,10 +336,10 @@ export default function StatsPage() {
             <div className="stPanelHeader">
               <h2 className="stPanelTitle">
                 <span>📋</span>
-                <span>전 사이트 성과 및 인프라 매트릭스</span>
+                <span>전 사이트 성과 및 인프라 매트릭스 ({periodLabel})</span>
               </h2>
               <span style={{ fontSize: "var(--fs-sm)", color: "var(--text-3)", fontWeight: 500 }}>
-                사이트 행을 클릭하여 세부 지표를 바로 확인하세요
+                상단에서 7일 / 28일 / 90일 기간을 전환할 수 있습니다
               </span>
             </div>
 
@@ -319,10 +351,10 @@ export default function StatsPage() {
                     <th>도메인</th>
                     <th>실시간 상태</th>
                     <th>GSC 연동</th>
-                    <th>28일 클릭</th>
-                    <th>28일 노출</th>
+                    <th>{periodLabel} 클릭</th>
+                    <th>{periodLabel} 노출</th>
                     <th>평균 CTR</th>
-                    <th>28일 순방문자</th>
+                    <th>{periodLabel} 순방문자</th>
                     <th>핵심 공략 키워드</th>
                     <th>관리</th>
                   </tr>
@@ -330,6 +362,8 @@ export default function StatsPage() {
                 <tbody>
                   {sites.map((s) => {
                     const ping = pingStatus[s.id];
+                    const pData = getSitePeriodData(s, period);
+
                     return (
                       <tr key={s.id}>
                         <td>
@@ -377,12 +411,12 @@ export default function StatsPage() {
                           </span>
                         </td>
                         <td style={{ fontWeight: 800 }}>
-                          {s.overview.clicks28d ?? "-"}
+                          {pData.clicks ?? "-"}
                         </td>
-                        <td>{s.overview.impressions28d ?? "-"}</td>
-                        <td>{s.overview.ctr ? `${s.overview.ctr}%` : "-"}</td>
+                        <td>{pData.impressions ?? "-"}</td>
+                        <td>{pData.ctr ? `${pData.ctr}%` : "-"}</td>
                         <td style={{ fontWeight: 800, color: "var(--brand)" }}>
-                          {s.overview.users28d ? `${s.overview.users28d}명` : "-"}
+                          {pData.users ? `${pData.users}명` : "-"}
                         </td>
                         <td>
                           {s.topQueries?.[0] ? (
@@ -449,281 +483,286 @@ export default function StatsPage() {
         /* ======================================================== */
         /* 모드 2: 사이트별 상세 통계 드릴다운 (Site-by-Site View) */
         /* ======================================================== */
-        selectedSite && (
-          <div>
-            {/* 사이트 프로필 히어로 패널 */}
-            <div className="stHeroPanel">
-              <div className="stHeroTop">
-                <div className="stHeroProfile">
-                  <div className="stHeroIcon">{selectedSite.icon}</div>
-                  <div>
-                    <h2 className="stHeroTitle">
-                      <span>{selectedSite.name}</span>
-                      <span className="stTag brand">{selectedSite.badge}</span>
-                    </h2>
-                    <div className="stHeroMeta">
-                      <a
-                        href={selectedSite.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="stDomainLink"
-                      >
-                        <span>{selectedSite.domain}</span>
-                        <span>↗</span>
-                      </a>
+        selectedSite && (() => {
+          const sitePeriod = getSitePeriodData(selectedSite, period);
+          const historyData = selectedSite.history?.[period] || selectedSite.history7d || [];
+
+          return (
+            <div>
+              {/* 사이트 프로필 히어로 패널 */}
+              <div className="stHeroPanel">
+                <div className="stHeroTop">
+                  <div className="stHeroProfile">
+                    <div className="stHeroIcon">{selectedSite.icon}</div>
+                    <div>
+                      <h2 className="stHeroTitle">
+                        <span>{selectedSite.name}</span>
+                        <span className="stTag brand">{selectedSite.badge}</span>
+                      </h2>
+                      <div className="stHeroMeta">
+                        <a
+                          href={selectedSite.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="stDomainLink"
+                        >
+                          <span>{selectedSite.domain}</span>
+                          <span>↗</span>
+                        </a>
+                      </div>
                     </div>
+                  </div>
+
+                  <div className="stHeroControls">
+                    {pingStatus[selectedSite.id] && !pingStatus[selectedSite.id].loading && (
+                      <div className="stPingResult">
+                        <span className="stLiveDot" style={{ color: pingStatus[selectedSite.id].ok ? "var(--st-ok)" : "var(--st-bad)" }} />
+                        <span style={{ color: pingStatus[selectedSite.id].ok ? "var(--st-ok-text)" : "var(--st-bad-text)" }}>
+                          {pingStatus[selectedSite.id].ok
+                            ? `${pingStatus[selectedSite.id].latencyMs}ms 정상`
+                            : `오류 (${pingStatus[selectedSite.id].status})`}
+                        </span>
+                        <span style={{ color: "var(--text-3)", fontSize: "11px" }}>
+                          ({pingStatus[selectedSite.id].checkedAt})
+                        </span>
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      className="stBtn"
+                      onClick={() => handlePing(selectedSite.domain, selectedSite.id)}
+                      disabled={pingStatus[selectedSite.id]?.loading}
+                    >
+                      <span>⚡</span>
+                      <span>{pingStatus[selectedSite.id]?.loading ? "핑 측정 중..." : "실시간 핑 테스트"}</span>
+                    </button>
+
+                    <a
+                      href={selectedSite.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="stBtn primary"
+                    >
+                      <span>사이트 열기 ↗</span>
+                    </a>
                   </div>
                 </div>
 
-                <div className="stHeroControls">
-                  {pingStatus[selectedSite.id] && !pingStatus[selectedSite.id].loading && (
-                    <div className="stPingResult">
-                      <span className="stLiveDot" style={{ color: pingStatus[selectedSite.id].ok ? "var(--st-ok)" : "var(--st-bad)" }} />
-                      <span style={{ color: pingStatus[selectedSite.id].ok ? "var(--st-ok-text)" : "var(--st-bad-text)" }}>
-                        {pingStatus[selectedSite.id].ok
-                          ? `${pingStatus[selectedSite.id].latencyMs}ms 정상`
-                          : `오류 (${pingStatus[selectedSite.id].status})`}
-                      </span>
-                      <span style={{ color: "var(--text-3)", fontSize: "11px" }}>
-                        ({pingStatus[selectedSite.id].checkedAt})
-                      </span>
-                    </div>
-                  )}
-
-                  <button
-                    type="button"
-                    className="stBtn"
-                    onClick={() => handlePing(selectedSite.domain, selectedSite.id)}
-                    disabled={pingStatus[selectedSite.id]?.loading}
-                  >
-                    <span>⚡</span>
-                    <span>{pingStatus[selectedSite.id]?.loading ? "핑 측정 중..." : "실시간 핑 테스트"}</span>
-                  </button>
-
-                  <a
-                    href={selectedSite.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="stBtn primary"
-                  >
-                    <span>사이트 열기 ↗</span>
-                  </a>
-                </div>
-              </div>
-
-              {/* 하단 메타 태그 */}
-              <div className="stHeroBadges">
-                <span className="stTag">스택: {selectedSite.stack}</span>
-                <span className={`stTag ${selectedSite.integrations.gsc.connected ? "ok" : ""}`}>
-                  GSC: {selectedSite.integrations.gsc.connected ? "연동 완료" : "준비 중"}
-                </span>
-                <span className={`stTag ${selectedSite.integrations.ga4.connected ? "ok" : ""}`}>
-                  GA4: {selectedSite.integrations.ga4.connected ? "측정 중" : "준비 중"}
-                </span>
-                <span className="stTag">타깃 시장: {selectedSite.targetMarket}</span>
-                <span className="stTag">색인 페이지: {selectedSite.overview.indexedPages ?? "-"}개</span>
-              </div>
-            </div>
-
-            {/* 사이트 핵심 4대 지표 */}
-            <div className="stMetrics">
-              <div className="stMetric" data-accent="brand">
-                <div className="stMetricHeader">
-                  <span className="stMetricTitle">28일 검색 클릭</span>
-                  <span className="stMetricSource">GSC</span>
-                </div>
-                <div className="stMetricValue">
-                  {selectedSite.overview.clicks28d ?? "-"}
-                  <small>회</small>
-                </div>
-                <div className="stMetricFoot">
-                  <span>총 노출:</span>
-                  <b>{selectedSite.overview.impressions28d ?? "-"}회</b>
-                </div>
-              </div>
-
-              <div className="stMetric" data-accent="blue">
-                <div className="stMetricHeader">
-                  <span className="stMetricTitle">평균 CTR & 순위</span>
-                  <span className="stMetricSource">유입 효율</span>
-                </div>
-                <div className="stMetricValue">
-                  {selectedSite.overview.ctr ? `${selectedSite.overview.ctr}%` : "-"}
-                  <small> / {selectedSite.overview.avgPosition ? `${selectedSite.overview.avgPosition}위` : "-"}</small>
-                </div>
-                <div className="stMetricFoot">
-                  <span>구글 검색결과 평균 노출 순위</span>
-                </div>
-              </div>
-
-              <div className="stMetric" data-accent="ok">
-                <div className="stMetricHeader">
-                  <span className="stMetricTitle">순 방문자 (UV)</span>
-                  <span className="stMetricSource">GA4</span>
-                </div>
-                <div className="stMetricValue">
-                  {selectedSite.overview.users28d ?? "-"}
-                  <small>명</small>
-                </div>
-                <div className="stMetricFoot">
-                  <span>참여율:</span>
-                  <b>{selectedSite.overview.engagementRate ? `${selectedSite.overview.engagementRate}%` : "-"}</b>
-                  <span>({selectedSite.overview.avgDuration})</span>
-                </div>
-              </div>
-
-              <div className="stMetric" data-accent="purple">
-                <div className="stMetricHeader">
-                  <span className="stMetricTitle">핵심 전환 (Conversions)</span>
-                  <span className="stMetricSource">비즈니스</span>
-                </div>
-                <div className="stMetricValue">
-                  {selectedSite.overview.conversions?.count ?? "-"}
-                  <small>{selectedSite.overview.conversions?.unit ?? "건"}</small>
-                </div>
-                <div className="stMetricFoot">
-                  <span>{selectedSite.overview.conversions?.label ?? "전환 목표"}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 유려한 곡선 추이 차트 패널 */}
-            <div className="stChartPanel">
-              <div className="stChartHeader">
-                <div className="stPanelTitle" style={{ fontSize: "var(--fs-base)" }}>
-                  <span>📈</span>
-                  <span>최근 7일 성과 추이</span>
-                </div>
-
-                {/* 모던 세그먼트 컨트롤 */}
-                <div className="stSeg" role="tablist">
-                  <button
-                    type="button"
-                    className={`stSegBtn${chartMetric === "impressions" ? " active" : ""}`}
-                    onClick={() => setChartMetric("impressions")}
-                  >
-                    <span>검색 노출 (Impressions)</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`stSegBtn${chartMetric === "clicks" ? " active" : ""}`}
-                    onClick={() => setChartMetric("clicks")}
-                  >
-                    <span>클릭수 (Clicks)</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`stSegBtn${chartMetric === "users" ? " active" : ""}`}
-                    onClick={() => setChartMetric("users")}
-                  >
-                    <span>순 방문자 (Users)</span>
-                  </button>
-                </div>
-              </div>
-
-              {renderSmoothChart(selectedSite.history7d)}
-            </div>
-
-            {/* 키워드 & 랜딩 페이지 2단 패널 */}
-            <div className="stGrid2">
-              {/* 상위 검색어 테이블 */}
-              <div className="stPanel" style={{ margin: 0 }}>
-                <div className="stPanelHeader">
-                  <h3 className="stPanelTitle" style={{ fontSize: "var(--fs-base)" }}>
-                    <span>🔍</span>
-                    <span>주요 유입 검색어 (Top Queries)</span>
-                  </h3>
-                  <span style={{ fontSize: "var(--fs-xs)", color: "var(--text-3)", fontWeight: 600 }}>
-                    {selectedSite.topQueries?.length || 0}개 키워드
+                {/* 하단 메타 태그 */}
+                <div className="stHeroBadges">
+                  <span className="stTag">스택: {selectedSite.stack}</span>
+                  <span className={`stTag ${selectedSite.integrations.gsc.connected ? "ok" : ""}`}>
+                    GSC: {selectedSite.integrations.gsc.connected ? "연동 완료" : "준비 중"}
                   </span>
-                </div>
-                <div className="stTableWrap">
-                  <table className="stTable">
-                    <thead>
-                      <tr>
-                        <th>검색어</th>
-                        <th>순위</th>
-                        <th>노출</th>
-                        <th>클릭</th>
-                        <th>상태</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedSite.topQueries?.map((q, idx) => (
-                        <tr key={idx}>
-                          <td style={{ fontWeight: 700 }}>{q.query}</td>
-                          <td style={{ fontWeight: 600 }}>
-                            {typeof q.rank === "number" ? `${q.rank}위` : q.rank}
-                          </td>
-                          <td>{q.impressions}</td>
-                          <td style={{ fontWeight: 800, color: "var(--brand)" }}>
-                            {q.clicks}
-                          </td>
-                          <td>
-                            <span className="stTag brand">{q.status}</span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* 주요 랜딩 페이지 테이블 */}
-              <div className="stPanel" style={{ margin: 0 }}>
-                <div className="stPanelHeader">
-                  <h3 className="stPanelTitle" style={{ fontSize: "var(--fs-base)" }}>
-                    <span>📄</span>
-                    <span>인기 랜딩 페이지 (Top Pages)</span>
-                  </h3>
-                  <span style={{ fontSize: "var(--fs-xs)", color: "var(--text-3)", fontWeight: 600 }}>
-                    {selectedSite.topPages?.length || 0}개 페이지
+                  <span className={`stTag ${selectedSite.integrations.ga4.connected ? "ok" : ""}`}>
+                    GA4: {selectedSite.integrations.ga4.connected ? "측정 중" : "준비 중"}
                   </span>
-                </div>
-                <div className="stTableWrap">
-                  <table className="stTable">
-                    <thead>
-                      <tr>
-                        <th>경로</th>
-                        <th>페이지 제목</th>
-                        <th>조회수</th>
-                        <th>클릭</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedSite.topPages?.map((p, idx) => (
-                        <tr key={idx}>
-                          <td>
-                            <code style={{ fontSize: "12px", color: "var(--text-2)" }}>{p.path}</code>
-                          </td>
-                          <td style={{ fontWeight: 600 }}>{p.title}</td>
-                          <td style={{ fontWeight: 800 }}>{p.views}회</td>
-                          <td style={{ fontWeight: 800, color: "var(--brand)" }}>{p.clicks}회</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <span className="stTag">타깃 시장: {selectedSite.targetMarket}</span>
+                  <span className="stTag">색인 페이지: {selectedSite.overview.indexedPages ?? "-"}개</span>
                 </div>
               </div>
-            </div>
 
-            {/* 사이트 맞춤형 최적화 과제 */}
-            <div className="stActionPanel">
-              <div className="stActionPanelHeader">
-                <span>🎯</span>
-                <h3>{selectedSite.shortName} 맞춤형 최적화 과제 (Action Items)</h3>
+              {/* 사이트 핵심 4대 지표 (선택 기간 반영) */}
+              <div className="stMetrics">
+                <div className="stMetric" data-accent="brand">
+                  <div className="stMetricHeader">
+                    <span className="stMetricTitle">{periodLabel} 검색 클릭</span>
+                    <span className="stMetricSource">GSC</span>
+                  </div>
+                  <div className="stMetricValue">
+                    {sitePeriod.clicks ?? "-"}
+                    <small>회</small>
+                  </div>
+                  <div className="stMetricFoot">
+                    <span>총 노출:</span>
+                    <b>{sitePeriod.impressions ?? "-"}회</b>
+                  </div>
+                </div>
+
+                <div className="stMetric" data-accent="blue">
+                  <div className="stMetricHeader">
+                    <span className="stMetricTitle">평균 CTR & 순위</span>
+                    <span className="stMetricSource">유입 효율</span>
+                  </div>
+                  <div className="stMetricValue">
+                    {sitePeriod.ctr ? `${sitePeriod.ctr}%` : "-"}
+                    <small> / {sitePeriod.avgPosition ? `${sitePeriod.avgPosition}위` : "-"}</small>
+                  </div>
+                  <div className="stMetricFoot">
+                    <span>구글 검색결과 평균 노출 순위</span>
+                  </div>
+                </div>
+
+                <div className="stMetric" data-accent="ok">
+                  <div className="stMetricHeader">
+                    <span className="stMetricTitle">순 방문자 (UV)</span>
+                    <span className="stMetricSource">GA4</span>
+                  </div>
+                  <div className="stMetricValue">
+                    {sitePeriod.users ?? "-"}
+                    <small>명</small>
+                  </div>
+                  <div className="stMetricFoot">
+                    <span>참여율:</span>
+                    <b>{sitePeriod.engagementRate ? `${sitePeriod.engagementRate}%` : "-"}</b>
+                    <span>({sitePeriod.avgDuration})</span>
+                  </div>
+                </div>
+
+                <div className="stMetric" data-accent="purple">
+                  <div className="stMetricHeader">
+                    <span className="stMetricTitle">전환 ({periodLabel})</span>
+                    <span className="stMetricSource">비즈니스</span>
+                  </div>
+                  <div className="stMetricValue">
+                    {sitePeriod.conversions ?? "-"}
+                    <small>{selectedSite.overview.conversions?.unit ?? "건"}</small>
+                  </div>
+                  <div className="stMetricFoot">
+                    <span>{selectedSite.overview.conversions?.label ?? "전환 목표"}</span>
+                  </div>
+                </div>
               </div>
-              <ul className="stActionList">
-                {selectedSite.actionItems?.map((item, idx) => (
-                  <li key={idx} className="stActionItem">
-                    <span className="stActionBullet">{idx + 1}</span>
-                    <div>{item}</div>
-                  </li>
-                ))}
-              </ul>
+
+              {/* 유려한 곡선 추이 차트 패널 */}
+              <div className="stChartPanel">
+                <div className="stChartHeader">
+                  <div className="stPanelTitle" style={{ fontSize: "var(--fs-base)" }}>
+                    <span>📈</span>
+                    <span>{periodLabel} 성과 추이</span>
+                  </div>
+
+                  {/* 차트 지표 세그먼트 컨트롤 */}
+                  <div className="stSeg" role="tablist">
+                    <button
+                      type="button"
+                      className={`stSegBtn${chartMetric === "impressions" ? " active" : ""}`}
+                      onClick={() => setChartMetric("impressions")}
+                    >
+                      <span>검색 노출 (Impressions)</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`stSegBtn${chartMetric === "clicks" ? " active" : ""}`}
+                      onClick={() => setChartMetric("clicks")}
+                    >
+                      <span>클릭수 (Clicks)</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`stSegBtn${chartMetric === "users" ? " active" : ""}`}
+                      onClick={() => setChartMetric("users")}
+                    >
+                      <span>순 방문자 (Users)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {renderSmoothChart(historyData)}
+              </div>
+
+              {/* 키워드 & 랜딩 페이지 2단 패널 */}
+              <div className="stGrid2">
+                {/* 상위 검색어 테이블 */}
+                <div className="stPanel" style={{ margin: 0 }}>
+                  <div className="stPanelHeader">
+                    <h3 className="stPanelTitle" style={{ fontSize: "var(--fs-base)" }}>
+                      <span>🔍</span>
+                      <span>주요 유입 검색어 (Top Queries)</span>
+                    </h3>
+                    <span style={{ fontSize: "var(--fs-xs)", color: "var(--text-3)", fontWeight: 600 }}>
+                      {selectedSite.topQueries?.length || 0}개 키워드
+                    </span>
+                  </div>
+                  <div className="stTableWrap">
+                    <table className="stTable">
+                      <thead>
+                        <tr>
+                          <th>검색어</th>
+                          <th>순위</th>
+                          <th>노출</th>
+                          <th>클릭</th>
+                          <th>상태</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedSite.topQueries?.map((q, idx) => (
+                          <tr key={idx}>
+                            <td style={{ fontWeight: 700 }}>{q.query}</td>
+                            <td style={{ fontWeight: 600 }}>
+                              {typeof q.rank === "number" ? `${q.rank}위` : q.rank}
+                            </td>
+                            <td>{q.impressions}</td>
+                            <td style={{ fontWeight: 800, color: "var(--brand)" }}>
+                              {q.clicks}
+                            </td>
+                            <td>
+                              <span className="stTag brand">{q.status}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* 주요 랜딩 페이지 테이블 */}
+                <div className="stPanel" style={{ margin: 0 }}>
+                  <div className="stPanelHeader">
+                    <h3 className="stPanelTitle" style={{ fontSize: "var(--fs-base)" }}>
+                      <span>📄</span>
+                      <span>인기 랜딩 페이지 (Top Pages)</span>
+                    </h3>
+                    <span style={{ fontSize: "var(--fs-xs)", color: "var(--text-3)", fontWeight: 600 }}>
+                      {selectedSite.topPages?.length || 0}개 페이지
+                    </span>
+                  </div>
+                  <div className="stTableWrap">
+                    <table className="stTable">
+                      <thead>
+                        <tr>
+                          <th>경로</th>
+                          <th>페이지 제목</th>
+                          <th>조회수</th>
+                          <th>클릭</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedSite.topPages?.map((p, idx) => (
+                          <tr key={idx}>
+                            <td>
+                              <code style={{ fontSize: "12px", color: "var(--text-2)" }}>{p.path}</code>
+                            </td>
+                            <td style={{ fontWeight: 600 }}>{p.title}</td>
+                            <td style={{ fontWeight: 800 }}>{p.views}회</td>
+                            <td style={{ fontWeight: 800, color: "var(--brand)" }}>{p.clicks}회</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              {/* 사이트 맞춤형 최적화 과제 */}
+              <div className="stActionPanel">
+                <div className="stActionPanelHeader">
+                  <span>🎯</span>
+                  <h3>{selectedSite.shortName} 맞춤형 최적화 과제 (Action Items)</h3>
+                </div>
+                <ul className="stActionList">
+                  {selectedSite.actionItems?.map((item, idx) => (
+                    <li key={idx} className="stActionItem">
+                      <span className="stActionBullet">{idx + 1}</span>
+                      <div>{item}</div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          </div>
-        )
+          );
+        })()
       )}
     </div>
   );

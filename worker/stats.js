@@ -1,4 +1,4 @@
-import { SITES_METRICS, getAggregatedStats } from "../lib/stats-data.js";
+import { SITES_METRICS, getAggregatedStats, getAllPeriodTotals, PERIODS } from "../lib/stats-data.js";
 import { json, httpError } from "./util.js";
 
 const ALLOWED_DOMAINS = new Set([
@@ -120,14 +120,21 @@ export async function pingAllDomainsApi(env) {
 }
 
 /**
- * 통계 요약 및 사이트별 지표 데이터를 반환한다.
+ * 통계 요약 및 사이트별 지표 데이터를 반환한다. (7d, 28d, 90d 기간 지원)
  */
 export async function getStatsSummaryApi(env, url) {
-  const totals = getAggregatedStats(SITES_METRICS);
+  const period = (url.searchParams.get("period") || "28d").toLowerCase();
+  const validPeriod = ["7d", "28d", "90d"].includes(period) ? period : "28d";
+  const totals = getAggregatedStats(SITES_METRICS, validPeriod);
+  const periodTotals = getAllPeriodTotals(SITES_METRICS);
+
   return json({
     ok: true,
     generatedAt: new Date().toISOString(),
+    selectedPeriod: validPeriod,
+    periods: PERIODS,
     totals,
+    periodTotals,
     sites: SITES_METRICS,
   }, {
     headers: {
