@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { SITES_METRICS, PERIODS, getAggregatedStats, getAllPeriodTotals } from "../../lib/stats-data";
+import { SITES_METRICS, PERIODS, getAggregatedStats } from "../../lib/stats-data";
 import { useApi, api } from "../../lib/api";
 import "./stats.css";
 
@@ -18,7 +18,7 @@ export default function StatsPage() {
 
   const selectedSite = activeSiteId === "all" ? null : sites.find((s) => s.id === activeSiteId) || sites[0];
 
-  // 현재 선택된 기간의 전체 합산 통계
+  // 현재 선택된 기간의 전체 합산 실측 통계
   const totals = apiData?.periodTotals?.[period] || getAggregatedStats(sites, period);
   const periodLabel = period === "7d" ? "최근 7일" : period === "90d" ? "최근 90일" : "최근 28일";
 
@@ -134,7 +134,7 @@ export default function StatsPage() {
             </linearGradient>
           </defs>
 
-          {/* 수평 가이드선 */}
+          {/* 수평 보조 가이드선 */}
           <line x1={paddingX} y1={paddingY} x2={width - paddingX} y2={paddingY} stroke="var(--line)" strokeDasharray="3 3" strokeOpacity="0.8" />
           <line
             x1={paddingX}
@@ -187,7 +187,7 @@ export default function StatsPage() {
           </div>
           <h1 className="pageTitle">사이트 통합 통계 대시보드</h1>
           <p className="pageDesc">
-            운영 중인 {sites.length}개 웹사이트의 검색 유입, 사용자 행동 및 실시간 가동 상태를 기간별로 비교·관제합니다.
+            운영 중인 {sites.length}개 웹사이트의 검색 유입, 사용자 행동 및 실시간 가동 상태를 100% 실측 데이터로 관제합니다.
           </p>
         </div>
 
@@ -259,6 +259,9 @@ export default function StatsPage() {
             >
               <span className="chipIcon">{s.icon}</span>
               <span>{s.shortName}</span>
+              {s.dataStatus === "new" && (
+                <span style={{ fontSize: "10px", opacity: 0.8, color: "var(--brand)" }}>[신규]</span>
+              )}
             </button>
           ))}
         </nav>
@@ -269,7 +272,7 @@ export default function StatsPage() {
       {/* ======================================================== */}
       {activeSiteId === "all" ? (
         <>
-          {/* 상단 4대 핵심 KPI 카드 (선택 기간 반영) */}
+          {/* 상단 4대 핵심 KPI 카드 (선택 기간 실측치) */}
           <div className="stMetrics">
             <div className="stMetric" data-accent="ok">
               <div className="stMetricHeader">
@@ -289,44 +292,44 @@ export default function StatsPage() {
 
             <div className="stMetric" data-accent="blue">
               <div className="stMetricHeader">
-                <span className="stMetricTitle">{periodLabel} 총 순방문자</span>
-                <span className="stMetricSource">GA4 · CF</span>
+                <span className="stMetricTitle">{periodLabel} 실측 순방문자</span>
+                <span className="stMetricSource">GA4 실측</span>
               </div>
               <div className="stMetricValue">
                 {totals.totalUsers}
                 <small>명</small>
               </div>
               <div className="stMetricFoot">
-                <span>WebOmok 및 Garmgoon 유입 강세</span>
+                <span>EverydayTutor · Utah Says 실측 오가닉 세션</span>
               </div>
             </div>
 
             <div className="stMetric" data-accent="brand">
               <div className="stMetricHeader">
-                <span className="stMetricTitle">구글 검색 총 성과 ({periodLabel})</span>
-                <span className="stMetricSource">GSC</span>
+                <span className="stMetricTitle">구글 검색 실측 성과 ({periodLabel})</span>
+                <span className="stMetricSource">GSC 실측</span>
               </div>
               <div className="stMetricValue">
                 {totals.totalClicks}
                 <small> 클릭 / {totals.totalImpressions} 노출</small>
               </div>
               <div className="stMetricFoot">
-                <span>평균 CTR</span>
+                <span>실측 평균 CTR</span>
                 <b style={{ color: "var(--brand)" }}>{totals.avgCtr}%</b>
               </div>
             </div>
 
             <div className="stMetric" data-accent="purple">
               <div className="stMetricHeader">
-                <span className="stMetricTitle">비즈니스 전환 ({periodLabel})</span>
-                <span className="stMetricSource">목표 달성</span>
+                <span className="stMetricTitle">중앙 관제 및 오디트</span>
+                <span className="stMetricSource">SEO Hub</span>
               </div>
               <div className="stMetricValue">
-                {totals.totalConversions.toLocaleString()}
+                {totals.totalConversions}
                 <small>건</small>
               </div>
               <div className="stMetricFoot">
-                <span>대국 완료 · 견적 신청 · 파이프라인</span>
+                <span>완료된 사이트별 테크니컬 오디트 리포트</span>
               </div>
             </div>
           </div>
@@ -336,10 +339,10 @@ export default function StatsPage() {
             <div className="stPanelHeader">
               <h2 className="stPanelTitle">
                 <span>📋</span>
-                <span>전 사이트 성과 및 인프라 매트릭스 ({periodLabel})</span>
+                <span>전 사이트 실측 성과 및 인프라 매트릭스 ({periodLabel})</span>
               </h2>
               <span style={{ fontSize: "var(--fs-sm)", color: "var(--text-3)", fontWeight: 500 }}>
-                상단에서 7일 / 28일 / 90일 기간을 전환할 수 있습니다
+                가상 데이터를 일절 배제한 100% 실측 지표입니다
               </span>
             </div>
 
@@ -355,8 +358,8 @@ export default function StatsPage() {
                     <th>{periodLabel} 노출</th>
                     <th>평균 CTR</th>
                     <th>{periodLabel} 순방문자</th>
-                    <th>핵심 공략 키워드</th>
-                    <th>관리</th>
+                    <th>핵심 검색어 / 공략 타깃</th>
+                    <th>상세</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -371,7 +374,9 @@ export default function StatsPage() {
                             <div className="stSiteIcon">{s.icon}</div>
                             <div>
                               <div className="stSiteName">{s.name}</div>
-                              <div className="stSiteCategory">{s.badge}</div>
+                              <div className="stSiteCategory">
+                                {s.dataStatus === "new" ? "오늘 신규 런칭" : s.badge}
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -411,16 +416,21 @@ export default function StatsPage() {
                           </span>
                         </td>
                         <td style={{ fontWeight: 800 }}>
-                          {pData.clicks ?? "-"}
+                          {s.dataStatus === "staging" ? "-" : pData.clicks}
                         </td>
-                        <td>{pData.impressions ?? "-"}</td>
-                        <td>{pData.ctr ? `${pData.ctr}%` : "-"}</td>
-                        <td style={{ fontWeight: 800, color: "var(--brand)" }}>
-                          {pData.users ? `${pData.users}명` : "-"}
+                        <td>
+                          {s.dataStatus === "staging" ? "-" : pData.impressions}
+                        </td>
+                        <td>
+                          {s.dataStatus === "staging" ? "-" : pData.ctr > 0 ? `${pData.ctr}%` : "0%"}
+                        </td>
+                        <td style={{ fontWeight: 800, color: pData.users > 0 ? "var(--brand)" : "inherit" }}>
+                          {s.dataStatus === "staging" ? "-" : pData.users > 0 ? `${pData.users}명` : "0"}
                         </td>
                         <td>
                           {s.topQueries?.[0] ? (
-                            <span className="stTag brand">
+                            <span className={`stTag ${s.queryType === "real" ? "ok" : "brand"}`}>
+                              {s.queryType === "real" ? "실측: " : "타깃: "}
                               {s.topQueries[0].query}
                             </span>
                           ) : (
@@ -455,13 +465,13 @@ export default function StatsPage() {
               <li className="stActionItem">
                 <span className="stActionBullet">1</span>
                 <div>
-                  <b>[EverydayTutor]</b> 대만 검색어 <code>高中英文家教行情</code> (현재 25.3위)의 1페이지(5위 이내) 진입을 위해 기 작성된 메타 디스크립션 및 본문 H2/H3 리라이팅 가이드 적용
+                  <b>[EverydayTutor]</b> 대만 실측 검색어 <code>高中英文家教行情</code> (현재 25.3위)의 1페이지(5위 이내) 진입을 위해 기 작성된 메타 디스크립션 및 본문 H2/H3 리라이팅 가이드 적용
                 </div>
               </li>
               <li className="stActionItem">
                 <span className="stActionBullet">2</span>
                 <div>
-                  <b>[WebOmok]</b> 네이버 월 7,710회 검색량에 경쟁도 '낮음'인 <code>오목게임</code> 키워드 온페이지(H1, Title, FAQ Schema) 선점 및 일본어 메타 보강
+                  <b>[WebOmok]</b> 오늘 신규 배포 완료에 따라 구글 서치 콘솔 속성 등록 및 네이버 검색광고 실측 월 7,710회(경쟁도 낮음)인 <code>오목게임</code> 온페이지 최적화
                 </div>
               </li>
               <li className="stActionItem">
@@ -485,7 +495,8 @@ export default function StatsPage() {
         /* ======================================================== */
         selectedSite && (() => {
           const sitePeriod = getSitePeriodData(selectedSite, period);
-          const historyData = selectedSite.history?.[period] || selectedSite.history7d || [];
+          const historyData = selectedSite.history?.[period] || [];
+          const hasRealHistory = historyData.length > 0 && historyData.some((h) => h.impressions > 0 || h.clicks > 0 || h.users > 0);
 
           return (
             <div>
@@ -497,7 +508,9 @@ export default function StatsPage() {
                     <div>
                       <h2 className="stHeroTitle">
                         <span>{selectedSite.name}</span>
-                        <span className="stTag brand">{selectedSite.badge}</span>
+                        <span className="stTag brand">
+                          {selectedSite.dataStatus === "new" ? "오늘 신규 런칭" : selectedSite.badge}
+                        </span>
                       </h2>
                       <div className="stHeroMeta">
                         <a
@@ -563,31 +576,31 @@ export default function StatsPage() {
                 </div>
               </div>
 
-              {/* 사이트 핵심 4대 지표 (선택 기간 반영) */}
+              {/* 사이트 핵심 4대 지표 (선택 기간 실측치) */}
               <div className="stMetrics">
                 <div className="stMetric" data-accent="brand">
                   <div className="stMetricHeader">
                     <span className="stMetricTitle">{periodLabel} 검색 클릭</span>
-                    <span className="stMetricSource">GSC</span>
+                    <span className="stMetricSource">GSC 실측</span>
                   </div>
                   <div className="stMetricValue">
-                    {sitePeriod.clicks ?? "-"}
+                    {selectedSite.dataStatus === "staging" ? "-" : sitePeriod.clicks}
                     <small>회</small>
                   </div>
                   <div className="stMetricFoot">
                     <span>총 노출:</span>
-                    <b>{sitePeriod.impressions ?? "-"}회</b>
+                    <b>{selectedSite.dataStatus === "staging" ? "-" : `${sitePeriod.impressions}회`}</b>
                   </div>
                 </div>
 
                 <div className="stMetric" data-accent="blue">
                   <div className="stMetricHeader">
                     <span className="stMetricTitle">평균 CTR & 순위</span>
-                    <span className="stMetricSource">유입 효율</span>
+                    <span className="stMetricSource">실측 효율</span>
                   </div>
                   <div className="stMetricValue">
-                    {sitePeriod.ctr ? `${sitePeriod.ctr}%` : "-"}
-                    <small> / {sitePeriod.avgPosition ? `${sitePeriod.avgPosition}위` : "-"}</small>
+                    {selectedSite.dataStatus === "staging" ? "-" : `${sitePeriod.ctr}%`}
+                    <small> / {sitePeriod.avgPosition > 0 ? `${sitePeriod.avgPosition}위` : "-"}</small>
                   </div>
                   <div className="stMetricFoot">
                     <span>구글 검색결과 평균 노출 순위</span>
@@ -597,26 +610,26 @@ export default function StatsPage() {
                 <div className="stMetric" data-accent="ok">
                   <div className="stMetricHeader">
                     <span className="stMetricTitle">순 방문자 (UV)</span>
-                    <span className="stMetricSource">GA4</span>
+                    <span className="stMetricSource">GA4 실측</span>
                   </div>
                   <div className="stMetricValue">
-                    {sitePeriod.users ?? "-"}
+                    {selectedSite.dataStatus === "staging" ? "-" : sitePeriod.users}
                     <small>명</small>
                   </div>
                   <div className="stMetricFoot">
                     <span>참여율:</span>
-                    <b>{sitePeriod.engagementRate ? `${sitePeriod.engagementRate}%` : "-"}</b>
-                    <span>({sitePeriod.avgDuration})</span>
+                    <b>{sitePeriod.engagementRate > 0 ? `${sitePeriod.engagementRate}%` : "-"}</b>
+                    {sitePeriod.avgDuration !== "-" && <span>({sitePeriod.avgDuration})</span>}
                   </div>
                 </div>
 
                 <div className="stMetric" data-accent="purple">
                   <div className="stMetricHeader">
-                    <span className="stMetricTitle">전환 ({periodLabel})</span>
-                    <span className="stMetricSource">비즈니스</span>
+                    <span className="stMetricTitle">전환 목표</span>
+                    <span className="stMetricSource">실측 집계</span>
                   </div>
                   <div className="stMetricValue">
-                    {sitePeriod.conversions ?? "-"}
+                    {sitePeriod.conversions}
                     <small>{selectedSite.overview.conversions?.unit ?? "건"}</small>
                   </div>
                   <div className="stMetricFoot">
@@ -625,51 +638,70 @@ export default function StatsPage() {
                 </div>
               </div>
 
-              {/* 유려한 곡선 추이 차트 패널 */}
+              {/* 유려한 곡선 추이 차트 패널 (데이터 부재 시 정직한 대기 안내 표시) */}
               <div className="stChartPanel">
                 <div className="stChartHeader">
                   <div className="stPanelTitle" style={{ fontSize: "var(--fs-base)" }}>
                     <span>📈</span>
-                    <span>{periodLabel} 성과 추이</span>
+                    <span>{periodLabel} 실측 성과 추이</span>
                   </div>
 
-                  {/* 차트 지표 세그먼트 컨트롤 */}
-                  <div className="stSeg" role="tablist">
-                    <button
-                      type="button"
-                      className={`stSegBtn${chartMetric === "impressions" ? " active" : ""}`}
-                      onClick={() => setChartMetric("impressions")}
-                    >
-                      <span>검색 노출 (Impressions)</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={`stSegBtn${chartMetric === "clicks" ? " active" : ""}`}
-                      onClick={() => setChartMetric("clicks")}
-                    >
-                      <span>클릭수 (Clicks)</span>
-                    </button>
-                    <button
-                      type="button"
-                      className={`stSegBtn${chartMetric === "users" ? " active" : ""}`}
-                      onClick={() => setChartMetric("users")}
-                    >
-                      <span>순 방문자 (Users)</span>
-                    </button>
-                  </div>
+                  {hasRealHistory && (
+                    <div className="stSeg" role="tablist">
+                      <button
+                        type="button"
+                        className={`stSegBtn${chartMetric === "impressions" ? " active" : ""}`}
+                        onClick={() => setChartMetric("impressions")}
+                      >
+                        <span>검색 노출 (Impressions)</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`stSegBtn${chartMetric === "clicks" ? " active" : ""}`}
+                        onClick={() => setChartMetric("clicks")}
+                      >
+                        <span>클릭수 (Clicks)</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`stSegBtn${chartMetric === "users" ? " active" : ""}`}
+                        onClick={() => setChartMetric("users")}
+                      >
+                        <span>순 방문자 (Users)</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
 
-                {renderSmoothChart(historyData)}
+                {hasRealHistory ? (
+                  renderSmoothChart(historyData)
+                ) : (
+                  <div className="stChartEmpty">
+                    <span className="emptyIcon">📊</span>
+                    <b>실제 트래픽 데이터 수집 대기 중</b>
+                    <p>
+                      {selectedSite.dataStatus === "new"
+                        ? "오늘 신규 런칭된 서비스로, 구글 검색엔진 인덱싱 및 애널리틱스 트래픽 인입(통상 2~4일 소요) 후 실측 그래프가 자동으로 표시됩니다."
+                        : "선택하신 기간 동안의 오가닉 검색 및 방문 기록이 아직 집계되지 않았습니다. 임의의 가상 선을 그리지 않고 실제 인입 데이터만 투명하게 표시합니다."}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* 키워드 & 랜딩 페이지 2단 패널 */}
               <div className="stGrid2">
-                {/* 상위 검색어 테이블 */}
+                {/* 검색어 테이블 (실측 쿼리 vs 시장 분석 타깃 구분) */}
                 <div className="stPanel" style={{ margin: 0 }}>
                   <div className="stPanelHeader">
                     <h3 className="stPanelTitle" style={{ fontSize: "var(--fs-base)" }}>
                       <span>🔍</span>
-                      <span>주요 유입 검색어 (Top Queries)</span>
+                      <span>
+                        {selectedSite.queryType === "real"
+                          ? "실제 유입 검색어 (GSC 실측)"
+                          : selectedSite.queryType === "market_research"
+                          ? "공략 타깃 키워드 (네이버 검색광고 실측 검색량)"
+                          : "공략 목표 키워드 (색인 대기 중)"}
+                      </span>
                     </h3>
                     <span style={{ fontSize: "var(--fs-xs)", color: "var(--text-3)", fontWeight: 600 }}>
                       {selectedSite.topQueries?.length || 0}개 키워드
@@ -680,10 +712,10 @@ export default function StatsPage() {
                       <thead>
                         <tr>
                           <th>검색어</th>
-                          <th>순위</th>
-                          <th>노출</th>
+                          <th>{selectedSite.queryType === "real" ? "실측 순위" : "타깃 구분"}</th>
+                          <th>{selectedSite.queryType === "market_research" ? "시장 검색량" : "노출"}</th>
                           <th>클릭</th>
-                          <th>상태</th>
+                          <th>비고</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -693,12 +725,22 @@ export default function StatsPage() {
                             <td style={{ fontWeight: 600 }}>
                               {typeof q.rank === "number" ? `${q.rank}위` : q.rank}
                             </td>
-                            <td>{q.impressions}</td>
-                            <td style={{ fontWeight: 800, color: "var(--brand)" }}>
+                            <td>
+                              {q.impressions > 0 ? (
+                                selectedSite.queryType === "market_research"
+                                  ? `월 ${q.impressions.toLocaleString()}회`
+                                  : q.impressions
+                              ) : (
+                                "0"
+                              )}
+                            </td>
+                            <td style={{ fontWeight: 800, color: q.clicks > 0 ? "var(--brand)" : "inherit" }}>
                               {q.clicks}
                             </td>
                             <td>
-                              <span className="stTag brand">{q.status}</span>
+                              <span className={`stTag ${selectedSite.queryType === "real" ? "ok" : "brand"}`}>
+                                {q.status}
+                              </span>
                             </td>
                           </tr>
                         ))}
@@ -712,7 +754,7 @@ export default function StatsPage() {
                   <div className="stPanelHeader">
                     <h3 className="stPanelTitle" style={{ fontSize: "var(--fs-base)" }}>
                       <span>📄</span>
-                      <span>인기 랜딩 페이지 (Top Pages)</span>
+                      <span>인기 랜딩 페이지</span>
                     </h3>
                     <span style={{ fontSize: "var(--fs-xs)", color: "var(--text-3)", fontWeight: 600 }}>
                       {selectedSite.topPages?.length || 0}개 페이지
@@ -724,7 +766,7 @@ export default function StatsPage() {
                         <tr>
                           <th>경로</th>
                           <th>페이지 제목</th>
-                          <th>조회수</th>
+                          <th>실측 조회수</th>
                           <th>클릭</th>
                         </tr>
                       </thead>
@@ -735,8 +777,10 @@ export default function StatsPage() {
                               <code style={{ fontSize: "12px", color: "var(--text-2)" }}>{p.path}</code>
                             </td>
                             <td style={{ fontWeight: 600 }}>{p.title}</td>
-                            <td style={{ fontWeight: 800 }}>{p.views}회</td>
-                            <td style={{ fontWeight: 800, color: "var(--brand)" }}>{p.clicks}회</td>
+                            <td style={{ fontWeight: 800 }}>{p.views > 0 ? `${p.views}회` : "0회"}</td>
+                            <td style={{ fontWeight: 800, color: p.clicks > 0 ? "var(--brand)" : "inherit" }}>
+                              {p.clicks > 0 ? `${p.clicks}회` : "0회"}
+                            </td>
                           </tr>
                         ))}
                       </tbody>

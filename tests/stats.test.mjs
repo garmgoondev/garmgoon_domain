@@ -26,7 +26,7 @@ test("GET /api/stats/summary returns aggregated totals and site metrics", async 
   assert.equal(everydaytutor.domain, "everydaytutor.net");
   assert.ok(everydaytutor.overview);
   assert.ok(Array.isArray(everydaytutor.topQueries));
-  assert.ok(Array.isArray(everydaytutor.history7d));
+  assert.ok(Array.isArray(everydaytutor.history?.["7d"]));
 
   // Test ?period=7d and ?period=90d
   const res7d = await worker.fetch(new Request("https://garmgoon.test/api/stats/summary?period=7d"), env);
