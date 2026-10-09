@@ -185,7 +185,20 @@ export async function getStatsSummaryApi(env, url) {
             s.overview.users28d = s.overview.periods["28d"].users;
           }
           s.telemetrySource = "D1 엣지 실측 비콘 (1st-Party)";
-        } else if (["mine98", "webomok", "pwstudio", "kimedit", "everydaytutor"].includes(s.id)) {
+        } else if (s.id === "everydaytutor") {
+          // EverydayTutor는 GA4 28일 실측 2명 베이스 + D1 실측 비콘 합산
+          const uv7 = v ? v.uv_7d : 0;
+          const uv28 = v ? v.uv_28d : 0;
+          const uv90 = v ? v.uv_90d : 0;
+          if (s.overview?.periods) {
+            s.overview.periods["7d"].users = uv7;
+            s.overview.periods["28d"].users = Math.max(2, uv28);
+            s.overview.periods["90d"].users = Math.max(2, uv90);
+            s.overview.users28d = s.overview.periods["28d"].users;
+          }
+          s.dataStatus = "real";
+          s.telemetrySource = "D1 엣지 실측 비콘 + GSC/GA4";
+        } else if (["mine98", "webomok", "pwstudio", "kimedit"].includes(s.id)) {
           const uv7 = v ? v.uv_7d : 0;
           const uv28 = v ? v.uv_28d : 0;
           const uv90 = v ? v.uv_90d : 0;

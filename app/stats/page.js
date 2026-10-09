@@ -771,8 +771,8 @@ export default function StatsPage() {
                         <tr>
                           <th>검색어</th>
                           <th>{selectedSite.queryType === "real" ? "실측 순위" : "타깃 구분"}</th>
-                          <th>{selectedSite.queryType === "market_research" ? "시장 검색량" : "노출"}</th>
-                          <th>클릭</th>
+                          <th>{selectedSite.queryType === "market_research" ? "시장 검색량 (타깃)" : "실제 검색 노출"}</th>
+                          <th>{selectedSite.queryType === "market_research" ? "실제 유입 클릭" : "클릭"}</th>
                           <th>비고</th>
                         </tr>
                       </thead>
