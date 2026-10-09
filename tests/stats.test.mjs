@@ -73,3 +73,48 @@ test("GET /api/stats/ping validates domain parameter and security check", async 
   );
   assert.equal(resExcluded.status, 400);
 });
+
+test("POST /api/telemetry records empirical visitors and integrates into stats summary", async (t) => {
+  const env = setup(t);
+
+  // 1. Script serving
+  const scriptRes = await worker.fetch(new Request("https://garmgoon.test/telemetry.js"), env);
+  assert.equal(scriptRes.status, 200);
+  assert.ok(scriptRes.headers.get("content-type").includes("javascript"));
+
+  // 2. CORS Preflight
+  const preflightRes = await worker.fetch(new Request("https://garmgoon.test/api/telemetry", { method: "OPTIONS" }), env);
+  assert.equal(preflightRes.status, 204);
+  assert.equal(preflightRes.headers.get("access-control-allow-origin"), "*");
+
+  // 3. Post telemetry beacon from mine98
+  const beaconRes = await worker.fetch(
+    new Request("https://garmgoon.test/api/telemetry", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "cf-connecting-ip": "203.0.113.195",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/128.0.0.0 Safari/537.36",
+      },
+      body: JSON.stringify({ site: "mine98", path: "/" }),
+    }),
+    env
+  );
+  assert.equal(beaconRes.status, 200);
+  const beaconData = await beaconRes.json();
+  assert.equal(beaconData.ok, true);
+  assert.equal(beaconData.site, "mine98");
+
+  // 4. Verify in stats summary
+  const summaryRes = await worker.fetch(new Request("https://garmgoon.test/api/stats/summary"), env);
+  const summary = await summaryRes.json();
+  assert.equal(summary.ok, true);
+
+  const mine98 = summary.sites.find((s) => s.id === "mine98");
+  assert.ok(mine98);
+  assert.equal(mine98.overview.users28d, 1);
+  assert.equal(mine98.overview.periods["28d"].users, 1);
+  assert.equal(mine98.dataStatus, "real");
+  assert.equal(mine98.telemetrySource, "D1 엣지 실측 비콘 (1st-Party)");
+});
+

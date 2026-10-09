@@ -652,7 +652,7 @@ export default function StatsPage() {
                   <div className="stMetricHeader">
                     <span className="stMetricTitle">순 방문자 (UV)</span>
                     <span className="stMetricSource">
-                      {selectedSite.id === "utahsays" ? "D1 엣지 실측" : "GA4 실측"}
+                      {selectedSite.telemetrySource?.includes("D1") ? "D1 엣지 실측" : "GA4 실측"}
                     </span>
                   </div>
                   <div className="stMetricValue">
@@ -660,7 +660,7 @@ export default function StatsPage() {
                     <small>명</small>
                   </div>
                   <div className="stMetricFoot">
-                    {selectedSite.id === "utahsays" ? (
+                    {selectedSite.telemetrySource?.includes("D1") ? (
                       <span style={{ color: "var(--st-ok-text)", fontWeight: 700 }}>
                         애드블록 미차단 1st-Party 비콘 실측
                       </span>
@@ -677,10 +677,10 @@ export default function StatsPage() {
                 <div className="stMetric" data-accent="purple">
                   <div className="stMetricHeader">
                     <span className="stMetricTitle">
-                      {selectedSite.id === "utahsays" ? "자체 실측 전환" : "전환 목표"}
+                      {selectedSite.telemetrySource?.includes("D1") ? "자체 실측 전환" : "전환 목표"}
                     </span>
                     <span className="stMetricSource">
-                      {selectedSite.id === "utahsays" ? "D1 원격 DB" : "실측 집계"}
+                      {selectedSite.telemetrySource?.includes("D1") ? "D1 원격 DB" : "실측 집계"}
                     </span>
                   </div>
                   <div className="stMetricValue">

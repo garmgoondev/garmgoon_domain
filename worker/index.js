@@ -11,6 +11,7 @@ import { addChannel, videoFromRow } from "./youtube.js";
 import { redditMode } from "./reddit.js";
 import { loadPreferences, preferenceBoost, preferenceSummary } from "./prefs.js";
 import { getStatsSummaryApi, pingDomainApi, pingAllDomainsApi } from "./stats.js";
+import { handleTelemetry, handleTelemetryScript, handleTelemetryOptions } from "./telemetry.js";
 
 const PRIVATE_PAGES = /^\/(tools|scrap|settings|automations|stats)(\/|\.html|\.txt|$)/;
 const NOTE_STATUSES = ["idea", "review", "doing", "hold"];
@@ -404,6 +405,7 @@ async function runApi(env, request) {
 
 async function handleApi(request, env, url, ctx) {
   const path = url.pathname.replace(/\/+$/, "");
+  if (path === "/api/telemetry") return handleTelemetry(request, env, url);
   const authed = await isAuthed(request, env);
 
   const isHttps = url.protocol === "https:";
@@ -507,6 +509,12 @@ async function postAutomationHeartbeat(request, env) {
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+    if (url.pathname === "/telemetry.js") {
+      return handleTelemetryScript();
+    }
+    if (url.pathname === "/api/telemetry" && request.method === "OPTIONS") {
+      return handleTelemetryOptions();
+    }
     if (url.pathname.startsWith("/api/")) {
       try {
         return await handleApi(request, env, url, ctx);
