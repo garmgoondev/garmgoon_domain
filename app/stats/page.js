@@ -292,15 +292,15 @@ export default function StatsPage() {
 
             <div className="stMetric" data-accent="blue">
               <div className="stMetricHeader">
-                <span className="stMetricTitle">{periodLabel} 실측 순방문자</span>
-                <span className="stMetricSource">GA4 실측</span>
+                <span className="stMetricTitle">{periodLabel} 실측 방문자</span>
+                <span className="stMetricSource">D1 비콘 + GA4</span>
               </div>
               <div className="stMetricValue">
                 {totals.totalUsers}
                 <small>명</small>
               </div>
               <div className="stMetricFoot">
-                <span>EverydayTutor · Utah Says 실측 오가닉 세션</span>
+                <span>Utah Says(D1 88명) · EverydayTutor(GA4 2명) 실측</span>
               </div>
             </div>
 
@@ -321,15 +321,15 @@ export default function StatsPage() {
 
             <div className="stMetric" data-accent="purple">
               <div className="stMetricHeader">
-                <span className="stMetricTitle">총 색인 대상 페이지</span>
-                <span className="stMetricSource">인덱싱 현황</span>
+                <span className="stMetricTitle">자체 실측 핵심 전환</span>
+                <span className="stMetricSource">1st-Party DB</span>
               </div>
               <div className="stMetricValue">
-                {totals.totalIndexedPages || 0}
-                <small>개 페이지</small>
+                {totals.totalConversions}
+                <small>건</small>
               </div>
               <div className="stMetricFoot">
-                <span>{sites.length}개 웹 서비스 검색엔진 노출 대상 URL</span>
+                <span>Utah Says 실측 투표 29건 (애드블록 미차단 D1 팩트)</span>
               </div>
             </div>
           </div>
@@ -353,11 +353,12 @@ export default function StatsPage() {
                     <th>사이트</th>
                     <th>도메인</th>
                     <th>실시간 상태</th>
-                    <th>GSC 연동</th>
+                    <th>수집 소스</th>
                     <th>{periodLabel} 클릭</th>
                     <th>{periodLabel} 노출</th>
                     <th>평균 CTR</th>
-                    <th>{periodLabel} 순방문자</th>
+                    <th>{periodLabel} 실측 방문자</th>
+                    <th>자체 실측 전환</th>
                     <th>핵심 검색어 / 공략 타깃</th>
                     <th>상세</th>
                   </tr>
@@ -409,10 +410,10 @@ export default function StatsPage() {
                         </td>
                         <td>
                           <span
-                            className={`stTag ${s.integrations.gsc.connected ? "ok" : ""}`}
+                            className={`stTag ${s.id === "utahsays" ? "ok" : s.integrations.gsc.connected ? "brand" : ""}`}
                             style={{ fontSize: "11px" }}
                           >
-                            {s.integrations.gsc.connected ? "연동 완료" : "준비 중"}
+                            {s.id === "utahsays" ? "D1 엣지 실측" : s.integrations.gsc.connected ? "GSC + GA4" : "배포 초기"}
                           </span>
                         </td>
                         <td style={{ fontWeight: 800 }}>
@@ -425,7 +426,32 @@ export default function StatsPage() {
                           {s.dataStatus === "staging" ? "-" : pData.ctr > 0 ? `${pData.ctr}%` : "0%"}
                         </td>
                         <td style={{ fontWeight: 800, color: pData.users > 0 ? "var(--brand)" : "inherit" }}>
-                          {s.dataStatus === "staging" ? "-" : pData.users > 0 ? `${pData.users}명` : "0"}
+                          {s.dataStatus === "staging" ? (
+                            "-"
+                          ) : pData.users > 0 ? (
+                            <>
+                              <span>{pData.users}명</span>
+                              {s.id === "utahsays" && (
+                                <span style={{ display: "block", fontSize: "10px", color: "var(--st-ok-text)", fontWeight: 600 }}>
+                                  (D1 실측)
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            "0"
+                          )}
+                        </td>
+                        <td>
+                          {pData.conversions > 0 ? (
+                            <b style={{ color: "var(--st-ok-text)" }}>
+                              {pData.conversions}{s.overview?.conversions?.unit ?? "건"}
+                              <span style={{ display: "block", fontSize: "11px", fontWeight: 500, color: "var(--text-3)" }}>
+                                {s.overview?.conversions?.label}
+                              </span>
+                            </b>
+                          ) : (
+                            <span style={{ color: "var(--text-3)" }}>{s.dataStatus === "staging" ? "-" : "0건"}</span>
+                          )}
                         </td>
                         <td>
                           {s.topQueries?.[0] ? (
@@ -577,6 +603,9 @@ export default function StatsPage() {
                 {/* 하단 메타 태그 */}
                 <div className="stHeroBadges">
                   <span className="stTag">스택: {selectedSite.stack}</span>
+                  {selectedSite.telemetrySource && (
+                    <span className="stTag ok">수집 소스: {selectedSite.telemetrySource}</span>
+                  )}
                   <span className={`stTag ${selectedSite.integrations.gsc.connected ? "ok" : ""}`}>
                     GSC: {selectedSite.integrations.gsc.connected ? "연동 완료" : "준비 중"}
                   </span>
@@ -622,30 +651,47 @@ export default function StatsPage() {
                 <div className="stMetric" data-accent="ok">
                   <div className="stMetricHeader">
                     <span className="stMetricTitle">순 방문자 (UV)</span>
-                    <span className="stMetricSource">GA4 실측</span>
+                    <span className="stMetricSource">
+                      {selectedSite.id === "utahsays" ? "D1 엣지 실측" : "GA4 실측"}
+                    </span>
                   </div>
                   <div className="stMetricValue">
                     {selectedSite.dataStatus === "staging" ? "-" : sitePeriod.users}
                     <small>명</small>
                   </div>
                   <div className="stMetricFoot">
-                    <span>참여율:</span>
-                    <b>{sitePeriod.engagementRate > 0 ? `${sitePeriod.engagementRate}%` : "-"}</b>
-                    {sitePeriod.avgDuration !== "-" && <span>({sitePeriod.avgDuration})</span>}
+                    {selectedSite.id === "utahsays" ? (
+                      <span style={{ color: "var(--st-ok-text)", fontWeight: 700 }}>
+                        애드블록 미차단 1st-Party 비콘 실측
+                      </span>
+                    ) : (
+                      <>
+                        <span>참여율:</span>
+                        <b>{sitePeriod.engagementRate > 0 ? `${sitePeriod.engagementRate}%` : "-"}</b>
+                        {sitePeriod.avgDuration !== "-" && <span>({sitePeriod.avgDuration})</span>}
+                      </>
+                    )}
                   </div>
                 </div>
 
                 <div className="stMetric" data-accent="purple">
                   <div className="stMetricHeader">
-                    <span className="stMetricTitle">전환 목표</span>
-                    <span className="stMetricSource">실측 집계</span>
+                    <span className="stMetricTitle">
+                      {selectedSite.id === "utahsays" ? "자체 실측 전환" : "전환 목표"}
+                    </span>
+                    <span className="stMetricSource">
+                      {selectedSite.id === "utahsays" ? "D1 원격 DB" : "실측 집계"}
+                    </span>
                   </div>
                   <div className="stMetricValue">
                     {sitePeriod.conversions}
                     <small>{selectedSite.overview.conversions?.unit ?? "건"}</small>
                   </div>
                   <div className="stMetricFoot">
-                    <span>{selectedSite.overview.conversions?.label ?? "전환 목표"}</span>
+                    <span>
+                      {selectedSite.overview.conversions?.label ?? "전환 목표"}
+                      {selectedSite.id === "utahsays" ? " (실시간 투표 29건 실측)" : ""}
+                    </span>
                   </div>
                 </div>
               </div>
