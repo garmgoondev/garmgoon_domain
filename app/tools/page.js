@@ -9,6 +9,12 @@ const TOOLS = [
     description: "내 도메인, 서버, PC에서 가동 중인 6대 자동화 상태 모니터링",
     href: "/automations",
   },
+  {
+    emoji: "🛠️",
+    name: "BoriTools",
+    description: "브라우저 기반 범용 파일 변환기 및 개발자·PDF·텍스트 도구 모음",
+    href: "https://boritools.garmgoon.com",
+  },
 ];
 
 const EMPTY_SLOTS = 6;
@@ -25,7 +31,13 @@ export default function ToolsPage() {
       </div>
       <div className="toolGrid">
         {TOOLS.map((t) => (
-          <a key={t.name} href={t.href} className="toolCard">
+          <a
+            key={t.name}
+            href={t.href}
+            className="toolCard"
+            target={t.href.startsWith("http") ? "_blank" : undefined}
+            rel={t.href.startsWith("http") ? "noopener noreferrer" : undefined}
+          >
             <span className="emoji">{t.emoji}</span>
             <b>{t.name}</b>
             <p>{t.description}</p>
