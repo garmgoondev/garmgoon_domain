@@ -263,6 +263,90 @@
   to { transform: rotate(360deg); }
 }
 
+/* ----- 실행 위치(Surface) 셀렉트 박스 ----- */
+
+.axSelectWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text-2);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.axSelectWrap:hover {
+  border-color: color-mix(in srgb, var(--text) 22%, var(--line));
+}
+
+.axSelectWrap:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+
+.axSelectWrap svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--text-3);
+}
+
+.axSelect {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.axSelect option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* ----- 필터 활성 상태 알림 바 ----- */
+
+.axFilterStatusRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--ax-r-sm);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.axResetBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--brand);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.axResetBtn:hover {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+}
+
 .axSearch {
   display: flex;
   align-items: center;
@@ -584,6 +668,353 @@
   font-family: var(--ax-mono);
   font-size: var(--fs-xs);
   color: var(--text-2);
+}
+
+/* ----- [그룹형 뷰] 파이프라인 묶음 보기 (Grouped View) ----- */
+
+.axGroupedList {
+  display: grid;
+  gap: 20px;
+}
+
+.axGroupCard {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--ax-r);
+  box-shadow: 0 1px 3px rgba(20, 23, 31, 0.04);
+  overflow: hidden;
+  position: relative;
+}
+
+.axGroupCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--line);
+}
+
+.axGroupCard[data-tone="ok"]::before {
+  background: linear-gradient(90deg, var(--ax-ok), #4fd1a5);
+}
+
+.axGroupCard[data-tone="warn"]::before {
+  background: linear-gradient(90deg, var(--ax-warn), #f7c46c);
+}
+
+.axGroupHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.axGroupHeader:hover {
+  background: color-mix(in srgb, var(--surface-2) 90%, var(--text));
+}
+
+.axGroupHeaderLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+}
+
+.axGroupIcon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.axGroupTitleWrap {
+  min-width: 0;
+  flex: 1;
+}
+
+.axGroupTitleRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.axGroupTitle {
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.axGroupBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.axGroupBadge[data-tone="ok"] {
+  background: var(--ax-ok-soft);
+  color: var(--ax-ok-text);
+  border: 1px solid color-mix(in srgb, var(--ax-ok) 30%, transparent);
+}
+
+.axGroupBadge[data-tone="warn"] {
+  background: var(--ax-warn-soft);
+  color: var(--ax-warn-text);
+  border: 1px solid color-mix(in srgb, var(--ax-warn) 30%, transparent);
+}
+
+.axGroupDesc {
+  margin: 6px 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+.axGroupFlow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+}
+
+.axFlowLabel {
+  flex-shrink: 0;
+  font-weight: 700;
+  color: var(--brand);
+}
+
+.axFlowText {
+  color: var(--text);
+  font-family: var(--ax-mono);
+  word-break: break-word;
+}
+
+.axGroupWarning {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: var(--ax-warn-soft);
+  border: 1px solid color-mix(in srgb, var(--ax-warn) 40%, transparent);
+  border-radius: 8px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--ax-warn-text);
+  line-height: 1.5;
+}
+
+.axWarningIcon {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.axGroupChevron {
+  flex-shrink: 0;
+}
+
+.axGroupBody {
+  border-top: 1px solid var(--line);
+}
+
+/* ----- 파이프라인 항목 ----- */
+
+.axPipelineItem {
+  position: relative;
+  border-bottom: 1px solid var(--line);
+  padding: 16px 20px 16px;
+  transition: background 0.15s ease;
+}
+
+.axPipelineItem:last-child {
+  border-bottom: 0;
+}
+
+.axPipelineItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--axr-accent, transparent);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.axPipelineItem[data-tone="ok"] { --axr-accent: var(--ax-ok); }
+.axPipelineItem[data-tone="warn"] { --axr-accent: var(--ax-warn); }
+.axPipelineItem[data-tone="bad"] { --axr-accent: var(--danger); }
+.axPipelineItem[data-tone="run"] { --axr-accent: var(--ax-info-text); }
+
+.axPipelineItem:hover,
+.axPipelineItem[data-open="true"] {
+  background: var(--ax-hover);
+}
+
+.axPipelineItem:hover::before,
+.axPipelineItem[data-open="true"]::before {
+  opacity: 1;
+}
+
+.axPipelineItem[data-inactive="true"] .axIconTile {
+  filter: grayscale(0.6);
+  opacity: 0.8;
+}
+
+.axPipelineItemMetaRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.axStepBadge {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 6px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.axSurfaceBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.axSurfaceBadge svg {
+  width: 13px;
+  height: 13px;
+  color: var(--text-3);
+}
+
+.axTargetIdCode {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--text) 4%, var(--surface));
+  border: 1px solid var(--line);
+  font-family: var(--ax-mono);
+  font-size: 12px;
+  color: var(--text-2);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.axPipelineStatusWrap {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.axPipelineMainRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.axPipelineContent {
+  min-width: 0;
+}
+
+.axPipelineRightMeta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 14px;
+  align-items: center;
+}
+
+.axPipelineRightMeta .axRunLine {
+  grid-column: span 2;
+  margin-top: 0;
+}
+
+.axPipelineChev {
+  display: grid;
+  place-items: center;
+}
+
+/* 단계 배지 및 위치 배지 (컴팩트 및 카드 뷰 공통 활용) */
+
+.axStepTag {
+  background: var(--brand-soft);
+  border-color: transparent;
+  color: var(--brand);
+  font-weight: 700;
+}
+
+.axSurfaceTag {
+  background: var(--surface-2);
+  border-color: var(--line);
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+.axCardStepRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.axCardTarget {
+  margin-left: 6px;
+  vertical-align: middle;
 }
 
 /* ----- 테이블 (CSS grid) ----- */
@@ -1158,6 +1589,22 @@
     grid-template-columns: minmax(0, 1fr);
     margin: 0 16px 16px;
   }
+
+  .axPipelineMainRow {
+    grid-template-columns: minmax(0, 1fr) 40px;
+    gap: 12px;
+  }
+
+  .axPipelineRightMeta {
+    grid-column: span 2;
+    grid-template-columns: 1fr;
+    padding-left: 56px;
+    gap: 8px;
+  }
+
+  .axPipelineRightMeta .axRunLine {
+    grid-column: span 1;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1177,6 +1624,48 @@
   .axSearch {
     flex: 1;
     width: auto;
+  }
+
+  .axSelectWrap {
+    width: 100%;
+  }
+
+  .axSelect {
+    flex: 1;
+  }
+
+  .axFilterStatusRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .axGroupHeader {
+    padding: 14px 16px;
+  }
+
+  .axGroupHeaderLeft {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .axPipelineItem {
+    padding: 14px 16px;
+  }
+
+  .axPipelineItemMetaRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .axPipelineStatusWrap {
+    margin-left: 0;
+    margin-top: 4px;
+  }
+
+  .axPipelineRightMeta {
+    padding-left: 0;
   }
 
   .axSeg {

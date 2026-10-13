@@ -15,183 +15,593 @@ function formatRelativeTime(dateStr) {
   return `${Math.floor(diffSec / 86400)}일 전`;
 }
 
-const AUTOMATIONS = [
-  // --- [1] 활성 자동화 (Active) ---
+// 7대 연관 파이프라인 그룹 정의 (Grouped Pipeline View)
+const GROUP_DEFINITIONS = [
   {
-    id: "seo-hub",
-    category: "비즈니스 SEO",
-    title: "SEO Hub 주간 리마인더 & 분석",
+    id: "pixie-youtube",
+    title: "유튜브 요약 파이프라인 · 개인 웹사이트(Active) vs 텔레그램(비활성)",
+    shortTitle: "유튜브 요약",
+    icon: "🎬",
+    flow: "[웹사이트 표시용: garmgoon.com Cloudflare Worker (정상 가동)] / [텔레그램 발송용: Pixie n8n 3종 + Windows 로컬 요약 워커 (모두 비활성화됨)]",
+    description: "개인 웹사이트(garmgoon.com/youtube) 표시용 요약 파이프라인은 정상 가동 중이며, 텔레그램으로 발송하던 Pixie 연동 작업 4종은 모두 비활성화되었습니다.",
+  },
+  {
+    id: "pixie-obsidian",
+    title: "Pixie · 옵시디언 웹 클리퍼 & 세컨드 브레인 위키 파이프라인 (전체 비활성)",
+    shortTitle: "Pixie 옵시디언",
+    icon: "📓",
+    flow: "[1단계: 로컬 클리퍼 워커(비활성)] → [2단계: 1분 완료 알림(비활성)] + [5초 진행률 폴링(비활성)] + [3시간 위키 인제스트(비활성)]",
+    warning: null,
+    description: "옵시디언 관련 로컬 Windows 워커 2종 및 Pixie VPS n8n 폴링 워크플로 2종(총 4개)이 모두 안전하게 비활성화되었습니다.",
+  },
+  {
+    id: "pixie-alerts-infra",
+    title: "Pixie · 일일 레이더 · 스토어 알림 & R2 백업 인프라",
+    shortTitle: "Pixie 레이더 & 인프라",
+    icon: "🛡️",
+    flow: "[Orca 스케줄러 / VPS systemd 타이머] → [Pixie VPS n8n 웹훅 수신] → [Telegram 알림 발송 / Cloudflare R2 백업]",
+    description: "매일 아침 GitHub 인기 트렌드 선별, Church Store 입고 감시, PostgreSQL 암호화 오프사이트 R2 백업 및 지연 감시 체계입니다.",
+  },
+  {
+    id: "everydaytutor",
+    title: "EverydayTutor · 대만 과외 크롤링 · 페이스북 운영 · 온보딩",
+    shortTitle: "EverydayTutor 과외",
+    icon: "🎓",
+    flow: "[크롤링: Windows FB 디스패처 + VPS 1111/ChickPT n8n + 헬스체크] → [운영: 하루 6회 FB AI 심사 + 1일 2회 배포] → [온보딩: 맞춤 메일 발송]",
+    description: "대만 과외 플랫폼 구인구직 데이터 수집, 페이스북 그룹 자동 심사/배포 및 신규 튜터 온보딩까지 전 과정을 자동화합니다.",
+  },
+  {
+    id: "seo-open-seo",
+    title: "SEO Hub & OpenSEO · 검색 최적화 & 순위 추적",
+    shortTitle: "SEO Hub & OpenSEO",
+    icon: "📈",
+    flow: "[주간 GSC/GA4 분석(Orca+Pixie)] + [5분 주기 순위 추적(Cloudflare Workflows)] + [격주 로컬/맵스 순위 템플릿] + [온디맨드 사이트 크롤러]",
+    description: "5대 운영 웹사이트의 구글 검색 콘솔 분석, 키워드 랭킹 추적, 로컬 맵스 순위 및 사이트 테크니컬 오디트를 담당합니다.",
+  },
+  {
+    id: "utahsays-social",
+    title: "Utah Says & 멀티 SNS 마케팅 자동화",
+    shortTitle: "Utah Says & SNS",
+    icon: "🏔️",
+    flow: "[10분 주기 D1 랭킹/트렌딩 산출(Cloudflare Worker Cron)] → [1시간 주기 SNS 로컬 마케팅 드래프트 준비(Windows)] → [멀티 SNS 소셜 퍼블리셔(CLI)]",
+    description: "Utah Says 실시간 여론조사 랭킹 산출부터 인스타그램/페이스북/X/레딧 4대 SNS 마케팅 드래프트 자동 준비까지 연결된 파이프라인입니다.",
+  },
+  {
+    id: "garmgoon-hermes",
+    title: "Garmgoon 피드 & Hermes 디바이스 동기화",
+    shortTitle: "Garmgoon & Hermes",
+    icon: "⚙️",
+    flow: "[10분 주기 Reddit RSS 수집 + AI 채점 + 웹 푸시(Cloudflare Workers)] + [5분 주기 Windows ↔ GitHub / Mac mini Git 스킬 동기화]",
+    description: "garmgoon.com 개인 도메인의 백그라운드 피드 큐레이션과 Windows/Mac mini 디바이스 간의 양방향 Git/스킬 동기화 자동화입니다.",
+  },
+];
+
+// 실행 위치(Surface) 필터 정의
+const SURFACE_FILTERS = [
+  { key: "all", label: "전체 실행 위치 (All Surfaces)", match: () => true },
+  { key: "windows", label: "Windows 작업 스케줄러", match: (s) => s.includes("Windows") },
+  { key: "pixie-n8n", label: "Pixie VPS · n8n", match: (s) => s.includes("n8n") },
+  { key: "orca", label: "Orca Scheduler", match: (s) => s.includes("Orca") },
+  { key: "cloudflare", label: "Cloudflare Workers / Workflows", match: (s) => s.includes("Cloudflare") || s.includes("OpenSEO") },
+  { key: "systemd", label: "Pixie VPS · systemd", match: (s) => s.includes("systemd") },
+  { key: "cli-template", label: "CLI / 템플릿 / 온디맨드", match: (s) => s.includes("CLI") || s.includes("템플릿") || s.includes("온디맨드") },
+];
+
+// 2026-10-13 기준 실제 감사된 전체 자동화 목록 (총 30개 항목, 7개 연관 파이프라인 그룹)
+const AUTOMATIONS = [
+  // =========================================================================
+  // [그룹 1] pixie-youtube — 🎬 유튜브 요약 파이프라인 (개인 웹사이트 표시용 Active / 텔레그램 연동 4종 비활성)
+  // =========================================================================
+  {
+    id: "garmgoon-youtube-web",
+    groupId: "pixie-youtube",
+    title: "garmgoon.com 개인 웹사이트 유튜브 요약 파이프라인",
+    category: "콘텐츠 & 미디어",
     icon: "🌐",
     status: "active",
-    statusText: "정상 가동",
+    statusText: "정상 가동 (웹사이트 표시)",
     lastSuccess: true,
-    lastRunText: "최근 실행 성공",
-    lastRunAt: "2026-10-05 09:00",
-    lastRunDetail: "5대 사이트 GSC/GA4 분석 및 텔레그램 주간 보고서 발송 완료",
-    domains: [
-      "everydaytutor.net",
-      "pwstudio.kr",
-      "utahsays.com",
-      "garmgoon.com",
-      "new.ecocarpetutah.com",
-    ],
-    schedule: "매주 월요일 09:00 AM (유타)",
-    engine: "Orca Native Scheduler (antigravity)",
-    channel: "Telegram (Pixie 봇) + reports/",
-    description:
-      "관리 중인 5개 비즈니스 웹사이트의 GSC/GA4 지표를 자동 조회하고, 10~25위권 1페이지 진입 유력 키워드 리라이팅 가이드 및 주간 보고서를 생성합니다.",
+    lastRunText: "크론 파이프라인 정상",
+    lastRunAt: "10분 주기 크론 (채널 3시간 주기)",
+    lastRunDetail: "구독 채널 신규 영상 RSS 확인 후 자막/메타데이터 기반 AI 요약 카드 생성 및 garmgoon.com/youtube 게시",
+    surface: "Cloudflare Workers",
+    targetId: "garmgoon.com/youtube (worker/youtube.js · pipeline.js)",
+    pipelineStep: "웹사이트 표시 (Active)",
+    schedule: "채널 확인 3시간 주기 · 요약 10분 크론",
+    engine: "Cloudflare Worker + Hub/Android 자막 + LLM",
+    channel: "garmgoon.com/youtube (Cloudflare D1)",
+    domains: ["garmgoon.com", "youtube.com"],
+    description: "개인 도메인(garmgoon.com/youtube)에 표시되는 유튜브 요약 파이프라인입니다. 텔레그램 연동 없이 웹사이트 D1 데이터베이스에 직접 한줄평·3줄 요약·핵심 포인트를 저장합니다.",
     highlights: [
-      "EverydayTutor: 대만 과외 시세 검색어(24~28위) 1페이지 진입 점검",
-      "PW Studio: 신규 등록 도메인 구글 색인(Indexing) 여부 및 테크니컬 오디트",
-      "Utah Says: 신규 여론조사/커뮤니티 콘텐츠 인덱싱 및 틈새 키워드 발굴",
+      "텔레그램 발송 없이 garmgoon.com/youtube 탭에 직접 카드 형태로 게시",
+      "3시간 주기로 등록 채널의 새 영상을 감지하고 10분 주기 크론에서 순차 요약",
+      "자막(Android/Hub) 우선 추출 후 자막 부재 시 설명란/제목 기반 안전 요약",
     ],
     reactivation: null,
   },
   {
+    id: "pixie-telegram-menu",
+    groupId: "pixie-youtube",
+    title: "Pixie 텔레그램 자동화 콘솔 & 자막 라우터",
+    category: "개인 생산성",
+    icon: "🤖",
+    status: "inactive",
+    statusText: "비활성 (텔레그램 연동 중지)",
+    lastSuccess: null,
+    lastRunText: "비활성화됨 (n8n Unpublished)",
+    lastRunAt: "비활성화됨",
+    lastRunDetail: "2026-10-13 요청에 따라 Pixie VPS n8n에서 워크플로 비활성화(unpublish) 완료",
+    surface: "Pixie VPS · n8n",
+    targetId: "p8CV6lZ3OmGBCz0D (Pixie - Telegram Automation Menu)",
+    pipelineStep: "텔레그램 라우터 (비활성)",
+    schedule: "비활성화됨 (Telegram Webhook 중지)",
+    engine: "Pixie (n8n + FastAPI runner-api)",
+    channel: "Telegram (@garmgoon_pixie_bot)",
+    domains: ["pixie.garmgoon.com", "youtube.com"],
+    description: "텔레그램 /menu 콘솔 및 유튜브 URL 자막 추출, 채널 구독(/channel), 웹 클리핑(/clip) 요청을 라우팅하던 워크플로입니다. 현재 비활성화되어 있습니다.",
+    highlights: [
+      "Pixie VPS n8n에서 unpublish 완료 (active = false)",
+      "개인 웹사이트(garmgoon.com/youtube) 요약 파이프라인에는 영향 없음",
+    ],
+    reactivation: "Pixie VPS에서 docker compose exec -T n8n n8n publish:workflow --id=p8CV6lZ3OmGBCz0D 실행 후 n8n 재시작",
+  },
+  {
+    id: "youtube-channel-monitor",
+    groupId: "pixie-youtube",
+    title: "유튜브 구독 채널 신규 영상 탐색 (텔레그램 요약용 Discovery)",
+    category: "기술 & 트렌드",
+    icon: "📺",
+    status: "inactive",
+    statusText: "비활성 (텔레그램 연동 중지)",
+    lastSuccess: null,
+    lastRunText: "비활성화됨 (n8n Unpublished)",
+    lastRunAt: "비활성화됨",
+    lastRunDetail: "2026-10-13 요청에 따라 Pixie VPS n8n에서 6시간 주기 채널 탐색 워크플로 비활성화 완료",
+    surface: "Pixie VPS · n8n",
+    targetId: "ny0w9UpMpl8MLLhp (Pixie - YouTube Channel Discovery)",
+    pipelineStep: "1단계 · 채널 탐색 (비활성)",
+    schedule: "비활성화됨 (기존 6시간 주기)",
+    engine: "Pixie (n8n + runner-api RSS/채널 파서)",
+    channel: "PostgreSQL 요약 대기열 (platform)",
+    domains: ["youtube.com", "pixie.garmgoon.com"],
+    description: "텔레그램 요약 발송을 위해 구독 채널의 신규 영상을 6시간마다 탐색하던 Pixie n8n 워크플로입니다. 현재 비활성화되어 있습니다.",
+    highlights: [
+      "Pixie VPS n8n에서 unpublish 완료 (active = false)",
+      "웹사이트 표시용 유튜브 요약(garmgoon-youtube-web)은 별도로 정상 가동 중",
+    ],
+    reactivation: "Pixie VPS에서 docker compose exec -T n8n n8n publish:workflow --id=ny0w9UpMpl8MLLhp 실행 후 n8n 재시작",
+  },
+  {
+    id: "pixie-youtube-summary-worker",
+    groupId: "pixie-youtube",
+    title: "유튜브 영상 로컬 AI 요약 워커 (텔레그램 요약용)",
+    category: "개인 생산성",
+    icon: "🧠",
+    status: "inactive",
+    statusText: "비활성 (Disabled)",
+    lastSuccess: null,
+    lastRunText: "비활성화됨 (Windows 스케줄러 중지)",
+    lastRunAt: "비활성화됨",
+    lastRunDetail: "2026-10-13 요청에 따라 Windows 작업 스케줄러에서 중지(Stop) 및 비활성화(Disabled) 완료",
+    surface: "Windows 작업 스케줄러",
+    targetId: "Pixie YouTube Video Summary Worker",
+    pipelineStep: "2단계 · 로컬 LLM 요약 (비활성)",
+    schedule: "비활성화됨 (기존 15초 주기 폴링)",
+    engine: "Windows Local Worker + Ollama (qwen3:14b)",
+    channel: "Pixie PostgreSQL (요약본 저장 · 원문 삭제)",
+    domains: ["Windows PC (Local)", "pixie.garmgoon.com"],
+    description: "텔레그램 발송용 유튜브 요약 대기열을 폴링하여 로컬 Ollama(qwen3:14b)로 요약하던 Windows 백그라운드 워커입니다. 현재 비활성화되어 로컬 GPU/CPU 리소스를 사용하지 않습니다.",
+    highlights: [
+      "Windows 작업 스케줄러 State = Disabled 및 백그라운드 Python 프로세스 종료 완료",
+      "로컬 PC의 불필요한 15초 주기 폴링 및 Ollama 리소스 점유 해제",
+    ],
+    reactivation: "PowerShell에서 Enable-ScheduledTask -TaskName 'Pixie YouTube Video Summary Worker'; Start-ScheduledTask 실행",
+  },
+  {
+    id: "pixie-youtube-summary-delivery",
+    groupId: "pixie-youtube",
+    title: "유튜브 영상 요약 텔레그램 전송 (Delivery)",
+    category: "콘텐츠 & 미디어",
+    icon: "📤",
+    status: "inactive",
+    statusText: "비활성 (텔레그램 연동 중지)",
+    lastSuccess: null,
+    lastRunText: "비활성화됨 (n8n Unpublished)",
+    lastRunAt: "비활성화됨",
+    lastRunDetail: "2026-10-13 요청에 따라 Pixie VPS n8n에서 1분 주기 텔레그램 전송 워크플로 비활성화 완료",
+    surface: "Pixie VPS · n8n",
+    targetId: "Uqp9sKRVyWranIz3 (Pixie - YouTube Summary Delivery)",
+    pipelineStep: "3단계 · 텔레그램 발송 (비활성)",
+    schedule: "비활성화됨 (기존 매 1분 주기 폴링)",
+    engine: "Pixie (n8n MarkdownV2 Delivery)",
+    channel: "Telegram (한국어 영상 요약 브리핑)",
+    domains: ["pixie.garmgoon.com", "Telegram"],
+    description: "완료된 유튜브 영상 요약을 1분마다 폴링하여 텔레그램으로 전송하던 워크플로입니다. 현재 비활성화되어 있습니다.",
+    highlights: [
+      "Pixie VPS n8n에서 unpublish 완료 (active = false)",
+      "1분 주기 텔레그램 발송 폴링 완전 중지",
+    ],
+    reactivation: "Pixie VPS에서 docker compose exec -T n8n n8n publish:workflow --id=Uqp9sKRVyWranIz3 실행 후 n8n 재시작",
+  },
+
+  // =========================================================================
+  // [그룹 2] pixie-obsidian — 📓 Pixie · 옵시디언 웹 클리퍼 & 세컨드 브레인 위키 파이프라인 (전체 비활성)
+  // =========================================================================
+  {
+    id: "pixie-obsidian-capture-worker",
+    groupId: "pixie-obsidian",
+    title: "옵시디언 웹 클리퍼 로컬 워커 (Capture Worker)",
+    category: "개인 생산성",
+    icon: "📎",
+    status: "inactive",
+    statusText: "비활성 (Disabled)",
+    lastSuccess: null,
+    lastRunText: "비활성화됨 (Windows 스케줄러 중지)",
+    lastRunAt: "비활성화됨",
+    lastRunDetail: "Windows 작업 스케줄러에서 비활성화(Disabled) 완료",
+    surface: "Windows 작업 스케줄러",
+    targetId: "Pixie Obsidian Capture Worker",
+    pipelineStep: "1단계 · 로컬 클리핑 워커 (비활성)",
+    schedule: "비활성화됨 (로그온 시 상시)",
+    engine: "Windows Local Worker + Ollama (qwen3:14b)",
+    channel: "Obsidian Vault + Pixie runner-api",
+    domains: ["Windows PC (Local)", "Obsidian Vault"],
+    description: "텔레그램으로 요청된 웹 페이지 본문을 추출하고 로컬 LLM(qwen3:14b)으로 요약해 로컬 Obsidian 보관함에 저장하는 워커입니다. 현재 비활성화(Disabled)되어 있습니다.",
+    highlights: [
+      "Windows 작업 스케줄러에서 비활성화(Disabled) 상태 확인 완료",
+      "로컬 Obsidian Vault 클리핑 워커 대기 중",
+    ],
+    reactivation: "Windows 작업 스케줄러에서 'Pixie Obsidian Capture Worker' 작업을 사용(Enable)으로 변경",
+  },
+  {
+    id: "pixie-obsidian-capture-delivery",
+    groupId: "pixie-obsidian",
+    title: "옵시디언 캡처 완료 알림 전송 (Capture Delivery)",
+    category: "개인 생산성",
+    icon: "📨",
+    status: "inactive",
+    statusText: "비활성 (n8n Unpublished)",
+    lastSuccess: null,
+    lastRunText: "비활성화됨 (n8n Unpublished)",
+    lastRunAt: "비활성화됨",
+    lastRunDetail: "2026-10-13 요청에 따라 Pixie VPS n8n에서 1분 주기 캡처 알림 폴링 워크플로 비활성화 완료",
+    surface: "Pixie VPS · n8n",
+    targetId: "5cywia6fChzL2850 (Pixie - Obsidian Capture Delivery)",
+    pipelineStep: "2단계 · 완료 알림 폴링 (비활성)",
+    schedule: "비활성화됨 (기존 매 1분 주기 폴링)",
+    engine: "Pixie (n8n Delivery Polling)",
+    channel: "Telegram (클리핑 완료/실패 알림)",
+    domains: ["pixie.garmgoon.com", "Telegram"],
+    description: "완료된 옵시디언 웹 클리핑 작업을 1분마다 폴링하여 텔레그램으로 결과를 알리던 워크플로입니다. 현재 비활성화되어 있습니다.",
+    highlights: [
+      "Pixie VPS n8n에서 unpublish 완료 (active = false)",
+      "불필요한 1분 주기 완료 알림 폴링 중지",
+    ],
+    reactivation: "Pixie VPS에서 docker compose exec -T n8n n8n publish:workflow --id=5cywia6fChzL2850 실행 후 n8n 재시작",
+  },
+  {
+    id: "pixie-obsidian-capture-progress",
+    groupId: "pixie-obsidian",
+    title: "옵시디언 캡처 실시간 진행률 폴링 (Capture Progress)",
+    category: "개인 생산성",
+    icon: "⏱️",
+    status: "inactive",
+    statusText: "비활성 (n8n Unpublished)",
+    lastSuccess: null,
+    lastRunText: "비활성화됨 (5초 폴링 중지 완료)",
+    lastRunAt: "비활성화됨",
+    lastRunDetail: "2026-10-13 요청에 따라 5초마다 실행되던 진행률 폴링 워크플로를 Pixie VPS n8n에서 비활성화 완료",
+    surface: "Pixie VPS · n8n",
+    targetId: "kzbJcpswznHukHa7 (Pixie - Capture Progress (inactive))",
+    pipelineStep: "진행률 5초 폴링 (비활성)",
+    schedule: "비활성화됨 (기존 매 5초 주기 폴링)",
+    engine: "Pixie (n8n 5s Progress Updater)",
+    channel: "Telegram (진행 상태 메시지 수정)",
+    domains: ["pixie.garmgoon.com", "Telegram"],
+    description: "이름에 '(inactive)'가 적혀 있었으나 실제로는 5초마다 실행 중이던 옵시디언 캡처 진행률 폴링 워크플로입니다. 현재 안전하게 비활성화(active = false)되었습니다.",
+    highlights: [
+      "Pixie VPS n8n에서 unpublish 및 컨테이너 재시작으로 5초 폴링 루프 완전 중지",
+      "VPS CPU 및 PostgreSQL 쿼리 부하 절감",
+    ],
+    reactivation: "Pixie VPS에서 docker compose exec -T n8n n8n publish:workflow --id=kzbJcpswznHukHa7 실행 후 n8n 재시작",
+  },
+  {
+    id: "pixie-obsidian-wiki-worker",
+    groupId: "pixie-obsidian",
+    title: "Obsidian 세컨드 브레인 위키 인제스트 워커 (Wiki Worker)",
+    category: "개인 생산성",
+    icon: "📓",
+    status: "inactive",
+    statusText: "비활성 (Disabled)",
+    lastSuccess: null,
+    lastRunText: "비활성화됨 (Windows 스케줄러 중지)",
+    lastRunAt: "비활성화됨",
+    lastRunDetail: "Windows 작업 스케줄러에서 비활성화(Disabled) 상태 확인 완료",
+    surface: "Windows 작업 스케줄러",
+    targetId: "Pixie Obsidian Wiki Worker",
+    pipelineStep: "3시간 주기 위키 인제스트 (비활성)",
+    schedule: "비활성화됨 (기존 3시간 주기 + 로그온 시)",
+    engine: "Windows Local Worker + Ollama (wiki_worker)",
+    channel: "Obsidian Vault (Sources / Index / Archive)",
+    domains: ["Windows PC (Local)", "Obsidian Vault"],
+    description: "Obsidian 인박스 노트를 3시간마다 읽어 로컬 LLM JSON 스키마 검증을 거쳐 세컨드 브레인 위키 문서로 구조화하고 원본을 아카이빙하는 워커입니다. 현재 비활성화되어 있습니다.",
+    highlights: [
+      "Windows 작업 스케줄러에서 비활성화(Disabled) 상태 확인 완료",
+      "로컬 Ollama JSON Schema 기반 위키 인제스트 대기 중",
+    ],
+    reactivation: "Windows 작업 스케줄러에서 'Pixie Obsidian Wiki Worker' 작업을 사용(Enable)으로 변경",
+  },
+
+  // =========================================================================
+  // [그룹 3] pixie-alerts-infra — 🛡️ Pixie · 일일 레이더 · 스토어 알림 & R2 백업 인프라
+  // =========================================================================
+  {
     id: "church-store",
+    groupId: "pixie-alerts-infra",
+    title: "Church Store 제품 재고 알림 (Orca + n8n)",
     category: "일상 & 커머스",
-    title: "Church Store 제품 재고 알림",
     icon: "🛒",
     status: "active",
     statusText: "정상 가동",
     lastSuccess: true,
-    lastRunText: "최근 점검 성공",
-    lastRunAt: "오늘 09:00 AM",
-    lastRunDetail: "Orem 매장 픽업 및 배송 가능 재고 점검 완료 (입고 대기 중)",
-    domains: ["store.churchofjesuschrist.org"],
+    lastRunText: "스케줄 가동 중",
+    lastRunAt: "매일 09:00 AM",
+    lastRunDetail: "Orca 스케줄러가 매일 09:00 AM 점검 후 입고 시 Pixie n8n 웹훅으로 알림",
+    surface: "Orca Scheduler + Pixie n8n",
+    targetId: "Orca: c2a82538-6f72-46aa-a37c-94452341f58b / n8n: nsOdjMUiNtJmQtCD",
+    pipelineStep: "매일 09:00 점검 → 웹훅 알림",
     schedule: "매일 아침 09:00 AM (유타)",
-    engine: "Orca Native Scheduler (antigravity)",
+    engine: "Orca Native Scheduler (antigravity) + Pixie n8n Webhook",
     channel: "Telegram (입고 시에만 알림)",
-    description:
-      "지정된 의류 품목의 Regular M/Medium 사이즈 재고(배송 가능 및 Orem 매장 픽업)를 자동으로 확인하고, 재고 입고 시 즉시 텔레그램으로 알림을 보냅니다.",
-    highlights: ["배송(Ship-to-me) & Orem 매장 픽업 동시 감시", "입고 시에만 알림 (스팸 방지)"],
+    domains: ["store.churchofjesuschrist.org", "pixie.garmgoon.com"],
+    description: "Orca 스케줄러가 매일 아침 9시에 Orem 매장 픽업 및 배송 재고를 점검하고, 입고 시 Pixie n8n 웹훅(Pixie - Church Store Stock Alert)을 통해 텔레그램 알림을 보냅니다.",
+    highlights: [
+      "배송(Ship-to-me) & Orem 매장 픽업 동시 감시",
+      "입고 시에만 알림 (스팸 방지)",
+      "Orca 네이티브 스케줄러 → Pixie n8n 웹훅 분산 아키텍처",
+    ],
     reactivation: null,
   },
   {
     id: "github-radar",
+    groupId: "pixie-alerts-infra",
+    title: "Daily GitHub 프로젝트 레이더 (Orca + n8n)",
     category: "기술 & 트렌드",
-    title: "GitHub 프로젝트 레이더",
     icon: "🚀",
     status: "active",
     statusText: "정상 가동",
     lastSuccess: true,
-    lastRunText: "최근 브리핑 성공",
-    lastRunAt: "오늘 08:00 AM",
-    lastRunDetail: "AI 에이전트/LLMOps 인기 저장소 10선 선별 및 텔레그램 브리핑 완료",
-    domains: ["github.com"],
+    lastRunText: "스케줄 가동 중",
+    lastRunAt: "매일 08:00 AM",
+    lastRunDetail: "Orca 스케줄러가 매일 08:00 AM 인기 저장소 선별 후 Pixie n8n 웹훅 브리핑 발송",
+    surface: "Orca Scheduler + Pixie n8n",
+    targetId: "Orca: 30fe98bb-13fa-48d0-8647-31b0812d9790 / n8n: vpS7wnfHPRJw47RV",
+    pipelineStep: "매일 08:00 탐색 → 웹훅 브리핑",
     schedule: "매일 아침 08:00 AM (유타)",
-    engine: "Orca Native Scheduler (antigravity)",
-    channel: "Telegram (일일 요약 브리핑)",
-    description:
-      "AI 에이전트, LLMOps, MCP 서비스, AI SEO/GEO, RAG 등 관련 분야의 최신 급상승 인기 GitHub 오픈소스 저장소를 매일 아침 선별 브리핑합니다.",
-    highlights: ["스타수 급상승 및 최근 업데이트 기준 10선 추천", "중복 알림 억제 상태 관리"],
+    engine: "Orca Native Scheduler (antigravity) + Pixie n8n Webhook",
+    channel: "Telegram (일일 오픈소스 브리핑)",
+    domains: ["github.com", "pixie.garmgoon.com"],
+    description: "Orca 스케줄러가 매일 아침 8시에 AI 에이전트·LLMOps·MCP 급상승 GitHub 저장소를 선별하고 Pixie n8n 웹훅(Pixie - GitHub Project Radar)으로 텔레그램 브리핑을 발송합니다.",
+    highlights: [
+      "AI 에이전트, LLMOps, MCP 서비스 급상승 오픈소스 10선 선별",
+      "중복 알림 억제 상태 관리 및 일일 텔레그램 브리핑",
+      "Orca 네이티브 스케줄러와 n8n 웹훅 브리지 연동",
+    ],
     reactivation: null,
   },
   {
     id: "db-backup",
+    groupId: "pixie-alerts-infra",
+    title: "PostgreSQL 암호화 백업 & 감시 타이머 (R2 + n8n)",
     category: "인프라 & 보안",
-    title: "Pixie DB 백업 신선도 워치독",
     icon: "🛡️",
     status: "active",
     statusText: "정상 가동",
     lastSuccess: true,
     lastRunText: "실시간 감시 정상",
-    lastRunAt: "상시 가동 중",
-    lastRunDetail: "Cloudflare R2 암호화 백업 주기 감시 정상 (지연 없음)",
-    domains: ["pixie.garmgoon.com"],
-    schedule: "상시 감시 (이벤트 기반)",
-    engine: "Pixie (n8n / Ubuntu VPS)",
-    channel: "Telegram (지연/장애 시 긴급 알림)",
-    description:
-      "PostgreSQL 데이터베이스의 Cloudflare R2 암호화 백업 실행 주기를 감시하고, 백업이 지연되거나 실패하면 즉시 텔레그램 알림을 발송합니다.",
-    highlights: ["Cloudflare R2 암호화 오프사이트 백업", "백업 지연 시간 실시간 계산"],
-    reactivation: null,
-  },
-  {
-    id: "clipper-youtube",
-    category: "개인 생산성",
-    title: "옵시디언 웹 클리퍼 & 영상 자막",
-    icon: "📎",
-    status: "active",
-    statusText: "정상 가동",
-    lastSuccess: true,
-    lastRunText: "대기 및 수신 정상",
-    lastRunAt: "요청 시 즉시",
-    lastRunDetail: "Telegram 봇 (/clip, /youtube) 수신 리스너 정상 가동 중",
-    domains: ["pixie.garmgoon.com", "YouTube"],
-    schedule: "요청 시 즉시 (온디맨드)",
-    engine: "Pixie (n8n + FastAPI runner)",
-    channel: "Obsidian 보관함 + Telegram",
-    description:
-      "텔레그램에 유튜브 링크를 보내면 자막을 자동 추출하고, 웹 기사 링크를 보내면 로컬 AI가 본문과 요약을 Obsidian 보관함에 자동 저장합니다.",
-    highlights: ["텔레그램 봇 단축 명령어 (/youtube, /clip)", "로컬 Obsidian Vault 자동 연동"],
-    reactivation: null,
-  },
-  {
-    id: "everydaytutor-facebook-moderation",
-    category: "SNS & 커뮤니티 관리",
-    title: "Facebook 그룹 자동 승인 관리 (AI Moderation)",
-    icon: "👥",
-    status: "active",
-    statusText: "정상 가동",
-    lastSuccess: true,
-    lastRunText: "최근 심사 성공",
-    lastRunAt: "대만 09:00 AM (4시간 주기)",
-    lastRunDetail: "OpenAI GPT 질문 심사 및 가입 요청 자동 승인/거절 처리 완료",
-    domains: ["facebook.com (대만/한국 과외 그룹)"],
-    schedule: "4시간 주기 (대만 시간 01, 05, 09, 13, 17, 21시)",
-    engine: "Playwright + OpenAI GPT (Windows 작업 스케줄러)",
-    channel: "Facebook Group + Telegram 결과 보고",
-    description:
-      "대만/한국 과외 페이스북 그룹의 신규 가입 질문과 게시글을 OpenAI GPT로 실시간 심사하여 스팸을 차단하고 자동 승인/거절 처리 후 텔레그램으로 결과를 보고합니다.",
+    lastRunAt: "03:15 백업 · 4시간 감시",
+    lastRunDetail: "Ubuntu systemd 타이머 + restic 암호화 R2 백업 및 4시간 주기 감시 정상",
+    surface: "Pixie VPS · systemd + n8n",
+    targetId: "systemd: pixie-backup.timer, pixie-backup-watchdog.timer / n8n: sHMZylDExq1yBqjw",
+    pipelineStep: "03:15 백업 + 4시간 감시",
+    schedule: "매일 03:15 AM 백업 · 4시간 주기 감시",
+    engine: "Ubuntu systemd timer + restic + Pixie n8n",
+    channel: "Cloudflare R2 + Telegram (장애 알림)",
+    domains: ["pixie.garmgoon.com", "Cloudflare R2"],
+    description: "매일 새벽 PostgreSQL 및 n8n 설정을 암호화하여 Cloudflare R2에 백업(pixie-backup.timer)하고, 4시간마다 백업 지연을 감시(pixie-backup-watchdog.timer)하여 이상 시 n8n(Pixie - Database Backup Events)으로 즉시 알림을 보냅니다.",
     highlights: [
-      "OpenAI GPT 기반 가입 질문 심사 및 스팸성 게시글 자동 차단",
-      "APPROVE / DECLINE 자동 집행 및 거절 사유 피드백 자동 전송",
-      "심사 내역 텔레그램 실시간 알림 및 로컬 로그(.data) 추적",
+      "Restic 기반 AES-256 종단간 암호화 Cloudflare R2 오프사이트 백업",
+      "4시간 주기 watchdog timer로 백업 신선도 실시간 검증",
+      "백업 실패 또는 지연 발생 시 n8n 웹훅을 통한 텔레그램 비상 경보",
     ],
     reactivation: null,
   },
   {
+    id: "email-digest",
+    groupId: "pixie-alerts-infra",
+    title: "Gmail 아침 이메일 다이제스트 (워커 + n8n)",
+    category: "개인 생산성",
+    icon: "📬",
+    status: "inactive",
+    statusText: "비활성 (보류 중)",
+    lastSuccess: null,
+    lastRunText: "실행 대기 (비활성)",
+    lastRunAt: "비활성화됨",
+    lastRunDetail: "Gmail 읽기 전용 범위 메일 요약 파이프라인 (n8n 워크플로 및 Windows 로컬 워커 모두 비활성)",
+    surface: "Pixie VPS · n8n + Windows 스케줄러",
+    targetId: "n8n: IkjFtL8r1UjyrGdLfuZrY / Windows: Pixie Email Digest Worker",
+    pipelineStep: "보류 (비활성 템플릿)",
+    schedule: "매일 아침 08:00 AM (비활성)",
+    engine: "Pixie (n8n gmail.readonly + 로컬 Ollama 워커)",
+    channel: "Telegram (한국어 요약 다이제스트)",
+    domains: ["gmail.com", "pixie.garmgoon.com"],
+    description: "Gmail 읽기 전용(gmail.readonly) 범위로 최근 수신함 메일을 요약하는 파이프라인입니다. 현재 n8n 워크플로와 Windows 로컬 워커 모두 안전을 위해 비활성화되어 있습니다.",
+    highlights: [
+      "안전한 gmail.readonly 스코프 제한",
+      "로컬 Ollama LLM을 통한 민감 이메일 프라이버시 보호 요약",
+      "현재 n8n 워크플로 및 로컬 작업 스케줄러 안전 비활성화 상태",
+    ],
+    reactivation: "Google OAuth 승인 확인 후 Pixie n8n 및 Windows 작업 스케줄러에서 활성화 토글",
+  },
+  {
+    id: "product-scout",
+    groupId: "pixie-alerts-infra",
+    title: "데일리 프로덕트 스카우트",
+    category: "기술 & 트렌드",
+    icon: "🔍",
+    status: "inactive",
+    statusText: "비활성 (템플릿)",
+    lastSuccess: null,
+    lastRunText: "실행 대기 (비활성)",
+    lastRunAt: "비활성화됨",
+    lastRunDetail: "신규 디지털 제품 및 마이크로 SaaS 출시 소식 수집 n8n 워크플로 템플릿",
+    surface: "Pixie VPS · n8n",
+    targetId: "6Sqhk07juPllItQ3 (Pixie - Daily Product Scout)",
+    pipelineStep: "비활성 템플릿",
+    schedule: "매일 아침 08:00 AM (비활성)",
+    engine: "Pixie (n8n + runner-api)",
+    channel: "Telegram (신규 SaaS 브리핑)",
+    domains: ["Product Hunt / IndieHackers", "pixie.garmgoon.com"],
+    description: "신규 디지털 제품 및 마이크로 SaaS 출시 소식을 수집·요약하는 n8n 워크플로 템플릿입니다.",
+    highlights: [
+      "신규 프로덕트 론칭 데이터 스카우트 워크플로",
+      "수익화 모델 및 차별점 자동 추출 요약 템플릿",
+      "필요 시 Pixie n8n에서 활성화 가능",
+    ],
+    reactivation: "Pixie n8n 화면에서 product-scout 워크플로우 활성화",
+  },
+
+  // =========================================================================
+  // [그룹 4] everydaytutor — 🎓 EverydayTutor · 대만 과외 크롤링 · 페이스북 운영 · 온보딩
+  // =========================================================================
+  {
     id: "everydaytutor-crawler-dispatcher",
-    category: "크롤링 & 데이터 수집",
-    title: "EverydayTutor 크롤링 디스패처 (Facebook / 1111 / Chickpt)",
+    groupId: "everydaytutor",
+    title: "EverydayTutor Facebook 과외 그룹 크롤러 디스패처",
+    category: "크롤링 & 데이터",
     icon: "🕷️",
     status: "active",
-    statusText: "정상 가동",
+    statusText: "정상 가동 (Ready)",
     lastSuccess: true,
-    lastRunText: "최근 크롤링 성공",
-    lastRunAt: "오늘 10:05 AM (대만)",
-    lastRunDetail: "대만 과외 공고 및 채용 정보 수집/정규화 후 Supabase DB 적재 완료",
-    domains: ["facebook.com", "1111.com.tw", "chickpt.com.tw"],
-    schedule: "매일 아침 10:05 AM (대만 시간)",
-    engine: "EverydayTutor Crawler (Node.js / Windows 작업 스케줄러)",
+    lastRunText: "스케줄 가동 중",
+    lastRunAt: "매일 20:05 PM",
+    lastRunDetail: "대만 과외 페이스북 그룹 구인구직 게시글 수집 및 Supabase DB 적재 예약 작업",
+    surface: "Windows 작업 스케줄러",
+    targetId: "EverydayTutor-Facebook-Dispatcher",
+    pipelineStep: "FB 그룹 크롤링 디스패처",
+    schedule: "매일 20:05 PM (유타) / 10:05 AM (대만)",
+    engine: "Node.js Crawler Dispatcher (Windows 작업 스케줄러)",
     channel: "Supabase DB + Telegram 알림",
-    description:
-      "Facebook 그룹 과외 구인글 및 대만 1111, Chickpt 튜터 채용 공고를 정기 수집·정규화하여 중복을 검사하고 Supabase 데이터베이스에 적재합니다.",
+    domains: ["facebook.com", "everydaytutor.net"],
+    description: "대만 과외 페이스북 그룹 구인·구직 게시글을 수집·정규화하여 Supabase DB에 적재하는 로컬 예약 작업입니다.",
     highlights: [
-      "Facebook 그룹, 1111, Chickpt 3대 채널 통합 수집 파이프라인",
-      "공고 중복 검사 및 표준 데이터 스키마 자동 정규화",
-      "크롤링 수집 건수 및 에러 텔레그램 실시간 알림",
+      "페이스북 그룹 과외 구인/구직 게시글 파싱 및 중복 필터링",
+      "표준 데이터 스키마 자동 정규화 및 Supabase DB 적재",
+      "수집 결과 및 오류 텔레그램 실시간 알림",
+    ],
+    reactivation: null,
+  },
+  {
+    id: "everydaytutor-1111-crawl",
+    groupId: "everydaytutor",
+    title: "EverydayTutor 1111 채용공고 시간별 크롤러",
+    category: "크롤링 & 데이터",
+    icon: "📋",
+    status: "active",
+    statusText: "정상 가동 (1시간 주기)",
+    lastSuccess: true,
+    lastRunText: "1시간 주기 가동 중",
+    lastRunAt: "매 1시간 주기",
+    lastRunDetail: "대만 1111 과외/교육 공고 1시간 주기 자동 수집 워크플로 정상",
+    surface: "Pixie VPS · n8n",
+    targetId: "EDT1111Hourly01 (EverydayTutor 1111 Hourly Crawl)",
+    pipelineStep: "1111.com.tw 크롤링",
+    schedule: "매 1시간 주기",
+    engine: "Pixie VPS (n8n Scheduled Workflow)",
+    channel: "EverydayTutor DB 적재",
+    domains: ["1111.com.tw", "everydaytutor.net"],
+    description: "대만 1111 구인구직 사이트의 과외·교육 공고를 1시간마다 자동 수집하는 VPS n8n 워크플로입니다.",
+    highlights: [
+      "대만 1111 인력은행 과외/튜터 공고 실시간 모니터링",
+      "1시간 주기 자동 인제스트 및 중복 방지 적재",
+      "Pixie VPS n8n 클라우드 독립 워크플로 가동",
+    ],
+    reactivation: null,
+  },
+  {
+    id: "everydaytutor-chickpt-crawl",
+    groupId: "everydaytutor",
+    title: "EverydayTutor ChickPT 채용공고 4시간 크롤러",
+    category: "크롤링 & 데이터",
+    icon: "🐥",
+    status: "active",
+    statusText: "정상 가동 (4시간 주기)",
+    lastSuccess: true,
+    lastRunText: "4시간 주기 가동 중",
+    lastRunAt: "매 4시간 주기",
+    lastRunDetail: "대만 ChickPT 단기 과외/교육 공고 4시간 주기 자동 수집 워크플로 정상",
+    surface: "Pixie VPS · n8n",
+    targetId: "EDTChickPT4Hourly01 (EverydayTutor ChickPT 4-Hour Crawl)",
+    pipelineStep: "ChickPT 크롤링",
+    schedule: "매 4시간 주기",
+    engine: "Pixie VPS (n8n Scheduled Workflow)",
+    channel: "EverydayTutor DB 적재",
+    domains: ["chickpt.com.tw", "everydaytutor.net"],
+    description: "대만 ChickPT 플랫폼의 튜터·단기 교육 공고를 4시간마다 자동 수집하는 VPS n8n 워크플로입니다.",
+    highlights: [
+      "ChickPT 대학생/단기 튜터 구인 데이터 정기 수집",
+      "4시간 주기 배치 크롤링 및 DB 정규화 적재",
+      "EverydayTutor DB 자동 인제스트 연동",
+    ],
+    reactivation: null,
+  },
+  {
+    id: "everydaytutor-crawl-health",
+    groupId: "everydaytutor",
+    title: "EverydayTutor 크롤러 상태 모니터 (Health Monitor)",
+    category: "인프라 & 보안",
+    icon: "🩺",
+    status: "active",
+    statusText: "정상 가동 (15분 주기)",
+    lastSuccess: true,
+    lastRunText: "15분 주기 감시 중",
+    lastRunAt: "매 15분 주기",
+    lastRunDetail: "크롤링 파이프라인 수집 상태 및 오류 15분마다 감시 정상",
+    surface: "Pixie VPS · n8n",
+    targetId: "EDTCrawlHealth15m01 (EverydayTutor Crawl Health Monitor)",
+    pipelineStep: "크롤러 헬스체크",
+    schedule: "매 15분 주기",
+    engine: "Pixie VPS (n8n Health Monitor)",
+    channel: "Telegram 장애 알림",
+    domains: ["everydaytutor.net", "pixie.garmgoon.com"],
+    description: "EverydayTutor 크롤링 파이프라인의 수집 상태와 오류 여부를 15분마다 감시하는 VPS n8n 워크플로입니다.",
+    highlights: [
+      "15분 주기 수집 대기열 지연 및 크롤러 오류 자동 감지",
+      "파이프라인 비정상 중단 시 텔레그램 긴급 알림",
+      "지속적인 데이터 신선도 보증 헬스체크",
     ],
     reactivation: null,
   },
   {
     id: "everydaytutor-facebook-distribution",
+    groupId: "everydaytutor",
+    title: "EverydayTutor Facebook 콘텐츠 자동 배포 스케줄러",
     category: "SNS & 마케팅",
-    title: "Facebook 콘텐츠 자동 배포 스케줄러",
     icon: "📣",
     status: "active",
-    statusText: "정상 가동",
+    statusText: "정상 가동 (Ready)",
     lastSuccess: true,
-    lastRunText: "최근 배포 성공",
-    lastRunAt: "오늘 08:05 AM (대만)",
-    lastRunDetail: "대만 피크 시간대 과외 매칭 콘텐츠 페이스북 그룹 자동 배포 완료",
-    domains: ["facebook.com"],
-    schedule: "매일 2회 (대만 시간 08:05 AM, 20:05 PM)",
+    lastRunText: "스케줄 가동 중",
+    lastRunAt: "매일 2회 (06:05, 18:05)",
+    lastRunDetail: "승인된 과외 매칭 콘텐츠 대만 현지 피크 시간대 페이스북 그룹 자동 배포",
+    surface: "Windows 작업 스케줄러",
+    targetId: "EverydayTutor-Facebook-Distribution",
+    pipelineStep: "FB 그룹 콘텐츠 배포",
+    schedule: "매일 2회 · 06:05, 18:05 (유타) / 08:05, 20:05 (대만)",
     engine: "EverydayTutor Distribution Runner (Windows 작업 스케줄러)",
-    channel: "Facebook Groups",
-    description:
-      "EverydayTutor 플랫폼의 승인된 튜터 및 학생 매칭 콘텐츠를 예약 일정에 맞춰 페이스북 타깃 그룹에 자동으로 배포합니다.",
+    channel: "Facebook Groups + 로컬 로그",
+    domains: ["facebook.com", "everydaytutor.net"],
+    description: "승인된 과외 매칭 콘텐츠를 대만 현지 피크 시간대(1일 2회)에 맞춰 페이스북 그룹에 자동 배포합니다.",
     highlights: [
       "승인 대기열 기반 과외 매칭 콘텐츠 자동 포스팅",
       "대만 현지 피크 시간대 1일 2회 정기 자동 분배",
@@ -200,44 +610,197 @@ const AUTOMATIONS = [
     reactivation: null,
   },
   {
-    id: "hermes-sync",
-    category: "디바이스 동기화",
-    title: "Hermes Hub 스킬 동기화",
-    icon: "🔄",
+    id: "everydaytutor-facebook-moderation",
+    groupId: "everydaytutor",
+    title: "EverydayTutor Facebook 그룹 AI 승인 관리 (Moderation)",
+    category: "SNS & 커뮤니티",
+    icon: "👥",
     status: "active",
-    statusText: "정상 가동",
+    statusText: "정상 가동 (Ready)",
     lastSuccess: true,
-    lastRunText: "최근 동기화 성공",
-    lastRunAt: "5분 주기 (상시)",
-    lastRunDetail: "Windows ↔ Mac mini 양방향 스킬 파일 Git 자동 커밋 및 풀/푸시 완료",
-    domains: ["Windows PC ↔ Mac mini"],
-    schedule: "5분 주기 (백그라운드)",
-    engine: "OS 예약 작업 / Cron (Git)",
-    channel: "비공개 GitHub 저장소",
-    description:
-      "Windows PC(Orca)와 Mac mini 간에 개발 중인 AI 에이전트 스킬 파일들을 5분마다 양방향으로 자동 커밋, 푸시, 풀하여 항상 동일한 상태를 유지합니다.",
-    highlights: ["비밀 정보(API키) 자동 필터링", "무인 백그라운드 양방향 Git sync"],
+    lastRunText: "스케줄 가동 중",
+    lastRunAt: "하루 6회 (4시간 주기)",
+    lastRunDetail: "대만/한국 과외 페이스북 그룹 가입 질문 및 게시글 하루 6회 AI 자동 심사",
+    surface: "Windows 작업 스케줄러",
+    targetId: "EverydayTutor-Facebook-Moderation",
+    pipelineStep: "FB 가입/게시글 AI 심사",
+    schedule: "하루 6회 · 03, 07, 11, 15, 19, 23시 (유타)",
+    engine: "Playwright + OpenAI GPT (Windows 작업 스케줄러)",
+    channel: "Facebook Group + Telegram 보고",
+    domains: ["facebook.com", "everydaytutor.net"],
+    description: "대만/한국 과외 페이스북 그룹의 가입 질문과 게시글을 하루 6회(4시간 주기) AI로 심사하여 스팸을 차단하고 자동 승인/거절합니다.",
+    highlights: [
+      "Playwright + OpenAI GPT 기반 가입 질문 심사 및 스팸 차단",
+      "APPROVE / DECLINE 자동 집행 및 거절 사유 피드백 자동 전송",
+      "심사 내역 텔레그램 실시간 알림 및 로컬 로그 추적",
+    ],
     reactivation: null,
   },
   {
-    id: "utahsays-marketing-runner",
-    category: "SNS & 마케팅",
-    title: "Utah Says SNS 로컬 마케팅 드래프트 생성기",
-    icon: "🏔️",
+    id: "everydaytutor-onboarding-emails",
+    groupId: "everydaytutor",
+    title: "EverydayTutor 신규 튜터 맞춤 온보딩 이메일 발송기",
+    category: "CRM & 온보딩",
+    icon: "✉️",
+    status: "active",
+    statusText: "러너 준비 완료 (온디맨드)",
+    lastSuccess: true,
+    lastRunText: "러너 준비 완료",
+    lastRunAt: "온디맨드",
+    lastRunDetail: "신규 튜터 적재 시 다국어 맞춤 호칭 및 UTM 링크 온보딩 메일 발송 러너",
+    surface: "Node.js CLI (온디맨드)",
+    targetId: "send-onboarding-emails.js",
+    pipelineStep: "온보딩 이메일 발송",
+    schedule: "온디맨드 (신규 튜터 적재 시)",
+    engine: "Node.js + Resend API",
+    channel: "Resend 이메일 + 로컬 로그",
+    domains: ["everydaytutor.net"],
+    description: "수집·정제된 신규 튜터에게 다국어 호칭 및 UTM 링크가 포함된 온보딩 안내 메일을 발송합니다.",
+    highlights: [
+      "다국어 호칭(한국어/대만 번체/일본어/영어) 및 맞춤 UTM 링크 생성",
+      "Resend API 연동 및 발송 결과 실시간 로깅",
+      "Dry-run 모드 지원으로 안전한 사전 검증 가능",
+    ],
+    reactivation: null,
+  },
+
+  // =========================================================================
+  // [그룹 5] seo-open-seo — 📈 SEO Hub & OpenSEO · 검색 최적화 & 순위 추적
+  // =========================================================================
+  {
+    id: "seo-hub",
+    groupId: "seo-open-seo",
+    title: "SEO Hub 주간 리마인더 & 분석 (Orca + Pixie)",
+    category: "비즈니스 SEO",
+    icon: "🌐",
     status: "active",
     statusText: "정상 가동",
     lastSuccess: true,
-    lastRunText: "최근 실행 성공",
-    lastRunAt: "오늘 11:39 AM (매시간)",
-    lastRunDetail: "Instagram, Facebook, X, Reddit 4대 채널 드래프트 갱신 및 반환코드 0 확인",
-    domains: ["utahsays.com", "Instagram", "Facebook", "X", "Reddit"],
-    schedule: "매 60분 (1시간 주기)",
-    engine: "WhatsBestInUtah Marketing Runner (Windows 작업 스케줄러)",
-    channel: "로컬 드래프트 (.data/marketing) + 디렉터 리포트",
-    description:
-      "Instagram, Facebook, X, Reddit 채널별로 Utah Says 실시간 설문 데이터를 바탕으로 소셜 마케팅 드래프트를 자동 생성하고 최적의 포스팅 의사결정 보고서를 작성합니다.",
+    lastRunText: "주간 스케줄 가동 중",
+    lastRunAt: "매주 월요일 09:00 AM",
+    lastRunDetail: "5대 운영 사이트 GSC/GA4 지표 자동 분석 및 텔레그램 주간 브리핑",
+    surface: "Orca Scheduler + Pixie 웹훅",
+    targetId: "Orca: cda1bdd8-3886-4ceb-a67f-3e16d11f1740",
+    pipelineStep: "주간 GSC/GA4 리포트",
+    schedule: "매주 월요일 09:00 AM (유타)",
+    engine: "Orca Native Scheduler (antigravity)",
+    channel: "Telegram (Pixie 봇) + reports/",
+    domains: ["everydaytutor.net", "pwstudio.kr", "utahsays.com", "garmgoon.com", "new.ecocarpetutah.com"],
+    description: "관리 중인 5대 웹사이트의 GSC/GA4 지표를 매주 월요일 아침 분석하여 1페이지 진입 유력 키워드와 액션 가이드를 브리핑합니다.",
     highlights: [
-      "4대 SNS(Instagram, Facebook, X, Reddit) 채널별 맞춤 포스트 자동 생성",
+      "관리 중인 5대 비즈니스 도메인 GSC/GA4 통합 분석",
+      "10~25위권 1페이지 진입 유력 타깃 키워드 리라이팅 가이드 도출",
+      "독립 중앙 관제소(SEO_Hub) 연계 주간 보고서 발행",
+    ],
+    reactivation: null,
+  },
+  {
+    id: "seo-hub-local-maps-tracker",
+    groupId: "seo-open-seo",
+    title: "SEO Hub 로컬 & Google Maps 순위 추적기",
+    category: "비즈니스 SEO",
+    icon: "📍",
+    status: "active",
+    statusText: "정상 가동 (격주 스케줄)",
+    lastSuccess: true,
+    lastRunText: "격주 스케줄 가동 중",
+    lastRunAt: "매월 1일 · 15일 09:30 AM",
+    lastRunDetail: "Pixie VPS n8n (2EoofwxwXv6mf2QK)에서 매월 1일·15일 격주 스케줄 및 웹훅 활성 가동 중",
+    surface: "Pixie VPS · n8n",
+    targetId: "2EoofwxwXv6mf2QK (Pixie - SEO Hub Local & Google Maps Rank Tracker)",
+    pipelineStep: "격주 로컬/맵스 순위 점검",
+    schedule: "매월 1일 · 15일 09:30 AM (예정)",
+    engine: "Pixie n8n + SEO Hub",
+    channel: "Telegram (로컬 SEO 리포트)",
+    domains: ["new.ecocarpetutah.com", "utahsays.com", "everydaytutor.net"],
+    description: "유타 로컬 비즈니스 및 주요 서비스의 지역 검색(Local Pack)과 Google Maps 노출 순위를 격주로 점검하는 워크플로 템플릿입니다.",
+    highlights: [
+      "Google Local 3-Pack 및 Maps 검색 노출 순위 트래킹",
+      "지역 비즈니스(EcoCarpet Utah 등) 격주 순위 변동 감지",
+      "SEO Hub 리포트 연계 n8n 워크플로 템플릿 준비 완료",
+    ],
+    reactivation: "Pixie n8n에서 seo-hub-local-maps-rank-tracker.json 등록 후 활성화",
+  },
+  {
+    id: "openseo-rank-audit-engine",
+    groupId: "seo-open-seo",
+    title: "OpenSEO 순위 추적 & 테크니컬 감사 크롤러",
+    category: "비즈니스 SEO",
+    icon: "🔍",
+    status: "active",
+    statusText: "정상 가동",
+    lastSuccess: true,
+    lastRunText: "5분 주기 가동 중",
+    lastRunAt: "5분 주기 & 03:17",
+    lastRunDetail: "Cloudflare Workflows(RankCheckWorkflow) 5분 주기 순위 추적 및 테크니컬 SEO 진단 정상",
+    surface: "Cloudflare Workflows",
+    targetId: "seo.garmgoon.com (RankCheckWorkflow)",
+    pipelineStep: "5분 주기 순위 추적",
+    schedule: "매 5분 주기 & 매일 새벽 03:17",
+    engine: "Cloudflare Workflows + Durable Objects",
+    channel: "OpenSEO Dashboard + SQLite",
+    domains: ["seo.garmgoon.com", "everydaytutor.net", "utahsays.com", "pwstudio.kr"],
+    description: "Cloudflare Workflows를 통해 등록된 비즈니스 사이트의 키워드 검색 순위를 자동 추적하고 테크니컬 SEO 상태를 진단합니다.",
+    highlights: [
+      "5분 주기 키워드 순위 추적 워크플로우 (RankCheckWorkflow)",
+      "Durable Objects 기반 분산 사이트 크롤링 및 테크니컬 진단",
+      "세션 KV 가비지 컬렉션 및 SQLite 스크래치패드 적재",
+    ],
+    reactivation: null,
+  },
+  {
+    id: "site-audit-crawler",
+    groupId: "seo-open-seo",
+    title: "OpenSEO 정기 전체 사이트 테크니컬 크롤러",
+    category: "비즈니스 SEO",
+    icon: "🕷️",
+    status: "inactive",
+    statusText: "비활성 (수동 요청 전용)",
+    lastSuccess: null,
+    lastRunText: "수동 실행 전용",
+    lastRunAt: "수동 요청 시",
+    lastRunDetail: "사이트 전체 페이지 404 깨진 링크, 중복 메타 태그, 색인 차단 전수 검사 크롤러",
+    surface: "OpenSEO Worker",
+    targetId: "seo.garmgoon.com (Site Audit)",
+    pipelineStep: "온디맨드 전체 크롤링",
+    schedule: "수동 실행 (정기 스케줄 대기)",
+    engine: "OpenSEO Worker",
+    channel: "OpenSEO 대시보드 + Webhook",
+    domains: ["5개 비즈니스 웹사이트 전체"],
+    description: "사이트 전체 페이지의 404 깨진 링크, 중복 메타 태그, 색인 차단 오류를 전수 검사하는 크롤러입니다.",
+    highlights: [
+      "전체 페이지 404/500 상태 코드 및 캐노니컬 전수 검사",
+      "중복 메타 태그 및 robots/noindex 색인 차단 오류 탐지",
+      "OpenSEO 콘솔 온디맨드 실행 지원, 정기 스케줄 대기",
+    ],
+    reactivation: "https://seo.garmgoon.com 콘솔에서 정기 Site Audit 크롤링 스케줄 활성화",
+  },
+
+  // =========================================================================
+  // [그룹 6] utahsays-social — 🏔️ Utah Says & 멀티 SNS 마케팅 자동화
+  // =========================================================================
+  {
+    id: "utahsays-marketing-runner",
+    groupId: "utahsays-social",
+    title: "Utah Says 로컬 마케팅 콘텐츠/드래프트 준비",
+    category: "SNS & 마케팅",
+    icon: "🏔️",
+    status: "active",
+    statusText: "정상 가동 (Ready)",
+    lastSuccess: true,
+    lastRunText: "1시간 주기 가동 중",
+    lastRunAt: "매 1시간 주기",
+    lastRunDetail: "투표 트렌드 기반 Instagram/Facebook/X/Reddit 4대 채널 드래프트 자동 준비 정상",
+    surface: "Windows 작업 스케줄러",
+    targetId: "Utah Says - local content preparation",
+    pipelineStep: "1시간 주기 로컬 드래프트",
+    schedule: "매 1시간 주기 (PT1H)",
+    engine: "WhatsBestInUtah Marketing Runner (Windows 작업 스케줄러)",
+    channel: "로컬 드래프트 (.data/marketing) + 리포트",
+    domains: ["utahsays.com", "Instagram", "Facebook", "X", "Reddit"],
+    description: "Utah Says 실시간 투표 트렌드를 바탕으로 4대 SNS 채널용 마케팅 초안과 디렉터 리포트를 1시간마다 로컬에서 준비합니다.",
+    highlights: [
+      "4대 SNS(Instagram, Facebook, X, Reddit) 맞춤 포스트 자동 생성",
       "투표 트렌드 기반 콘텐츠 큐레이션 및 점수 알고리즘 연동",
       "Windows 작업 스케줄러(Utah Says - local content preparation) 상시 가동",
     ],
@@ -245,45 +808,82 @@ const AUTOMATIONS = [
   },
   {
     id: "utahsays-worker-cron",
-    category: "데이터 분석 & 랭킹",
+    groupId: "utahsays-social",
     title: "Utah Says 실시간 랭킹 & 트렌딩 산출 엔진",
+    category: "데이터 & 랭킹",
     icon: "📊",
     status: "active",
     statusText: "정상 가동",
     lastSuccess: true,
-    lastRunText: "최근 크론 성공",
-    lastRunAt: "10분 주기 (상시)",
-    lastRunDetail: "투표 시간 감쇄(Half-life) 계산 및 랭킹 스냅샷 D1 저장 완료",
-    domains: ["utahsays.com"],
+    lastRunText: "10분 주기 가동 중",
+    lastRunAt: "매 10분 주기",
+    lastRunDetail: "투표 시간 감쇄(Half-life) 반영 실시간 랭킹 및 설문 생애주기 산출 D1 저장 정상",
+    surface: "Cloudflare Workers",
+    targetId: "utahsays.com (/api/cron/refresh)",
+    pipelineStep: "10분 주기 랭킹 산출",
     schedule: "매 10분 주기",
-    engine: "Cloudflare Worker Cron (/api/cron/refresh)",
+    engine: "Cloudflare Worker Cron",
     channel: "Cloudflare D1 Database",
-    description:
-      "투표 데이터의 시간 감쇄(Half-life 30일)를 반영하여 실시간 트렌딩 점수를 재산출하고, 설문 생애주기(new/rising/archived)를 갱신하며 순위 스냅샷을 저장합니다.",
+    domains: ["utahsays.com"],
+    description: "투표 데이터의 시간 감쇄(Half-life)를 반영해 실시간 트렌딩 점수와 설문 생애주기를 10분마다 재산출합니다.",
     highlights: [
-      "투표 반감기(Half-life) 기반 점수 감쇄 및 실시간 트렌딩 지표 산출",
-      "설문 생애주기 자동 전환 및 10분 주기 랭킹 스냅샷 생성",
-      "Cloudflare Workers 서버리스 크론 파이프라인",
+      "투표 반감기(Half-life 30일) 기반 점수 감쇄 및 실시간 트렌딩 산출",
+      "설문 생애주기(new/rising/archived) 자동 갱신 및 10분 주기 스냅샷",
+      "Cloudflare D1 Database 기반 서버리스 크론 파이프라인",
     ],
     reactivation: null,
   },
   {
+    id: "social-publisher",
+    groupId: "utahsays-social",
+    title: "멀티 SNS 원스톱 소셜 퍼블리셔",
+    category: "SNS & 마케팅",
+    icon: "📢",
+    status: "inactive",
+    statusText: "비활성 (CLI 대기)",
+    lastSuccess: null,
+    lastRunText: "CLI 대기 (비활성)",
+    lastRunAt: "비활성화됨",
+    lastRunDetail: "Facebook, Instagram, Threads, X 동시 크로스 포스팅 엔진 (CLI 토큰 재발급 대기)",
+    surface: "Automation Hub CLI",
+    targetId: "D:\\Dev\\Automations (SOCIAL_PUBLISHING_ENABLED)",
+    pipelineStep: "크로스 포스팅 엔진",
+    schedule: "예약 발행 시 실행 (비활성)",
+    engine: "Automation Hub (Python CLI)",
+    channel: "Meta Graph API + X API",
+    domains: ["Facebook", "Instagram", "Threads", "X"],
+    description: "페이스북, 인스타그램, 스레드, X에 동시 크로스 포스팅하는 자동 발행 엔진입니다.",
+    highlights: [
+      "실수 방지를 위한 Dry-run 우선 정책",
+      "플랫폼별 이미지 규격 및 텍스트 자동 정규화",
+      "CLI 기반 배치 및 스케줄러 등록 지원",
+    ],
+    reactivation: "D:\\Dev\\Automations\\.env에서 SOCIAL_PUBLISHING_ENABLED=true 설정 후 CLI 실행",
+  },
+
+  // =========================================================================
+  // [그룹 7] garmgoon-hermes — ⚙️ Garmgoon 피드 & Hermes 디바이스 동기화
+  // =========================================================================
+  {
     id: "garmgoon-feed-pipeline",
-    category: "콘텐츠 큐레이션 & 인프라",
-    title: "Reddit 트렌드 피드 수집 & 백그라운드 관리 파이프라인",
+    groupId: "garmgoon-hermes",
+    title: "Garmgoon Reddit 트렌드 피드 수집 & 백그라운드 파이프라인",
+    category: "콘텐츠 & 인프라",
     icon: "🌐",
     status: "active",
     statusText: "정상 가동",
     lastSuccess: true,
-    lastRunText: "최근 크론 성공",
-    lastRunAt: "10분 주기 (상시)",
-    lastRunDetail: "Reddit RSS 아이디어 수집, DeepSeek AI 채점 및 피드 카드 생성 완료",
-    domains: ["garmgoon.com", "Reddit"],
+    lastRunText: "10분 주기 가동 중",
+    lastRunAt: "매 10분 주기",
+    lastRunDetail: "Reddit RSS 아이디어 수집, DeepSeek AI 채점 피드 카드 생성 및 웹 푸시 정상",
+    surface: "Cloudflare Workers",
+    targetId: "garmgoon.com (Scheduled Handler)",
+    pipelineStep: "10분 주기 피드/정리",
     schedule: "매 10분 주기",
     engine: "Cloudflare Worker Scheduled Handler",
     channel: "Cloudflare D1 / R2 + Web Push",
-    description:
-      "서브레딧 RSS 피드에서 새 기술/스타트업 글을 수집하고 AI로 점수를 매겨 피드 카드로 발행하며, R2 임시 파일 정리 및 푸시 다이제스트를 자동 발송합니다.",
+    domains: ["garmgoon.com", "Reddit"],
+    description: "Reddit RSS 아이디어 수집 및 AI 채점 카드 생성, 가족 임시 파일 정리, 웹 푸시 다이제스트 발송을 수행합니다.",
     highlights: [
       "Reddit RSS 자동 수집 및 AI 품질/취향 점수 산정 피드 카드 생성",
       "R2 버킷 임시 가족 첨부 파일 자동 정리 (cleanupFamilyFiles)",
@@ -292,155 +892,58 @@ const AUTOMATIONS = [
     reactivation: null,
   },
   {
-    id: "openseo-rank-audit-engine",
-    category: "SEO & 검색 최적화",
-    title: "OpenSEO 순위 추적 & 테크니컬 감사 크롤러",
-    icon: "🔍",
+    id: "hermes-git-sync",
+    groupId: "garmgoon-hermes",
+    title: "Hermes Git 저장소 동기화 (HermesGitSync)",
+    category: "디바이스 동기화",
+    icon: "🔄",
     status: "active",
-    statusText: "정상 가동",
+    statusText: "정상 가동 (Ready)",
     lastSuccess: true,
-    lastRunText: "최근 크론 성공",
-    lastRunAt: "5분 주기 (상시)",
-    lastRunDetail: "키워드 순위 추적 워크플로우(RankCheckWorkflow) 정상 완료",
-    domains: ["seo.garmgoon.com", "everydaytutor.net", "utahsays.com", "pwstudio.kr"],
-    schedule: "매 5분 주기 & 매일 새벽 03:17",
-    engine: "Cloudflare Workflows + Durable Objects",
-    channel: "OpenSEO Dashboard + SQLite Scratchpad",
-    description:
-      "Cloudflare Workflows를 통해 등록된 비즈니스 사이트의 키워드 검색 순위를 자동 추적하고, Durable Objects 기반 테크니컬 SEO 크롤러로 사이트 상태를 심층 진단합니다.",
+    lastRunText: "5분 주기 가동 중",
+    lastRunAt: "매 5분 주기",
+    lastRunDetail: "Hermes 작업 저장소 변경사항 5분마다 GitHub 자동 동기화 정상",
+    surface: "Windows 작업 스케줄러",
+    targetId: "HermesGitSync",
+    pipelineStep: "5분 주기 Git Sync",
+    schedule: "매 5분 주기 (PT5M)",
+    engine: "Windows 작업 스케줄러 (Git)",
+    channel: "GitHub 저장소",
+    domains: ["Windows PC ↔ GitHub"],
+    description: "Hermes 작업 저장소의 변경사항을 5분마다 자동으로 동기화하는 로컬 예약 작업입니다.",
     highlights: [
-      "5분 주기 키워드 순위 추적 워크플로우 (RankCheckWorkflow)",
-      "Durable Objects(AuditScratchpad) 기반 분산 사이트 크롤링",
-      "세션 KV 가비지 컬렉션 및 미완료 감사 자동 수습",
+      "Windows 작업 스케줄러(PT5M) 기반 무인 백그라운드 Git 동기화",
+      "변경사항 자동 감지 커밋 및 GitHub 원격 저장소 동기화",
+      "실행 실패 시 윈도우 이벤트 로그 기록",
     ],
     reactivation: null,
   },
   {
-    id: "everydaytutor-onboarding-emails",
-    category: "CRM & 온보딩",
-    title: "EverydayTutor 튜터 맞춤 온보딩 이메일 발송기",
-    icon: "✉️",
+    id: "hermes-skills-sync",
+    groupId: "garmgoon-hermes",
+    title: "Hermes Hub 스킬 동기화 (HermesHubSkillsSync)",
+    category: "디바이스 동기화",
+    icon: "🔄",
     status: "active",
-    statusText: "정상 가동",
+    statusText: "정상 가동 (Ready)",
     lastSuccess: true,
-    lastRunText: "러너 준비 완료",
-    lastRunAt: "오늘 11:52 AM 갱신",
-    lastRunDetail: "신규 튜터 60+명 정제 데이터 및 Resend API 연동 준비 완료",
-    domains: ["everydaytutor.net"],
-    schedule: "온디맨드 (신규 튜터 DB 적재 시)",
-    engine: "Node.js + Resend API (send-onboarding-emails.js)",
-    channel: "Resend 이메일 발송 + 로컬 로그",
-    description:
-      "크롤링 및 수집된 신규 튜터 명단을 정제하여 다국어 호칭(한국어/대만 번체/일본어/영어) 및 맞춤 UTM 링크가 포함된 온보딩 안내 메일을 일괄 자동 발송합니다.",
+    lastRunText: "5분 주기 가동 중",
+    lastRunAt: "매 5분 주기",
+    lastRunDetail: "커밋된 Hermes Hub 스킬 파일 Windows ↔ Mac mini 양방향 동기화 정상",
+    surface: "Windows 작업 스케줄러",
+    targetId: "HermesHubSkillsSync",
+    pipelineStep: "5분 주기 Skills Sync",
+    schedule: "매 5분 주기 (PT5M)",
+    engine: "Windows 작업 스케줄러 (Git)",
+    channel: "비공개 GitHub 저장소",
+    domains: ["Windows PC ↔ Mac mini"],
+    description: "커밋된 Hermes Hub 스킬 변경사항을 5분마다 안전하게 풀/푸시하여 디바이스 간 동일한 스킬 상태를 유지합니다.",
     highlights: [
-      "이름 특수문자/괄호 자동 정제 및 다국어 맞춤 호칭 생성",
-      "Resend API 연동 및 발송 결과 실시간 로깅 (.data/email_dispatch_log.json)",
-      "Dry-run 모드 지원으로 안전한 사전 검증 가능",
+      "Windows PC와 Mac mini 간의 양방향 스킬 파일 자동 풀/푸시",
+      "비공개 GitHub 저장소 기반 무인 백그라운드 Git sync",
+      "디바이스 간 상시 동일한 AI 스킬 런타임 환경 유지",
     ],
     reactivation: null,
-  },
-
-  // --- [2] 비활성 / 준비 / 템플릿 상태 (Inactive / Standby) ---
-  {
-    id: "email-digest",
-    category: "개인 생산성",
-    title: "Gmail 아침 이메일 다이제스트",
-    icon: "📬",
-    status: "inactive",
-    statusText: "비활성 (보류 중)",
-    lastSuccess: null,
-    lastRunText: "실행 대기 (비활성)",
-    lastRunAt: "—",
-    lastRunDetail: "Google OAuth 승인 확인 후 n8n 토글 시 즉시 재가동",
-    domains: ["gmail.com", "pixie.garmgoon.com"],
-    schedule: "매일 아침 08:00 AM (예정)",
-    engine: "Pixie (n8n + Ollama 로컬 LLM)",
-    channel: "Telegram (한국어 요약 다이제스트)",
-    description:
-      "큐레이션된 수신함 메일을 읽고 로컬 LLM으로 핵심 내용만 3줄 요약하여 매일 아침 텔레그램으로 브리핑하는 워크플로우입니다.",
-    highlights: ["수신함 최대 100건 제한 안전 장치", "로컬 Ollama 기반 개인정보 보호 요약"],
-    reactivation:
-      "Google OAuth 읽기 전용 권한 확인 후 Pixie n8n에서 email-digest.json 활성화 토글",
-  },
-  {
-    id: "youtube-channel-monitor",
-    category: "기술 & 트렌드",
-    title: "유튜브 채널 신규 영상 모니터링",
-    icon: "📺",
-    status: "inactive",
-    statusText: "비활성 (템플릿 준비)",
-    lastSuccess: null,
-    lastRunText: "실행 대기 (비활성)",
-    lastRunAt: "—",
-    lastRunDetail: "Pixie n8n에서 활성화 시 유튜브 RSS 6시간 주기 폴링 시작",
-    domains: ["youtube.com", "pixie.garmgoon.com"],
-    schedule: "6시간 주기 (예정)",
-    engine: "Pixie (n8n + runner-api)",
-    channel: "Telegram (새 영상 알림)",
-    description:
-      "관심 등록된 유튜브 채널들의 RSS 피드를 6시간마다 순회 확인하여, 새 영상이 올라오면 즉시 감지하고 자막 요약 큐에 등록합니다.",
-    highlights: ["YouTube Data API 쿼터 절약을 위한 RSS 피드 폴링", "채널별 최신 동영상 자동 감지"],
-    reactivation: "Pixie n8n 화면에서 youtube-channel-monitor 워크플로우를 Active로 전환",
-  },
-  {
-    id: "product-scout",
-    category: "기술 & 트렌드",
-    title: "데일리 프로덕트 스카우트",
-    icon: "🔍",
-    status: "inactive",
-    statusText: "비활성 (템플릿 준비)",
-    lastSuccess: null,
-    lastRunText: "실행 대기 (비활성)",
-    lastRunAt: "—",
-    lastRunDetail: "Product Hunt / IndieHackers 론칭 데이터 스카우트 템플릿",
-    domains: ["Product Hunt / IndieHackers"],
-    schedule: "매일 아침 08:00 AM (예정)",
-    engine: "Pixie (n8n + runner-api)",
-    channel: "Telegram (신규 SaaS 브리핑)",
-    description:
-      "새로운 디지털 제품 및 마이크로 SaaS 출시 소식을 수집하여 비즈니스 모델과 차별점을 매일 아침 요약 브리핑하는 스카우터입니다.",
-    highlights: ["신규 프로덕트 론칭 데이터 수집", "수익화 모델 및 타깃 분석"],
-    reactivation: "Pixie n8n 화면에서 product-scout.json을 Import 후 Active 토글",
-  },
-  {
-    id: "social-publisher",
-    category: "SNS & 마케팅",
-    title: "멀티 SNS 원스톱 소셜 퍼블리셔",
-    icon: "📢",
-    status: "inactive",
-    statusText: "비활성 (CLI 대기)",
-    lastSuccess: null,
-    lastRunText: "CLI 대기 (비활성)",
-    lastRunAt: "—",
-    lastRunDetail: "SOCIAL_PUBLISHING_ENABLED 토큰 재발급 후 CLI 및 스케줄러 등록 가능",
-    domains: ["Facebook, Instagram, Threads, X"],
-    schedule: "예약 발행 시 실행",
-    engine: "Automation Hub (Python CLI)",
-    channel: "Meta Graph API + X API",
-    description:
-      "한 번의 콘텐츠 작성으로 페이스북 페이지, 인스타그램 프로페셔널, 스레드, X(트위터)에 동시 크로스 포스팅하는 자동 발행 엔진입니다.",
-    highlights: ["실수 방지를 위한 Dry-run 우선 정책", "플랫폼별 이미지 규격 및 텍스트 자동 정규화"],
-    reactivation: "D:\\Dev\\Automations\\.env에서 SOCIAL_PUBLISHING_ENABLED=true 설정 후 CLI 실행",
-  },
-  {
-    id: "site-audit-crawler",
-    category: "비즈니스 SEO",
-    title: "OpenSEO 정기 테크니컬 크롤러",
-    icon: "🕷️",
-    status: "inactive",
-    statusText: "비활성 (수동 요청 중)",
-    lastSuccess: null,
-    lastRunText: "수동 크롤링 전용",
-    lastRunAt: "—",
-    lastRunDetail: "OpenSEO 콘솔에서 온디맨드로 실행 가능, 정기 스케줄은 대기 중",
-    domains: ["5개 비즈니스 웹사이트 전체"],
-    schedule: "주간/월간 예약 크롤링 (예정)",
-    engine: "OpenSEO Worker (seo.garmgoon.com)",
-    channel: "OpenSEO 대시보드 + Webhook",
-    description:
-      "사이트 전체 페이지를 주기적으로 자동 크롤링하여 404 깨진 링크, 중복 메타 태그, 색인 차단(noindex) 오류 등을 사전 탐지하는 테크니컬 오디트 크롤러입니다.",
-    highlights: ["전수 링크 상태 코드(404, 500) 검사", "캐노니컬 및 사이트맵 자동 검증"],
-    reactivation: "https://seo.garmgoon.com 프로젝트 설정에서 정기 Site Audit 스케줄 활성화",
   },
 ];
 
@@ -451,13 +954,12 @@ const CHANNEL_ICONS = [
   [/resend|이메일|email/i, "✉️"],
   [/webhook/i, "🔗"],
   [/dashboard|대시보드/i, "📊"],
-  [/supabase|d1|sqlite|database/i, "🗄️"],
+  [/supabase|d1|sqlite|database|postgresql/i, "🗄️"],
   [/github/i, "📦"],
   [/facebook|meta|instagram|threads|x api/i, "📣"],
   [/report|리포트|드래프트|로그/i, "📁"],
 ];
 
-// "본문 (부연)" 형태를 본문과 부연으로 나눈다
 function splitParen(text) {
   const m = /^(.*?)\s*\((.*)\)\s*$/.exec(text || "");
   return m ? { main: m[1], note: m[2] } : { main: text || "", note: "" };
@@ -485,7 +987,7 @@ function formatClock(dateStr) {
   return d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
 }
 
-// 정적 데이터와 실시간 하트비트를 합쳐 화면에 보여줄 상태를 만든다
+// 정적 데이터와 실시간 D1 하트비트를 합성 (엄격한 No-Mock 정책 준수)
 function getRunState(item, hb) {
   const hasHb = Boolean(hb);
   const isActive = item.status === "active";
@@ -500,15 +1002,15 @@ function getRunState(item, hb) {
     ? "최근 실행 실패"
     : hasHb
     ? "실시간 실행 성공"
-    : item.lastRunText;
+    : item.lastRunText || item.statusText;
   const clock = hasHb ? formatClock(hb.last_run_at) : null;
   const relative = hasHb ? formatRelativeTime(hb.last_run_at) : null;
   const runAt = hasHb
     ? relative
     : item.lastRunAt && item.lastRunAt !== "—"
     ? item.lastRunAt
-    : item.lastRunText;
-  const runAtFull = hasHb ? `${relative}${clock ? ` (${clock})` : ""}` : item.lastRunAt;
+    : "—";
+  const runAtFull = hasHb ? `${relative}${clock ? ` (${clock})` : ""}` : item.lastRunAt || "—";
   const runDetail = hasHb ? hb.message || item.lastRunDetail : item.lastRunDetail;
   const runTone = isFailure ? "bad" : isRunning ? "run" : isSuccess ? "ok" : "idle";
   const runIcon = isFailure ? "✕" : isRunning ? "◌" : isSuccess ? "✓" : "—";
@@ -556,6 +1058,13 @@ const IconSearch = () => (
   <Svg>
     <circle cx="11" cy="11" r="7" />
     <path d="m20 20-3.5-3.5" />
+  </Svg>
+);
+const IconLayers = () => (
+  <Svg>
+    <polygon points="12 2 2 7 12 12 22 7 12 2" />
+    <polyline points="2 17 12 22 22 17" />
+    <polyline points="2 12 12 17 22 12" />
   </Svg>
 );
 const IconRows = () => (
@@ -613,8 +1122,14 @@ function RunLine({ run }) {
     <div className="axRunLine" title={`${run.runText} · ${run.runAtFull}`}>
       <b data-tone={run.runTone}>{run.runIcon}</b>
       <span className="axRunAt">
-        {run.runAt}
-        {run.clock && <span style={{ color: "var(--text-3)" }}> · {run.clock}</span>}
+        {run.hasHb ? (
+          <>
+            {run.runAt}
+            {run.clock && <span style={{ color: "var(--text-3)" }}> · {run.clock}</span>}
+          </>
+        ) : (
+          <span>{run.runText}</span>
+        )}
       </span>
       {run.duration && <span className="axMs">{run.duration}</span>}
     </div>
@@ -725,11 +1240,14 @@ function Highlights({ items, className }) {
 }
 
 export default function AutomationsPage() {
-  const [viewMode, setViewMode] = useState("compact"); // 'compact' (한눈에 보기) | 'cards' (상세 카드)
+  // 기본 뷰 모드는 'grouped' (파이프라인 묶음 보기)
+  const [viewMode, setViewMode] = useState("grouped"); // 'grouped' | 'compact' | 'cards'
   const [statusFilter, setStatusFilter] = useState("all"); // 'all' | 'active' | 'inactive'
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [surfaceFilter, setSurfaceFilter] = useState("all"); // 'all' | surface key
+  const [groupFilter, setGroupFilter] = useState("all"); // 'all' | group id
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedId, setExpandedId] = useState(null);
+  const [collapsedGroups, setCollapsedGroups] = useState({});
   const [liveHeartbeats, setLiveHeartbeats] = useState({});
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState(null);
@@ -760,7 +1278,6 @@ export default function AutomationsPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // 칩 영역 좌우 끝에 더 볼 칩이 있으면 페이드와 화살표를 보여준다
   const updateChipFade = () => {
     const el = chipsRef.current;
     if (!el) return;
@@ -780,29 +1297,41 @@ export default function AutomationsPage() {
     if (el) el.scrollBy({ left: dir * el.clientWidth * 0.6, behavior: "smooth" });
   };
 
-  const categories = ["all", ...new Set(AUTOMATIONS.map((a) => a.category))];
-  const categoryCounts = AUTOMATIONS.reduce((acc, a) => {
-    acc[a.category] = (acc[a.category] || 0) + 1;
-    return acc;
-  }, {});
-
+  // 필터링 적용
   const filtered = AUTOMATIONS.filter((item) => {
     const hb = liveHeartbeats[item.id];
-    const matchStatus =
-      statusFilter === "all" ? true : item.status === statusFilter;
-    const matchCategory =
-      categoryFilter === "all" ? true : item.category === categoryFilter;
+    const matchStatus = statusFilter === "all" ? true : item.status === statusFilter;
+    const matchGroup = groupFilter === "all" ? true : item.groupId === groupFilter;
+    const surfaceObj = SURFACE_FILTERS.find((s) => s.key === surfaceFilter);
+    const matchSurface = surfaceObj ? surfaceObj.match(item.surface) : true;
     const q = searchQuery.trim().toLowerCase();
     const matchSearch =
       !q ||
       item.title.toLowerCase().includes(q) ||
       item.category.toLowerCase().includes(q) ||
+      item.surface.toLowerCase().includes(q) ||
+      item.targetId.toLowerCase().includes(q) ||
+      item.pipelineStep.toLowerCase().includes(q) ||
       item.engine.toLowerCase().includes(q) ||
       item.channel.toLowerCase().includes(q) ||
+      item.description.toLowerCase().includes(q) ||
+      item.domains.some((d) => d.toLowerCase().includes(q)) ||
       (item.lastRunText || "").toLowerCase().includes(q) ||
       (hb?.message || "").toLowerCase().includes(q);
-    return matchStatus && matchCategory && matchSearch;
+    return matchStatus && matchGroup && matchSurface && matchSearch;
   });
+
+  // 그룹화 데이터
+  const groupedData = GROUP_DEFINITIONS.map((group) => {
+    const items = filtered.filter((item) => item.groupId === group.id);
+    const totalGroupItems = AUTOMATIONS.filter((item) => item.groupId === group.id);
+    return {
+      ...group,
+      items,
+      totalCount: totalGroupItems.length,
+      activeCount: totalGroupItems.filter((i) => i.status === "active").length,
+    };
+  }).filter((group) => group.items.length > 0);
 
   const activeCount = AUTOMATIONS.filter((a) => a.status === "active").length;
   const inactiveCount = AUTOMATIONS.filter((a) => a.status === "inactive").length;
@@ -814,16 +1343,39 @@ export default function AutomationsPage() {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
+  const toggleGroupCollapse = (groupId) => {
+    setCollapsedGroups((prev) => ({
+      ...prev,
+      [groupId]: !prev[groupId],
+    }));
+  };
+
   const resetFilters = () => {
     setStatusFilter("all");
-    setCategoryFilter("all");
+    setSurfaceFilter("all");
+    setGroupFilter("all");
     setSearchQuery("");
   };
+
+  const isFiltered =
+    statusFilter !== "all" ||
+    surfaceFilter !== "all" ||
+    groupFilter !== "all" ||
+    Boolean(searchQuery.trim());
 
   const statusTabs = [
     { key: "all", label: "전체", count: AUTOMATIONS.length, tone: "all" },
     { key: "active", label: "정상 가동", count: activeCount, tone: "ok" },
     { key: "inactive", label: "대기", count: inactiveCount, tone: "warn" },
+  ];
+
+  const groupChips = [
+    { id: "all", label: "전체 그룹", count: AUTOMATIONS.length },
+    ...GROUP_DEFINITIONS.map((g) => ({
+      id: g.id,
+      label: `${g.icon} ${g.shortTitle}`,
+      count: AUTOMATIONS.filter((a) => a.groupId === g.id).length,
+    })),
   ];
 
   return (
@@ -833,7 +1385,7 @@ export default function AutomationsPage() {
           <div className="eyebrow">⚡ OPERATIONS &amp; AUTOMATION HUB</div>
           <h1 className="pageTitle">도메인 자동화 실시간 현황판</h1>
           <p className="pageDesc">
-            전체 <b>{AUTOMATIONS.length}개 파이프라인</b>의 실시간 하트비트, 최근 작업 성공 여부, 실행 주기를 한눈에 모니터링합니다.
+            전체 <b>{AUTOMATIONS.length}개 자동화 파이프라인</b> (7대 연관 그룹)의 실시간 하트비트, 실행 위치, 스케줄을 한눈에 모니터링합니다.
           </p>
         </div>
       </div>
@@ -851,7 +1403,7 @@ export default function AutomationsPage() {
             <span style={{ width: `${100 - uptimePct}%` }} />
           </div>
           <div className="axMetricSub">
-            가동 {activeCount} · 대기 {inactiveCount}
+            가동 {activeCount} · 대기 {inactiveCount} (7개 그룹)
           </div>
         </div>
 
@@ -861,7 +1413,7 @@ export default function AutomationsPage() {
             {activeCount}
             <small>개</small>
           </div>
-          <div className="axMetricSub">전체의 {uptimePct}% 활성</div>
+          <div className="axMetricSub">전체의 {uptimePct}% 활성 가동 중</div>
         </div>
 
         <div className="axMetric" data-tone="warn">
@@ -870,7 +1422,7 @@ export default function AutomationsPage() {
             {inactiveCount}
             <small>개</small>
           </div>
-          <div className="axMetricSub">재활성화 절차 준비 완료</div>
+          <div className="axMetricSub">재활성화 절차 및 템플릿 준비</div>
         </div>
 
         <div className="axMetric" data-tone={liveFailures > 0 ? "bad" : "ok"}>
@@ -903,7 +1455,7 @@ export default function AutomationsPage() {
         </div>
       </div>
 
-      {/* 툴바: 상태 필터, 새로고침, 검색, 보기 모드 */}
+      {/* 툴바: 상태 필터, 실행 위치(Surface) 필터, 새로고침, 검색, 보기 모드 */}
       <div className="axToolbar">
         <div className="axToolGroup">
           <div className="axSeg" role="group" aria-label="상태 필터">
@@ -922,6 +1474,30 @@ export default function AutomationsPage() {
               </button>
             ))}
           </div>
+
+          {/* 실행 위치(Surface) 필터 */}
+          <div className="axSelectWrap" title="실행 위치(Surface) 필터">
+            <IconCpu />
+            <select
+              className="axSelect"
+              value={surfaceFilter}
+              onChange={(e) => setSurfaceFilter(e.target.value)}
+              aria-label="실행 위치 필터"
+            >
+              {SURFACE_FILTERS.map((sf) => {
+                const count =
+                  sf.key === "all"
+                    ? AUTOMATIONS.length
+                    : AUTOMATIONS.filter((a) => sf.match(a.surface)).length;
+                return (
+                  <option key={sf.key} value={sf.key}>
+                    {sf.label} ({count})
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
           <button
             type="button"
             className="axIconBtn"
@@ -942,7 +1518,7 @@ export default function AutomationsPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="자동화 검색..."
+              placeholder="자동화 · 서버 · ID 검색..."
               aria-label="자동화 검색"
             />
             {searchQuery && (
@@ -956,7 +1532,19 @@ export default function AutomationsPage() {
               </button>
             )}
           </label>
+
+          {/* 보기 모드 (기본: 묶음 보기) */}
           <div className="axSeg" role="group" aria-label="보기 방식">
+            <button
+              type="button"
+              className="axSegBtn"
+              aria-pressed={viewMode === "grouped"}
+              onClick={() => setViewMode("grouped")}
+              title="연관 파이프라인별 묶음 보기 (기본 뷰)"
+            >
+              <IconLayers />
+              묶음 보기
+            </button>
             <button
               type="button"
               className="axSegBtn"
@@ -981,10 +1569,10 @@ export default function AutomationsPage() {
         </div>
       </div>
 
-      {/* 카테고리 칩 필터 (스크롤바 숨김) */}
+      {/* 파이프라인 그룹 칩 필터 */}
       <div className="axChipsWrap">
         {chipFade.l && (
-          <button type="button" className="axChipsArrow" data-side="l" onClick={() => scrollChips(-1)} aria-label="이전 분야">
+          <button type="button" className="axChipsArrow" data-side="l" onClick={() => scrollChips(-1)} aria-label="이전 그룹">
             <IconChevron dir="left" />
           </button>
         )}
@@ -995,26 +1583,39 @@ export default function AutomationsPage() {
           data-fade-r={chipFade.r ? "true" : "false"}
           onScroll={updateChipFade}
         >
-          {categories.map((cat) => (
+          {groupChips.map((g) => (
             <button
-              key={cat}
+              key={g.id}
               type="button"
               className="axChip"
-              aria-pressed={categoryFilter === cat}
-              onClick={() => setCategoryFilter(cat)}
+              aria-pressed={groupFilter === g.id}
+              onClick={() => setGroupFilter(g.id)}
             >
-              {cat === "all" ? "모든 분야" : cat}
-              <span className="axChipN">{cat === "all" ? AUTOMATIONS.length : categoryCounts[cat]}</span>
+              {g.label}
+              <span className="axChipN">{g.count}</span>
             </button>
           ))}
         </div>
         {chipFade.r && (
-          <button type="button" className="axChipsArrow" data-side="r" onClick={() => scrollChips(1)} aria-label="다음 분야">
+          <button type="button" className="axChipsArrow" data-side="r" onClick={() => scrollChips(1)} aria-label="다음 그룹">
             <IconChevron dir="right" />
           </button>
         )}
       </div>
 
+      {/* 필터 활성 상태 알림 및 초기화 버튼 */}
+      {isFiltered && (
+        <div className="axFilterStatusRow">
+          <span>
+            현재 조건에 맞는 자동화 <b>{filtered.length}개</b> 표시 중
+          </span>
+          <button type="button" className="axResetBtn" onClick={resetFilters}>
+            필터 전체 초기화
+          </button>
+        </div>
+      )}
+
+      {/* 빈 검색 결과 */}
       {filtered.length === 0 && (
         <div className="axTable">
           <div className="axEmpty">
@@ -1029,7 +1630,213 @@ export default function AutomationsPage() {
       )}
 
       {/* ======================================================== */}
-      {/* [1] 컴팩트 목록형 뷰 (High-Density Table View) - DEFAULT */}
+      {/* [1] 프로젝트/파이프라인 묶음 보기 (Grouped View) - DEFAULT */}
+      {/* ======================================================== */}
+      {viewMode === "grouped" && filtered.length > 0 && (
+        <div className="axGroupedList">
+          {groupedData.map((group) => {
+            const isGroupCollapsed = collapsedGroups[group.id];
+            return (
+              <section
+                key={group.id}
+                className="axGroupCard"
+                data-tone={group.activeCount === group.totalCount ? "ok" : "warn"}
+              >
+                {/* 그룹 헤더 */}
+                <div
+                  className="axGroupHeader"
+                  onClick={() => toggleGroupCollapse(group.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      toggleGroupCollapse(group.id);
+                    }
+                  }}
+                >
+                  <div className="axGroupHeaderLeft">
+                    <span className="axGroupIcon" aria-hidden="true">
+                      {group.icon}
+                    </span>
+                    <div className="axGroupTitleWrap">
+                      <div className="axGroupTitleRow">
+                        <h2 className="axGroupTitle">{group.title}</h2>
+                        <span
+                          className="axGroupBadge"
+                          data-tone={group.activeCount === group.totalCount ? "ok" : "warn"}
+                        >
+                          가동 {group.activeCount} / 전체 {group.totalCount}
+                        </span>
+                      </div>
+                      <p className="axGroupDesc">{group.description}</p>
+                      <div className="axGroupFlow">
+                        <span className="axFlowLabel">연결 흐름</span>
+                        <span className="axFlowText">{group.flow}</span>
+                      </div>
+                      {group.warning && (
+                        <div className="axGroupWarning">
+                          <span className="axWarningIcon" aria-hidden="true">
+                            ⚠️
+                          </span>
+                          <span>{group.warning}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="axChevron axGroupChevron"
+                    aria-expanded={!isGroupCollapsed}
+                    aria-label={isGroupCollapsed ? "그룹 펼치기" : "그룹 접기"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleGroupCollapse(group.id);
+                    }}
+                  >
+                    <IconChevron />
+                  </button>
+                </div>
+
+                {/* 그룹 내부 항목들 (파이프라인 순서) */}
+                {!isGroupCollapsed && (
+                  <div className="axGroupBody">
+                    {group.items.map((item) => {
+                      const isExpanded = expandedId === item.id;
+                      const run = getRunState(item, liveHeartbeats[item.id]);
+                      const detailId = `ax-detail-grp-${item.id}`;
+
+                      return (
+                        <div
+                          key={item.id}
+                          className="axPipelineItem"
+                          data-tone={run.tone}
+                          data-open={isExpanded ? "true" : "false"}
+                          data-inactive={run.isActive ? "false" : "true"}
+                        >
+                          {/* 상단 메타 바: 단계 배지 + 실행 위치 배지 + 식별자 코드 + 상태 필 */}
+                          <div className="axPipelineItemMetaRow">
+                            <span className="axStepBadge">{item.pipelineStep}</span>
+                            <span className="axSurfaceBadge">
+                              <IconCpu />
+                              {item.surface}
+                            </span>
+                            <code className="axTargetIdCode" title={`작업 식별자: ${item.targetId}`}>
+                              {item.targetId}
+                            </code>
+                            <div className="axPipelineStatusWrap">
+                              <StatusPills run={run} />
+                            </div>
+                          </div>
+
+                          {/* 본체 클릭 시 아코디언 토글 */}
+                          <div className="axPipelineMainRow" onClick={() => toggleExpand(item.id)}>
+                            <div className="axPipelineContent">
+                              <div className="axPipe">
+                                <span className="axIconTile" aria-hidden="true">
+                                  {item.icon}
+                                </span>
+                                <div className="axPipeBody">
+                                  <div className="axPipeTitle">
+                                    <strong>{item.title}</strong>
+                                    <span className="axTag" data-kind="cat">
+                                      {item.category}
+                                    </span>
+                                  </div>
+                                  <p className="axDesc">{item.description}</p>
+                                  <DomainTags domains={item.domains} />
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="axPipelineRightMeta">
+                              <ScheduleMeta item={item} />
+                              <ChannelBadges item={item} withNote={false} />
+                              <RunLine run={run} />
+                            </div>
+
+                            <div className="axPipelineChev">
+                              <button
+                                type="button"
+                                className="axChevron"
+                                aria-expanded={isExpanded}
+                                aria-controls={detailId}
+                                aria-label={isExpanded ? "상세 닫기" : "상세 보기"}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleExpand(item.id);
+                                }}
+                              >
+                                <IconChevron />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* 세부 패널 */}
+                          <div
+                            className="axCollapse"
+                            data-open={isExpanded ? "true" : "false"}
+                            id={detailId}
+                            inert={!isExpanded}
+                          >
+                            <div>
+                              <div className="axDetail">
+                                <div className="axPanel">
+                                  <h3 className="axPanelTitle">📌 상세 설명</h3>
+                                  <p>{item.description}</p>
+                                  <RunCallout run={run} />
+                                  <ReactivationCallout item={item} run={run} />
+                                </div>
+
+                                <div className="axDetailSide">
+                                  <div className="axPanel">
+                                    <h3 className="axPanelTitle">🎯 점검 포인트 &amp; 주요 특징</h3>
+                                    <Highlights items={item.highlights} />
+                                  </div>
+                                  <div className="axPanel">
+                                    <h3 className="axPanelTitle">⚙️ 기술 구성 &amp; 실행 대상</h3>
+                                    <dl className="axKv">
+                                      <dt>파이프라인</dt>
+                                      <dd>
+                                        <span className="axStepBadge">{item.pipelineStep}</span>
+                                      </dd>
+                                      <dt>실행 위치</dt>
+                                      <dd>
+                                        <span className="axSurfaceBadge">{item.surface}</span>
+                                      </dd>
+                                      <dt>작업 식별자</dt>
+                                      <dd>
+                                        <code className="axTargetIdCode">{item.targetId}</code>
+                                      </dd>
+                                      <dt>실행 주기</dt>
+                                      <dd>{item.schedule}</dd>
+                                      <dt>엔진</dt>
+                                      <dd className="mono">{item.engine}</dd>
+                                      <dt>출력 채널</dt>
+                                      <dd>{item.channel}</dd>
+                                      <dt>연관 도메인</dt>
+                                      <dd>
+                                        <DomainTags domains={item.domains} max={item.domains.length} />
+                                      </dd>
+                                    </dl>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* [2] 컴팩트 목록형 뷰 (High-Density Table View) */}
       {/* ======================================================== */}
       {viewMode === "compact" && filtered.length > 0 && (
         <div className="axTable">
@@ -1037,28 +1844,25 @@ export default function AutomationsPage() {
             <div>자동화 파이프라인 · {filtered.length}</div>
             <div>상태 · 최근 실행</div>
             <div>실행 주기 · 엔진</div>
-            <div className="axColChannel">
-              알림 · 출력처
-            </div>
+            <div className="axColChannel">알림 · 출력처</div>
             <div />
           </div>
 
           {filtered.map((item) => {
             const isExpanded = expandedId === item.id;
             const run = getRunState(item, liveHeartbeats[item.id]);
-            const detailId = `ax-detail-${item.id}`;
+            const detailId = `ax-detail-comp-${item.id}`;
 
             return (
               <div
                 key={item.id}
                 className="axRow"
-               
                 data-tone={run.tone}
                 data-open={isExpanded ? "true" : "false"}
                 data-inactive={run.isActive ? "false" : "true"}
               >
                 <div className="axRowMain" onClick={() => toggleExpand(item.id)}>
-                  {/* 파이프라인: 아이콘 + 제목 + 분야 + 설명 + 도메인 */}
+                  {/* 파이프라인: 아이콘 + 제목 + 단계 배지 + 실행 위치 + 설명 + 도메인 */}
                   <div className="axCell axColPipe">
                     <div className="axPipe">
                       <span className="axIconTile" aria-hidden="true">
@@ -1067,6 +1871,12 @@ export default function AutomationsPage() {
                       <div className="axPipeBody">
                         <div className="axPipeTitle">
                           <strong>{item.title}</strong>
+                          <span className="axTag axStepTag" title="파이프라인 단계">
+                            {item.pipelineStep}
+                          </span>
+                          <span className="axTag axSurfaceTag" title="실행 위치">
+                            {item.surface}
+                          </span>
                           <span className="axTag" data-kind="cat">
                             {item.category}
                           </span>
@@ -1130,8 +1940,20 @@ export default function AutomationsPage() {
                           <Highlights items={item.highlights} />
                         </div>
                         <div className="axPanel">
-                          <h3 className="axPanelTitle">⚙️ 구성</h3>
+                          <h3 className="axPanelTitle">⚙️ 기술 구성 &amp; 실행 대상</h3>
                           <dl className="axKv">
+                            <dt>파이프라인</dt>
+                            <dd>
+                              <span className="axStepBadge">{item.pipelineStep}</span>
+                            </dd>
+                            <dt>실행 위치</dt>
+                            <dd>
+                              <span className="axSurfaceBadge">{item.surface}</span>
+                            </dd>
+                            <dt>작업 식별자</dt>
+                            <dd>
+                              <code className="axTargetIdCode">{item.targetId}</code>
+                            </dd>
                             <dt>주기</dt>
                             <dd>{item.schedule}</dd>
                             <dt>엔진</dt>
@@ -1155,7 +1977,7 @@ export default function AutomationsPage() {
       )}
 
       {/* ======================================================== */}
-      {/* [2] 카드형 뷰 (Grid Cards View) - 옵션 선택 시 전환 */}
+      {/* [3] 카드형 뷰 (Grid Cards View) */}
       {/* ======================================================== */}
       {viewMode === "cards" && filtered.length > 0 && (
         <div className="axGrid">
@@ -1173,11 +1995,19 @@ export default function AutomationsPage() {
                   </div>
                 </div>
 
+                <div className="axCardStepRow">
+                  <span className="axStepBadge">{item.pipelineStep}</span>
+                  <span className="axSurfaceBadge">{item.surface}</span>
+                </div>
+
                 <h2 className="axCardTitle">{item.title}</h2>
                 <div className="axCardCat">
                   <span className="axTag" data-kind="cat">
                     {item.category}
                   </span>
+                  <code className="axTargetIdCode axCardTarget" title={item.targetId}>
+                    {item.targetId}
+                  </code>
                 </div>
 
                 <p className="axDesc">{item.description}</p>
