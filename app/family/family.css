@@ -52,8 +52,120 @@
   white-space: nowrap;
 }
 
+.famFilterBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 4px 0 14px;
+}
+
 .famFilter {
-  margin: 4px 0 12px;
+  margin: 0;
+}
+
+.famSearchWrap {
+  min-width: 190px;
+  flex: 0 1 220px;
+}
+
+.famSearchInput {
+  height: 36px;
+  padding: 0 12px;
+  font-size: var(--fs-sm);
+  border-radius: 999px;
+}
+
+/* 우리집 브리핑 & 오늘의 대화 질문 허브 */
+
+.famPulse {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--brand) 6%, var(--surface)), var(--surface));
+}
+
+.famPulseRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.famPulseBoard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  font-size: var(--fs-sm);
+}
+
+.famPulseBadge {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.famPulseSummary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+
+.famPulseAlert {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(239, 68, 68, 0.14);
+  color: #ef4444;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.famPulseDate {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: var(--fs-xs);
+}
+
+.famPulsePrompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.famPulsePromptText {
+  display: grid;
+  gap: 2px;
+}
+
+.famPulsePromptText small {
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.famPulsePromptText b {
+  font-size: var(--fs-base);
+  line-height: 1.4;
+}
+
+.famPulsePromptActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* 로그인: 프로필 고르기 */
@@ -967,3 +1079,265 @@
     font-size: var(--fs-sm);
   }
 }
+
+/* 매일 일기 출석부 & 비공개 일기 작성 알림 & 관리자 열람 */
+
+.famAdminBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 90, 54, 0.14);
+  color: var(--brand);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.famTag.admin {
+  background: rgba(255, 90, 54, 0.14);
+  color: var(--brand);
+  font-weight: 700;
+}
+
+.famDiaryDoneBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(22, 163, 74, 0.12);
+  color: #15803d;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.famPost.masked {
+  border-style: dashed;
+}
+
+.famMaskedNotice {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-size: var(--fs-md);
+}
+
+.famSubFilterRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.famDiaryTracker {
+  margin-bottom: 14px;
+  padding: 18px;
+}
+
+.famDiaryTrackerHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.famDiaryTrackerTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.famDiaryTodaySummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: var(--fs-xs);
+  color: var(--text-soft);
+}
+
+.famDiaryTodaySummary b {
+  color: var(--brand);
+}
+
+.famDiaryTrackerDesc {
+  margin: 4px 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-soft);
+}
+
+.famDiaryGridWrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+
+.famDiaryTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 540px;
+}
+
+.famDiaryTable th,
+.famDiaryTable td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.famDiaryTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.famDiaryTable th.famDiaryMemberCol,
+.famDiaryTable td.famDiaryMemberCell {
+  text-align: left;
+  padding-left: 14px;
+  min-width: 155px;
+  position: sticky;
+  left: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+
+.famDiaryDayCol {
+  min-width: 54px;
+  font-weight: 600;
+}
+
+.famDiaryDayCol.today,
+.famDiaryCell.today {
+  background: rgba(255, 90, 54, 0.05);
+}
+
+.famDiaryMd {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--text);
+}
+
+.famDiaryWd {
+  display: block;
+  font-size: 11px;
+  color: var(--text-soft);
+}
+
+.famDiaryDayCol.today .famDiaryWd {
+  color: var(--brand);
+  font-weight: 700;
+}
+
+.famDiaryMemberInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.famDiaryMemberText {
+  display: grid;
+  gap: 2px;
+  line-height: 1.25;
+}
+
+.famDiaryStreak {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(255, 90, 54, 0.12);
+  color: var(--brand);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.famDiaryStatusText {
+  font-size: var(--fs-xs);
+  color: var(--text-soft);
+}
+
+.famDiaryStatusText.done {
+  color: #15803d;
+  font-weight: 600;
+}
+
+.famDiaryStamp {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 46px;
+  min-height: 44px;
+  padding: 4px 6px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-size: var(--fs-sm);
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.famDiaryStamp.done {
+  cursor: pointer;
+  background: color-mix(in srgb, var(--m, var(--brand)) 12%, var(--surface));
+  border-color: color-mix(in srgb, var(--m, var(--brand)) 32%, var(--border));
+}
+
+.famDiaryStamp.done:hover,
+.famDiaryStamp.done.active {
+  transform: translateY(-1px);
+  border-color: var(--m, var(--brand));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.famDiaryStampEmoji {
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.famDiaryStampSub {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-soft);
+}
+
+.famDiaryStamp.write {
+  cursor: pointer;
+  border: 1px dashed var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.famDiaryStamp.empty {
+  color: var(--text-soft);
+  opacity: 0.45;
+  font-size: 18px;
+}
+
+.famDiaryDetail {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+}
+
+.famDiaryDetailBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: var(--fs-md);
+}
+

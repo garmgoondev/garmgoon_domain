@@ -1,7 +1,7 @@
 import { hmac, timingSafeEqual } from "./auth.js";
 import { boardCleanupStatements, handleBoard } from "./board.js";
 import { handlePush, notifyMembers } from "./push.js";
-import { DAY, httpError, json } from "./util.js";
+import { addDays, DAY, httpError, json, localDay, timeZone } from "./util.js";
 
 // 가족 공간. 관리자 로그인(gg_session)과 별개로 구성원마다 비밀번호와 세션(gg_family)이 있다.
 
@@ -159,8 +159,27 @@ function marks(list) {
   return list.map(() => "?").join(",");
 }
 
+function isAdminViewer(me, authed, env) {
+  if (authed) return true;
+  if (!me) return false;
+  const adminName = String(env?.FAMILY_ADMIN_NAME || "김가람").trim();
+  return me.name === adminName;
+}
+
+async function resolveViewer(request, env, authed = false) {
+  let me = await currentMember(request, env);
+  if (!me && authed) {
+    const adminName = String(env?.FAMILY_ADMIN_NAME || "김가람").trim();
+    me = await env.DB.prepare("SELECT * FROM family_members WHERE name = ?").bind(adminName).first();
+    if (!me) {
+      me = { id: 0, name: "관리자", emoji: "👑", color: "#ff5a36", seen_at: 0, isVirtualAdmin: true };
+    }
+  }
+  return me;
+}
+
 // 글 목록에 작성자·첨부·댓글·반응을 붙인다
-async function hydrate(env, me, rows) {
+async function hydrate(env, me, rows, isAdmin = false) {
   if (!rows.length) return [];
   const ids = rows.map((r) => r.id);
   const [members, files, comments, reactions] = await Promise.all([
@@ -175,22 +194,46 @@ async function hydrate(env, me, rows) {
     return map;
   };
   const [filesBy, commentsBy, reactionsBy] = [group(files.results), group(comments.results), group(reactions.results)];
-  return rows.map((p) => ({
-    id: p.id,
-    kind: p.kind,
-    visibility: p.visibility,
-    diaryDay: p.diary_day,
-    mood: p.mood,
-    body: p.body,
-    author: members.get(p.member_id),
-    mine: p.member_id === me.id,
-    createdAt: p.created_at,
-    editedAt: p.edited_at,
-    isNew: p.member_id !== me.id && p.created_at > me.seen_at,
-    files: (filesBy.get(p.id) || []).map(fileFromRow),
-    comments: (commentsBy.get(p.id) || []).map((c) => commentFromRow(c, members, me)),
-    reactions: summarizeReactions(reactionsBy.get(p.id) || [], members, me),
-  }));
+  return rows.map((p) => {
+    const canRead = Boolean(isAdmin || p.visibility === "family" || p.member_id === me.id);
+    if (!canRead) {
+      return {
+        id: p.id,
+        kind: p.kind,
+        visibility: p.visibility,
+        masked: true,
+        diaryDay: p.diary_day,
+        mood: p.mood,
+        body: "",
+        author: members.get(p.member_id),
+        mine: false,
+        createdAt: p.created_at,
+        editedAt: p.edited_at,
+        isNew: p.member_id !== me.id && p.created_at > (me.seen_at || 0),
+        files: [],
+        comments: [],
+        reactions: summarizeReactions(reactionsBy.get(p.id) || [], members, me),
+      };
+    }
+    return {
+      id: p.id,
+      kind: p.kind,
+      visibility: p.visibility,
+      masked: false,
+      adminView: Boolean(isAdmin && p.visibility === "private" && p.member_id !== me.id),
+      diaryDay: p.diary_day,
+      mood: p.mood,
+      body: p.body,
+      author: members.get(p.member_id),
+      mine: p.member_id === me.id,
+      createdAt: p.created_at,
+      editedAt: p.edited_at,
+      isNew: p.member_id !== me.id && p.created_at > (me.seen_at || 0),
+      files: (filesBy.get(p.id) || []).map(fileFromRow),
+      comments: (commentsBy.get(p.id) || []).map((c) => commentFromRow(c, members, me)),
+      reactions: summarizeReactions(reactionsBy.get(p.id) || [], members, me),
+    };
+  });
 }
 
 function summarizeReactions(rows, members, me) {
@@ -200,10 +243,12 @@ function summarizeReactions(rows, members, me) {
   }).filter((r) => r.count);
 }
 
-async function postForMember(env, me, id) {
+async function postForMember(env, me, id, { isAdmin = false, allowMaskedDiary = false } = {}) {
   const post = await env.DB.prepare("SELECT * FROM family_posts WHERE id = ?").bind(Number(id)).first();
-  if (!post || (post.visibility !== "family" && post.member_id !== me.id)) return null;
-  return post;
+  if (!post) return null;
+  if (isAdmin || post.visibility === "family" || post.member_id === me.id) return post;
+  if (allowMaskedDiary && post.kind === "diary") return post;
+  return null;
 }
 
 async function unreadCount(env, me) {
@@ -218,10 +263,17 @@ async function unreadCount(env, me) {
 }
 
 // /api/me에 붙는 가족 로그인 정보. 가족 테이블이 아직 없어도 사이트 전체가 멈추지 않게 한다.
-export async function familySummary(request, env) {
+export async function familySummary(request, env, authed = false) {
   try {
-    const me = await currentMember(request, env);
-    return me ? { ...publicMember(me), unread: await unreadCount(env, me) } : null;
+    const me = await resolveViewer(request, env, authed);
+    if (!me) return null;
+    const isAdmin = isAdminViewer(me, authed, env);
+    return {
+      ...publicMember(me),
+      isAdmin,
+      isVirtualAdmin: Boolean(me.isVirtualAdmin),
+      unread: me.isVirtualAdmin ? 0 : await unreadCount(env, me),
+    };
   } catch (e) {
     console.error(e);
     return null;
@@ -271,14 +323,14 @@ async function uploadFile(env, me, request) {
   return json({ file: fileFromRow(row) });
 }
 
-async function serveFile(env, me, id, request, url) {
+async function serveFile(env, me, id, request, url, isAdmin = false) {
   const row = await env.DB.prepare(
     "SELECT f.*, p.visibility, p.member_id AS owner FROM family_files f LEFT JOIN family_posts p ON p.id = f.post_id WHERE f.id = ?",
   )
     .bind(id)
     .first();
-  // 글에 붙은 파일은 그 글을 볼 수 있는 사람만, 아직 안 붙은 파일은 올린 사람만 본다
-  const allowed = row && (row.post_id ? row.visibility === "family" || row.owner === me.id : row.member_id === me.id);
+  // 글에 붙은 파일은 그 글을 볼 수 있는 사람(또는 관리자)만, 아직 안 붙은 파일은 올린 사람(또는 관리자)만 본다
+  const allowed = row && (isAdmin || (row.post_id ? row.visibility === "family" || row.owner === me.id : row.member_id === me.id));
   if (!allowed) return httpError(404, "파일을 찾을 수 없어요.");
   const asked = url.searchParams.get("v");
   const variant = row.has_preview && (asked === "preview" || asked === "thumb") ? asked : "original";
@@ -376,7 +428,7 @@ function later(ctx, promise) {
 }
 
 function preview(text, n = 100) {
-  const t = text.replace(/s+/g, " ").trim();
+  const t = String(text || "").replace(/\s+/g, " ").trim();
   return t.length > n ? `${t.slice(0, n)}…` : t;
 }
 
@@ -405,26 +457,130 @@ async function attachFiles(env, me, postId, fileIds) {
     .run();
 }
 
-async function onePost(env, me, id) {
+async function onePost(env, me, id, isAdmin = false) {
   const row = await env.DB.prepare("SELECT * FROM family_posts WHERE id = ?").bind(id).first();
-  return (await hydrate(env, me, [row]))[0];
+  if (!row) return null;
+  return (await hydrate(env, me, [row], isAdmin))[0];
 }
 
-async function listPosts(env, me, url) {
+async function listPosts(env, me, url, isAdmin = false) {
   const scope = url.searchParams.get("scope") === "mine" ? "mine" : "family";
   const author = Number(url.searchParams.get("member")) || null;
   const kind = ["diary", "message"].includes(url.searchParams.get("kind")) ? url.searchParams.get("kind") : null;
+  const visibility = ["family", "private"].includes(url.searchParams.get("visibility")) ? url.searchParams.get("visibility") : null;
+  const q = (url.searchParams.get("q") || "").trim().slice(0, 100);
   const before = Number(url.searchParams.get("before")) || Date.now() + DAY;
-  const where = [scope === "mine" ? "member_id = ?" : "visibility = 'family'"];
-  const binds = scope === "mine" ? [me.id] : [];
+  const where = [];
+  const binds = [];
+  if (scope === "mine") {
+    where.push("member_id = ?");
+    binds.push(me.id);
+  } else if (isAdmin) {
+    if (visibility) {
+      where.push("visibility = ?");
+      binds.push(visibility);
+    } else {
+      where.push("1 = 1");
+    }
+  } else {
+    // 일반 구성원도 다른 가족이 매일 일기를 썼는지는(내용은 비공개로 가린 채) 확인할 수 있다
+    where.push("(visibility = 'family' OR kind = 'diary')");
+  }
   if (scope === "family" && author) where.push("member_id = ?"), binds.push(author);
   if (kind) where.push("kind = ?"), binds.push(kind);
+  if (q) {
+    if (scope === "mine" || isAdmin) {
+      where.push("body LIKE ?");
+      binds.push(`%${q}%`);
+    } else {
+      // 다른 구성원의 비공개 일기 본문은 검색어로 추측할 수 없도록 공개 글과 본인 글만 검색한다
+      where.push("((visibility = 'family' OR member_id = ?) AND body LIKE ?)");
+      binds.push(me.id, `%${q}%`);
+    }
+  }
   const { results } = await env.DB.prepare(`SELECT * FROM family_posts WHERE ${where.join(" AND ")} AND created_at < ? ORDER BY created_at DESC LIMIT ?`)
     .bind(...binds, before, PAGE)
     .all();
   return json({
-    posts: await hydrate(env, me, results),
+    posts: await hydrate(env, me, results, isAdmin),
     nextBefore: results.length === PAGE ? results[results.length - 1].created_at : null,
+  });
+}
+
+// 가족 구성원별 매일 일기 작성 여부(출석부) 및 열람 가능한 일기 상세
+async function diaryStatus(env, me, url, isAdmin = false) {
+  const days = Math.min(Math.max(Number(url.searchParams.get("days")) || 7, 1), 30);
+  const offset = Math.min(Math.max(Number(url.searchParams.get("offset")) || 0, -365), 0);
+  const rawToday = url.searchParams.get("today");
+  const baseToday = /^\d{4}-\d{2}-\d{2}$/.test(rawToday || "") ? rawToday : localDay(timeZone(env));
+  const endDay = offset ? addDays(baseToday, offset) : baseToday;
+  const startDay = addDays(endDay, -(days - 1));
+  const streakStart = addDays(baseToday, -29);
+  const queryStart = startDay < streakStart ? startDay : streakStart;
+  const daysList = Array.from({ length: days }, (_, i) => addDays(startDay, i));
+
+  const [{ results: memberRows }, { results: diaryRows }] = await Promise.all([
+    env.DB.prepare("SELECT id, name, emoji, color FROM family_members ORDER BY created_at, id").all(),
+    env.DB.prepare(
+      "SELECT * FROM family_posts WHERE kind = 'diary' AND diary_day >= ? AND diary_day <= ? ORDER BY created_at DESC",
+    )
+      .bind(queryStart, baseToday)
+      .all(),
+  ]);
+
+  const hydrated = await hydrate(env, me, diaryRows, isAdmin);
+  const byMemberDay = new Map();
+  for (const p of hydrated) {
+    const mId = p.author?.id;
+    if (!mId || !p.diaryDay) continue;
+    if (!byMemberDay.has(mId)) byMemberDay.set(mId, new Map());
+    const dayMap = byMemberDay.get(mId);
+    // 같은 날 여러 일기가 있으면 가장 최근에 쓴 일기를 대표로 둔다
+    if (!dayMap.has(p.diaryDay)) dayMap.set(p.diaryDay, p);
+  }
+
+  const members = memberRows.map((m) => {
+    const dayMap = byMemberDay.get(m.id) || new Map();
+    const cells = {};
+    let writtenCount = 0;
+    for (const d of daysList) {
+      const p = dayMap.get(d);
+      if (p) {
+        writtenCount += 1;
+        cells[d] = {
+          wrote: true,
+          postId: p.id,
+          diaryDay: d,
+          mood: p.mood,
+          visibility: p.visibility,
+          createdAt: p.createdAt,
+          canRead: !p.masked,
+          post: p,
+        };
+      } else {
+        cells[d] = { wrote: false, diaryDay: d };
+      }
+    }
+    let streak = 0;
+    let cursor = dayMap.has(baseToday) ? baseToday : addDays(baseToday, -1);
+    while (dayMap.has(cursor)) {
+      streak += 1;
+      cursor = addDays(cursor, -1);
+    }
+    return {
+      ...publicMember(m),
+      wroteToday: dayMap.has(baseToday),
+      writtenCount,
+      streak,
+      days: cells,
+    };
+  });
+
+  return json({
+    today: baseToday,
+    days: daysList,
+    isAdmin,
+    members,
   });
 }
 
@@ -439,7 +595,7 @@ async function createPost(env, me, request, ctx) {
     .bind(me.id, p.kind, p.visibility, p.diaryDay, p.mood, p.body, now, now)
     .first();
   await attachFiles(env, me, row.id, p.fileIds);
-  const post = await onePost(env, me, row.id);
+  const post = await onePost(env, me, row.id, true);
   // 가족 공개 글은 다른 구성원에게 알린다
   if (post.visibility === "family") {
     later(
@@ -483,7 +639,7 @@ async function updatePost(env, me, id, request) {
   await env.DB.prepare("UPDATE family_posts SET kind = ?, visibility = ?, diary_day = ?, mood = ?, body = ?, updated_at = ?, edited_at = ? WHERE id = ?")
     .bind(p.kind, p.visibility, p.diaryDay, p.mood, p.body, now, now, current.id)
     .run();
-  return json({ post: await onePost(env, me, current.id) });
+  return json({ post: await onePost(env, me, current.id, true) });
 }
 
 async function deletePost(env, me, id) {
@@ -499,8 +655,8 @@ async function deletePost(env, me, id) {
   return json({ ok: true });
 }
 
-async function addComment(env, me, postId, request, ctx) {
-  const post = await postForMember(env, me, postId);
+async function addComment(env, me, postId, request, ctx, isAdmin = false) {
+  const post = await postForMember(env, me, postId, { isAdmin });
   if (!post) return httpError(404, "글을 찾을 수 없어요.");
   const body = String((await request.json()).body ?? "").trim();
   if (!body || body.length > MAX_COMMENT) return httpError(400, `댓글은 1~${MAX_COMMENT.toLocaleString()}자로 써 주세요.`);
@@ -532,8 +688,8 @@ async function commentApi(env, me, id, request) {
   return json({ comment: commentFromRow(row, await memberMap(env), me) });
 }
 
-async function toggleReaction(env, me, postId, request) {
-  const post = await postForMember(env, me, postId);
+async function toggleReaction(env, me, postId, request, isAdmin = false) {
+  const post = await postForMember(env, me, postId, { isAdmin, allowMaskedDiary: true });
   if (!post) return httpError(404, "글을 찾을 수 없어요.");
   const { emoji } = await request.json();
   if (!REACTIONS.includes(emoji)) return httpError(400, "쓸 수 없는 반응이에요.");
@@ -546,13 +702,14 @@ async function toggleReaction(env, me, postId, request) {
   return json({ reactions: summarizeReactions(results, await memberMap(env), me) });
 }
 
-async function listPhotos(env, url) {
+async function listPhotos(env, url, isAdmin = false) {
   const before = Number(url.searchParams.get("before")) || Date.now() + DAY;
   const limit = 60;
+  const visClause = isAdmin && url.searchParams.get("includePrivate") === "1" ? "1 = 1" : "p.visibility = 'family'";
   const [{ results }, members] = await Promise.all([
     env.DB.prepare(
       `SELECT f.*, p.member_id AS owner, p.id AS post FROM family_files f JOIN family_posts p ON p.id = f.post_id
-       WHERE f.is_image = 1 AND p.visibility = 'family' AND f.created_at < ? ORDER BY f.created_at DESC LIMIT ?`,
+       WHERE f.is_image = 1 AND ${visClause} AND f.created_at < ? ORDER BY f.created_at DESC LIMIT ?`,
     )
       .bind(before, limit)
       .all(),
@@ -610,7 +767,7 @@ async function login(env, request, secure) {
 }
 
 // /api/family/...
-export async function handleFamily(request, env, url, path, ctx) {
+export async function handleFamily(request, env, url, path, ctx, authed = false) {
   const secure = url.protocol === "https:";
   const method = request.method;
   const origin = request.headers.get("origin");
@@ -631,35 +788,73 @@ export async function handleFamily(request, env, url, path, ctx) {
   if (sub === "/login" && method === "POST") return login(env, request, secure);
   if (sub === "/logout" && method === "POST") return json({ ok: true }, { headers: { "set-cookie": clearFamilyCookie(secure) } });
 
-  const me = await currentMember(request, env);
+  const me = await resolveViewer(request, env, authed);
   if (!me) return httpError(401, "가족 로그인이 필요해요.");
+  const isAdmin = isAdminViewer(me, authed, env);
 
   if (sub === "/me") {
-    if (method === "GET") return json({ member: publicMember(me), unread: await unreadCount(env, me), seenAt: me.seen_at });
-    if (method === "PATCH") return updateMe(env, me, request, secure);
+    if (method === "GET") {
+      return json({
+        member: publicMember(me),
+        isAdmin,
+        isVirtualAdmin: Boolean(me.isVirtualAdmin),
+        unread: me.isVirtualAdmin ? 0 : await unreadCount(env, me),
+        seenAt: me.seen_at,
+      });
+    }
+    if (method === "PATCH") {
+      if (me.isVirtualAdmin) return httpError(400, "프로필을 수정하려면 먼저 가족 프로필로 로그인해 주세요.");
+      return updateMe(env, me, request, secure);
+    }
   }
   if (sub === "/seen" && method === "POST") {
-    await env.DB.prepare("UPDATE family_members SET seen_at = ? WHERE id = ?").bind(Date.now(), me.id).run();
+    if (!me.isVirtualAdmin) {
+      await env.DB.prepare("UPDATE family_members SET seen_at = ? WHERE id = ?").bind(Date.now(), me.id).run();
+    }
     return json({ ok: true });
   }
+  if (sub === "/diaries" && method === "GET") return diaryStatus(env, me, url, isAdmin);
   if (sub === "/posts") {
-    if (method === "GET") return listPosts(env, me, url);
-    if (method === "POST") return createPost(env, me, request, ctx);
+    if (method === "GET") return listPosts(env, me, url, isAdmin);
+    if (method === "POST") {
+      if (me.isVirtualAdmin) return httpError(400, "글을 작성하려면 먼저 가족 프로필로 로그인해 주세요.");
+      return createPost(env, me, request, ctx);
+    }
   }
-  if (sub === "/photos" && method === "GET") return listPhotos(env, url);
-  if (sub === "/board" || sub.startsWith("/board/")) return handleBoard(env, me, request, url, sub.slice("/board".length));
-  if (sub === "/push" || sub.startsWith("/push/")) return handlePush(env, me, request, sub.slice("/push".length));
-  if (sub === "/files" && method === "POST") return uploadFile(env, me, request);
+  if (sub === "/photos" && method === "GET") return listPhotos(env, url, isAdmin);
+  if (sub === "/board" || sub.startsWith("/board/")) {
+    if (me.isVirtualAdmin && method !== "GET") return httpError(400, "작성하려면 먼저 가족 프로필로 로그인해 주세요.");
+    return handleBoard(env, me, request, url, sub.slice("/board".length));
+  }
+  if (sub === "/push" || sub.startsWith("/push/")) {
+    if (me.isVirtualAdmin) return httpError(400, "알림을 설정하려면 먼저 가족 프로필로 로그인해 주세요.");
+    return handlePush(env, me, request, sub.slice("/push".length));
+  }
+  if (sub === "/files" && method === "POST") {
+    if (me.isVirtualAdmin) return httpError(400, "파일을 올리려면 먼저 가족 프로필로 로그인해 주세요.");
+    return uploadFile(env, me, request);
+  }
 
   const m = sub.match(/^\/(posts|comments|files)\/([^/]+)(?:\/(comments|reactions))?$/);
   if (m) {
     const [, resource, id, child] = m;
-    if (resource === "posts" && child === "comments" && method === "POST") return addComment(env, me, id, request, ctx);
-    if (resource === "posts" && child === "reactions" && method === "PUT") return toggleReaction(env, me, id, request);
+    if (resource === "posts" && !child && method === "GET") {
+      const post = await postForMember(env, me, id, { isAdmin, allowMaskedDiary: true });
+      if (!post) return httpError(404, "글을 찾을 수 없어요.");
+      return json({ post: await onePost(env, me, post.id, isAdmin) });
+    }
+    if (resource === "posts" && child === "comments" && method === "POST") {
+      if (me.isVirtualAdmin) return httpError(400, "댓글을 달려면 먼저 가족 프로필로 로그인해 주세요.");
+      return addComment(env, me, id, request, ctx, isAdmin);
+    }
+    if (resource === "posts" && child === "reactions" && method === "PUT") {
+      if (me.isVirtualAdmin) return httpError(400, "반응을 남기려면 먼저 가족 프로필로 로그인해 주세요.");
+      return toggleReaction(env, me, id, request, isAdmin);
+    }
     if (resource === "posts" && !child && method === "PATCH") return updatePost(env, me, id, request);
     if (resource === "posts" && !child && method === "DELETE") return deletePost(env, me, id);
     if (resource === "comments" && !child && (method === "PATCH" || method === "DELETE")) return commentApi(env, me, id, request);
-    if (resource === "files" && !child && method === "GET") return serveFile(env, me, id, request, url);
+    if (resource === "files" && !child && method === "GET") return serveFile(env, me, id, request, url, isAdmin);
     if (resource === "files" && !child && method === "DELETE") {
       const file = await env.DB.prepare("SELECT id FROM family_files WHERE id = ? AND member_id = ? AND post_id IS NULL").bind(id, me.id).first();
       if (file) await deleteFiles(env, [file.id]);

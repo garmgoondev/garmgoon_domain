@@ -6,7 +6,7 @@ import { hasLLM, modelName } from "./llm.js";
 import { collectHourOf, collectIntervalOf, collectSlot, tick } from "./pipeline.js";
 import { buildWeeklyReport } from "./report.js";
 import { SOURCES, sourceAvailability } from "./sources.js";
-import { DAY, getState, httpError, json, localDay, localParts, localWeekStart, parseJSON, timeZone } from "./util.js";
+import { DAY, getState, httpError, json, localDay, localParts, localWeekStart, parseJSON, setState, timeZone } from "./util.js";
 import { addChannel, videoFromRow } from "./youtube.js";
 import { redditMode } from "./reddit.js";
 import { loadPreferences, preferenceBoost, preferenceSummary } from "./prefs.js";
@@ -28,13 +28,23 @@ async function getIdeas(env, url, authed) {
     "SELECT day, COUNT(*) AS count FROM items WHERE status = 'published' GROUP BY day ORDER BY day DESC LIMIT 30",
   ).all();
   const day = url.searchParams.get("day") || days[0]?.day || localDay(timeZone(env));
-  const view = url.searchParams.get("view") === "all" ? "all" : "feed";
+  const q = (url.searchParams.get("q") || "").trim().slice(0, 80);
+  const view = q ? "all" : url.searchParams.get("view") === "all" ? "all" : "feed";
+  const like = `%${q}%`;
   const [{ results }, pending, prefs, { results: votes }] = await Promise.all([
-    // 가장 최근 수집분이 위로 오고, 같은 수집분 안에서는 점수 순서
-    env.DB.prepare("SELECT * FROM items WHERE day = ? AND status = 'published' ORDER BY collected_at DESC, rank").bind(day).all(),
+    q
+      ? env.DB.prepare(
+          "SELECT * FROM items WHERE status = 'published' AND (headline LIKE ? OR title LIKE ? OR summary LIKE ? OR point LIKE ? OR tags LIKE ?) ORDER BY collected_at DESC, rank LIMIT 100",
+        )
+          .bind(like, like, like, like, like)
+          .all()
+      : // 가장 최근 수집분이 위로 오고, 같은 수집분 안에서는 점수 순서
+        env.DB.prepare("SELECT * FROM items WHERE day = ? AND status = 'published' ORDER BY collected_at DESC, rank").bind(day).all(),
     env.DB.prepare("SELECT COUNT(*) AS n FROM items WHERE day = ? AND status IN ('new', 'scored', 'selected')").bind(day).first(),
     loadPreferences(env),
-    env.DB.prepare("SELECT f.item_id, f.value FROM card_feedback f JOIN items i ON i.id = f.item_id WHERE i.day = ?").bind(day).all(),
+    q
+      ? env.DB.prepare("SELECT item_id, value FROM card_feedback").all()
+      : env.DB.prepare("SELECT f.item_id, f.value FROM card_feedback f JOIN items i ON i.id = f.item_id WHERE i.day = ?").bind(day).all(),
   ]);
   const vote = new Map(votes.map((v) => [v.item_id, v.value]));
   // 선정 때 저장한 종합 점수에 최신 좋아요·싫어요로 계산한 취향 가산점을 더한다
@@ -60,6 +70,7 @@ async function getIdeas(env, url, authed) {
     day,
     days,
     view,
+    query: q || null,
     cards,
     total: results.length,
     feedSize: feedCardCount(env),
@@ -68,7 +79,7 @@ async function getIdeas(env, url, authed) {
     votes: authed ? Object.fromEntries(vote) : {},
     prefs: authed ? preferenceSummary(prefs) : null,
   }, {
-    headers: authed
+    headers: authed || q
       ? { "cache-control": "private, no-cache" }
       : { "cache-control": "public, max-age=60, s-maxage=180, stale-while-revalidate=600" },
   });
@@ -172,6 +183,10 @@ async function submitTypingScore(env, request) {
   )
     .bind(nickname, Math.round(wpm * 10) / 10, Math.round(accuracy * 10) / 10, Math.round(timeSeconds * 10) / 10, textLength, mode, week, now)
     .first();
+
+  await env.DB.prepare(
+    "DELETE FROM typing_scores WHERE id NOT IN (SELECT id FROM typing_scores ORDER BY wpm DESC, accuracy DESC, created_at DESC LIMIT 500)",
+  ).run().catch(() => {});
 
   const rankRes = await env.DB.prepare(
     "SELECT COUNT(*) + 1 AS rank FROM typing_scores WHERE wpm > ?",
@@ -410,13 +425,45 @@ async function handleApi(request, env, url, ctx) {
 
   const isHttps = url.protocol === "https:";
 
-  if (path === "/api/me") return json({ authed, hasAdminPassword: Boolean(env.ADMIN_PASSWORD), family: await familySummary(request, env) });
-  if (path === "/api/family" || path.startsWith("/api/family/")) return handleFamily(request, env, url, path, ctx);
+  if (path === "/api/me") return json({ authed, hasAdminPassword: Boolean(env.ADMIN_PASSWORD), family: await familySummary(request, env, authed) });
+  if (path === "/api/family" || path.startsWith("/api/family/")) return handleFamily(request, env, url, path, ctx, authed);
   if (path === "/api/login" && request.method === "POST") {
+    const origin = request.headers.get("origin");
+    if (origin && origin !== url.origin) return httpError(403, "허용되지 않는 요청");
+
+    const ip = request.headers.get("cf-connecting-ip") || "local";
+    const guardKey = `admin_login_guard:${ip}`;
+    const now = Date.now();
+    const guard = parseJSON(await getState(env, guardKey), { fails: 0, lockedUntil: 0 });
+    if (guard.lockedUntil > now) {
+      const mins = Math.ceil((guard.lockedUntil - now) / 60000);
+      return httpError(429, `비밀번호를 여러 번 틀렸어요. ${mins}분 뒤에 다시 시도해 주세요.`);
+    }
+
     const { password } = await readBody(request);
     if (!(await checkPassword(env, password))) {
+      const fails = (guard.fails || 0) + 1;
+      const locked = fails >= 5;
+      await setState(
+        env,
+        guardKey,
+        JSON.stringify({
+          fails: locked ? 0 : fails,
+          lockedUntil: locked ? now + 10 * 60_000 : 0,
+        }),
+      );
       await new Promise((r) => setTimeout(r, 800));
-      return httpError(401, env.ADMIN_PASSWORD ? "비밀번호가 맞지 않아요." : "ADMIN_PASSWORD가 설정되지 않았어요.");
+      return httpError(
+        401,
+        env.ADMIN_PASSWORD
+          ? locked
+            ? "비밀번호를 5번 틀려서 10분 동안 잠겼어요."
+            : "비밀번호가 맞지 않아요."
+          : "ADMIN_PASSWORD가 설정되지 않았어요.",
+      );
+    }
+    if (guard.fails || guard.lockedUntil) {
+      await env.DB.prepare("DELETE FROM state WHERE key = ?").bind(guardKey).run().catch(() => {});
     }
     return json({ ok: true }, { headers: { "set-cookie": await sessionCookie(env, isHttps) } });
   }
@@ -437,15 +484,28 @@ async function handleApi(request, env, url, ctx) {
   if (path === "/api/reports") return getReports(env);
   if (path === "/api/typing/leaderboard") return getTypingLeaderboard(env, url);
   if (path === "/api/typing/scores" && request.method === "POST") return submitTypingScore(env, request);
-  if (path === "/api/automations/status") return getAutomationsStatus(env);
-  if (path === "/api/stats/summary") return getStatsSummaryApi(env, url);
-  if (path === "/api/stats/ping") return pingDomainApi(env, url);
-  if (path === "/api/stats/live-check") return pingAllDomainsApi(env);
+
   if (path === "/api/automations/heartbeat" && request.method === "POST") {
     if (!isAuthorizedForHeartbeat(request, env, authed)) {
       return httpError(401, "인증 토큰이 유효하지 않습니다.");
     }
     return postAutomationHeartbeat(request, env);
+  }
+  if (path === "/api/automations/status") {
+    if (!isAuthorizedForHeartbeat(request, env, authed)) return httpError(401, "로그인이 필요해요.");
+    return getAutomationsStatus(env);
+  }
+  if (path === "/api/stats/summary") {
+    if (!isAuthorizedForHeartbeat(request, env, authed)) return httpError(401, "로그인이 필요해요.");
+    return getStatsSummaryApi(env, url);
+  }
+  if (path === "/api/stats/ping") {
+    if (!isAuthorizedForHeartbeat(request, env, authed)) return httpError(401, "로그인이 필요해요.");
+    return pingDomainApi(env, url);
+  }
+  if (path === "/api/stats/live-check") {
+    if (!isAuthorizedForHeartbeat(request, env, authed)) return httpError(401, "로그인이 필요해요.");
+    return pingAllDomainsApi(env);
   }
 
   const m = path.match(/^\/api\/p\/([a-z]+)(?:\/([^/]+))?$/);

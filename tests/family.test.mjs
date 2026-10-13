@@ -95,9 +95,11 @@ test("only the admin can manage members; members list is public", async (t) => {
   assert.deepEqual(data.members.map((m) => m.name), ["엄마", "아빠"]);
   assert.equal(data.members[0].password, undefined);
 
-  // 관리자 로그인만으로는 가족 글을 볼 수 없다
-  const posts = await call(env, "/api/family/posts", { cookie: await admin(env) });
-  assert.equal(posts.status, 401);
+  // 비로그인 상태에서는 가족 글을 볼 수 없지만, 관리자 계정(gg_session)으로는 열람할 수 있다
+  const unauthedPosts = await call(env, "/api/family/posts");
+  assert.equal(unauthedPosts.status, 401);
+  const adminPosts = await call(env, "/api/family/posts", { cookie: await admin(env) });
+  assert.equal(adminPosts.status, 200);
 
   const cookie = await loginAs(env, mom);
   const me = await call(env, "/api/me", { cookie });
@@ -120,10 +122,10 @@ test("login locks the member after five wrong passwords", async (t) => {
   await loginAs(env, mom, "5678");
 });
 
-test("private posts stay with their author; family posts are shared", async (t) => {
+test("private posts stay with their author; family members see daily diary completion; admin can read private posts", async (t) => {
   const env = setup(t);
-  const [mom, dad] = [await addMember(env, "엄마"), await addMember(env, "아빠")];
-  const [momC, dadC] = [await loginAs(env, mom), await loginAs(env, dad)];
+  const [mom, dad, garam] = [await addMember(env, "엄마"), await addMember(env, "아빠"), await addMember(env, "김가람")];
+  const [momC, dadC, garamC] = [await loginAs(env, mom), await loginAs(env, dad), await loginAs(env, garam)];
 
   const diary = await call(env, "/api/family/posts", {
     method: "POST",
@@ -133,15 +135,50 @@ test("private posts stay with their author; family posts are shared", async (t) 
   assert.equal(diary.status, 200);
   const msg = await call(env, "/api/family/posts", { method: "POST", cookie: momC, body: { kind: "message", visibility: "family", body: "저녁 먹자" } });
 
+  // 다른 일반 구성원(아빠)은 엄마의 비공개 일기 내용은 볼 수 없지만(body === "", masked: true), 일기를 썼다는 사실은 피드와 출석부에서 확인할 수 있다
   const dadFeed = await call(env, "/api/family/posts", { cookie: dadC });
-  assert.deepEqual(dadFeed.data.posts.map((p) => p.body), ["저녁 먹자"]);
+  assert.equal(dadFeed.data.posts.length, 2);
+  assert.equal(dadFeed.data.posts[0].body, "저녁 먹자");
+  assert.equal(dadFeed.data.posts[0].masked, false);
   assert.equal(dadFeed.data.posts[0].isNew, true);
+  assert.equal(dadFeed.data.posts[1].kind, "diary");
+  assert.equal(dadFeed.data.posts[1].masked, true);
+  assert.equal(dadFeed.data.posts[1].body, "");
+  assert.equal(dadFeed.data.posts[1].diaryDay, "2026-09-27");
+  assert.equal(dadFeed.data.posts[1].mood, "😊");
+
+  // 일반 구성원이 비공개 일기 본문 단어로 검색해도 노출되지 않는다
+  const dadSearchSecret = await call(env, "/api/family/posts?q=비밀", { cookie: dadC });
+  assert.equal(dadSearchSecret.data.posts.length, 0);
+
+  // 일기 출석부(/api/family/diaries)에서 일반 구성원은 작성 여부만 확인하고, 관리자는 본문까지 열람한다
+  const dadDiaries = await call(env, "/api/family/diaries?days=7&today=2026-09-27", { cookie: dadC });
+  assert.equal(dadDiaries.status, 200);
+  const momRowForDad = dadDiaries.data.members.find((m) => m.id === mom.id);
+  assert.equal(momRowForDad.wroteToday, true);
+  assert.equal(momRowForDad.days["2026-09-27"].wrote, true);
+  assert.equal(momRowForDad.days["2026-09-27"].canRead, false);
+  assert.equal(momRowForDad.days["2026-09-27"].post.body, "");
+
+  // 관리자(김가람 프로필 및 사이트 관리자 세션)는 비공개 일기 본문에도 접속·열람할 수 있다
+  const garamDiaries = await call(env, "/api/family/diaries?days=7&today=2026-09-27", { cookie: garamC });
+  const momRowForGaram = garamDiaries.data.members.find((m) => m.id === mom.id);
+  assert.equal(momRowForGaram.days["2026-09-27"].canRead, true);
+  assert.equal(momRowForGaram.days["2026-09-27"].post.body, "비밀 일기");
+  assert.equal(momRowForGaram.days["2026-09-27"].post.adminView, true);
+
+  const adminSingle = await call(env, `/api/family/posts/${diary.data.post.id}`, { cookie: await admin(env) });
+  assert.equal(adminSingle.status, 200);
+  assert.equal(adminSingle.data.post.body, "비밀 일기");
+  assert.equal(adminSingle.data.post.masked, false);
+
   const momMine = await call(env, "/api/family/posts?scope=mine", { cookie: momC });
   assert.deepEqual(momMine.data.posts.map((p) => p.body), ["저녁 먹자", "비밀 일기"]);
   assert.equal(momMine.data.posts[1].mood, "😊");
 
-  // 남의 비공개 글에는 댓글·반응을 달 수 없고, 고칠 수도 없다
+  // 남의 비공개 글에는 일반 구성원이 댓글을 달거나 고칠 수 없지만, 일기 작성 응원 반응(이모지)은 남길 수 있다
   assert.equal((await call(env, `/api/family/posts/${diary.data.post.id}/comments`, { method: "POST", cookie: dadC, body: { body: "?" } })).status, 404);
+  assert.equal((await call(env, `/api/family/posts/${diary.data.post.id}/reactions`, { method: "PUT", cookie: dadC, body: { emoji: "👍" } })).status, 200);
   assert.equal((await call(env, `/api/family/posts/${msg.data.post.id}`, { method: "PATCH", cookie: dadC, body: { body: "해킹" } })).status, 404);
 
   const comment = await call(env, `/api/family/posts/${msg.data.post.id}/comments`, { method: "POST", cookie: dadC, body: { body: "좋아요!" } });
@@ -156,10 +193,11 @@ test("private posts stay with their author; family posts are shared", async (t) 
   await call(env, "/api/family/seen", { method: "POST", cookie: momC });
   assert.equal((await call(env, "/api/me", { cookie: momC })).data.family.unread, 0);
 
-  // 비공개로 바꾸면 아빠 피드에서 사라진다
+  // 일반 메시지를 비공개로 바꾸면 아빠 피드에서는 사라지고(마스킹된 일기만 남음), 관리자 피드에서는 보인다
   const edited = await call(env, `/api/family/posts/${msg.data.post.id}`, { method: "PATCH", cookie: momC, body: { visibility: "private" } });
   assert.ok(edited.data.post.editedAt);
-  assert.equal((await call(env, "/api/family/posts", { cookie: dadC })).data.posts.length, 0);
+  assert.equal((await call(env, "/api/family/posts", { cookie: dadC })).data.posts.filter((p) => !p.masked).length, 0);
+  assert.equal((await call(env, "/api/family/posts", { cookie: garamC })).data.posts.length, 2);
 
   const del = await call(env, `/api/family/posts/${msg.data.post.id}`, { method: "DELETE", cookie: momC });
   assert.equal(del.status, 200);
@@ -202,6 +240,7 @@ test("files follow the visibility of their post", async (t) => {
 
   await call(env, `/api/family/posts/${post.data.post.id}`, { method: "PATCH", cookie: momC, body: { visibility: "private" } });
   assert.equal((await call(env, `/api/family/files/${file.id}`, { cookie: dadC })).status, 404);
+  assert.equal((await call(env, `/api/family/files/${file.id}`, { cookie: await admin(env) })).status, 200);
   assert.equal((await call(env, "/api/family/photos", { cookie: dadC })).data.photos.length, 0);
 
   // 스크립트가 들어갈 수 있는 SVG는 이미지로 보여 주지 않고 내려받게 한다

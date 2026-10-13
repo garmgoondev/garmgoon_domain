@@ -5,8 +5,20 @@ import { api } from "../../lib/api";
 import Composer from "./Composer";
 import PostCard from "./PostCard";
 
-// 가족 공간(가족 공개 글)과 내 공간(내가 쓴 모든 글)을 같은 모양으로 보여 준다
-export default function Feed({ query, defaults, filters, empty, onFirstLoad, accept = () => true }) {
+// 가족 공간(가족 공개 글 + 일기 작성 알림)과 내 공간(내가 쓴 모든 글)을 같은 모양으로 보여 준다
+export default function Feed({
+  query,
+  defaults,
+  header,
+  promptSignal,
+  filters,
+  empty,
+  onFirstLoad,
+  onPostsChanged,
+  canCompose = true,
+  canInteract = true,
+  accept = () => true,
+}) {
   const [posts, setPosts] = useState(null);
   const [next, setNext] = useState(null);
   const [error, setError] = useState("");
@@ -43,12 +55,28 @@ export default function Feed({ query, defaults, filters, empty, onFirstLoad, acc
   }
 
   // 고친 글이 이 목록에 맞지 않게 되면(예: 가족 공간에서 나만 보기로 바꿈) 목록에서 뺀다
-  const change = (np) => setPosts((list) => (accept(np) ? list.map((p) => (p.id === np.id ? np : p)) : list.filter((p) => p.id !== np.id)));
-  const remove = (id) => setPosts((list) => list.filter((p) => p.id !== id));
+  const change = (np) => {
+    setPosts((list) => (accept(np) ? list.map((p) => (p.id === np.id ? np : p)) : list.filter((p) => p.id !== np.id)));
+    onPostsChanged?.();
+  };
+  const remove = (id) => {
+    setPosts((list) => list.filter((p) => p.id !== id));
+    onPostsChanged?.();
+  };
 
   return (
     <>
-      <Composer defaults={defaults} onSaved={(p) => accept(p) && setPosts((list) => [p, ...(list || [])])} />
+      {header}
+      {canCompose ? (
+        <Composer
+          defaults={defaults}
+          promptSignal={promptSignal}
+          onSaved={(p) => {
+            if (accept(p)) setPosts((list) => [p, ...(list || [])]);
+            onPostsChanged?.();
+          }}
+        />
+      ) : null}
       {filters}
       {error ? <p className="error">{error}</p> : null}
       {!posts && !error ? (
@@ -59,7 +87,7 @@ export default function Feed({ query, defaults, filters, empty, onFirstLoad, acc
       ) : posts?.length ? (
         <div className="famList">
           {posts.map((p) => (
-            <PostCard key={p.id} post={p} onChange={change} onDelete={remove} />
+            <PostCard key={p.id} post={p} canInteract={canInteract} onChange={change} onDelete={remove} />
           ))}
           {next ? (
             <button type="button" className="btn ghost" onClick={more} disabled={loadingMore}>

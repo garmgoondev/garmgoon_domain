@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Avatar from "../../components/family/Avatar";
 import Board from "../../components/family/board/Board";
+import DiaryTracker from "../../components/family/DiaryTracker";
+import FamilyPulse from "../../components/family/FamilyPulse";
 import Feed from "../../components/family/Feed";
 import InstallHint from "../../components/family/InstallHint";
 import MemberAdmin from "../../components/family/MemberAdmin";
@@ -11,7 +13,7 @@ import ProfileSettings from "../../components/family/ProfileSettings";
 import { api, resetMe } from "../../lib/api";
 import "./family.css";
 
-function FamilyLogin({ members, onLogin }) {
+function FamilyLogin({ members, onLogin, onCancel }) {
   const [picked, setPicked] = useState(null);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -42,7 +44,14 @@ function FamilyLogin({ members, onLogin }) {
 
   return (
     <div className="panel famLogin">
-      <h2 className="panelTitle">누구세요?</h2>
+      <div className="row" style={{ justifyContent: "space-between", width: "100%" }}>
+        <h2 className="panelTitle" style={{ margin: 0 }}>누구세요?</h2>
+        {onCancel ? (
+          <button type="button" className="btn small ghost" onClick={onCancel}>
+            닫기
+          </button>
+        ) : null}
+      </div>
       <p className="panelDesc">내 프로필을 누르고 비밀번호를 입력해 주세요.</p>
       <div className="famWho">
         {members.map((m) => (
@@ -96,8 +105,14 @@ export default function FamilyPage() {
   const [members, setMembers] = useState(null);
   const [tab, setTab] = useState("family");
   const [author, setAuthor] = useState(0);
+  const [familyKind, setFamilyKind] = useState("");
+  const [familyVisibility, setFamilyVisibility] = useState("");
   const [kind, setKind] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [promptSignal, setPromptSignal] = useState(null);
+  const [diaryRefresh, setDiaryRefresh] = useState(0);
   const [settings, setSettings] = useState(false);
+  const [switchingProfile, setSwitchingProfile] = useState(false);
   const seen = useRef(false);
 
   const loadSession = useCallback(() => {
@@ -127,36 +142,65 @@ export default function FamilyPage() {
     await api("/api/family/logout", { method: "POST" }).catch(() => {});
     seen.current = false;
     setSettings(false);
+    setSwitchingProfile(true);
     loadSession();
   }
 
   if (!session || !members) return <div className="skeleton" style={{ height: 360 }} />;
   const me = session.family;
+  const qParam = searchText.trim() ? `&q=${encodeURIComponent(searchText.trim())}` : "";
+  const famKindParam = familyKind ? `&kind=${familyKind}` : "";
+  const famVisParam = me?.isAdmin && familyVisibility ? `&visibility=${familyVisibility}` : "";
 
   return (
     <div className="famPage">
       <div className="pageHead">
         <div>
-          <div className="eyebrow">👨‍👩‍👧‍👦 우리 가족</div>
+          <div className="eyebrow">
+            👨‍👩‍👧‍👦 우리 가족 {me?.isAdmin ? <span className="famAdminBadge">👑 관리자 계정</span> : null}
+          </div>
           <h1 className="pageTitle">{me ? `${me.name}, 반가워요 ${me.emoji}` : "가족 공간"}</h1>
-          <p className="pageDesc">{me ? "일기와 메시지를 남기고, 서로의 이야기에 댓글을 달아요." : "가족끼리만 보는 일기장과 게시판이에요."}</p>
+          <p className="pageDesc">
+            {me
+              ? "일기와 메시지를 남기고, 매일 누가 일기를 썼는지 함께 확인해요."
+              : "가족끼리만 보는 일기장과 게시판이에요."}
+          </p>
         </div>
         {me ? (
           <div className="row">
-            <button type="button" className="btn small ghost" onClick={() => setSettings((v) => !v)}>
-              <Avatar member={me} size={22} /> 내 프로필
+            {!me.isVirtualAdmin ? (
+              <button type="button" className="btn small ghost" onClick={() => setSettings((v) => !v)}>
+                <Avatar member={me} size={22} /> 내 프로필
+              </button>
+            ) : null}
+            <button type="button" className="btn small ghost" onClick={() => setSwitchingProfile((v) => !v)}>
+              프로필 전환
             </button>
-            <button type="button" className="btn small ghost" onClick={logout}>
-              로그아웃
-            </button>
+            {!session.authed ? (
+              <button type="button" className="btn small ghost" onClick={logout}>
+                로그아웃
+              </button>
+            ) : null}
           </div>
         ) : null}
       </div>
 
+      {switchingProfile && me ? (
+        <FamilyLogin
+          members={members}
+          onCancel={() => setSwitchingProfile(false)}
+          onLogin={() => {
+            seen.current = false;
+            setSwitchingProfile(false);
+            loadSession();
+          }}
+        />
+      ) : null}
+
       {me ? (
         <>
           <InstallHint />
-          {settings ? (
+          {settings && !me.isVirtualAdmin ? (
             <ProfileSettings
               member={me}
               onClose={() => setSettings(false)}
@@ -178,54 +222,126 @@ export default function FamilyPage() {
           {tab === "family" ? (
             <Feed
               key="family"
-              query={`scope=family${author ? `&member=${author}` : ""}`}
+              query={`scope=family${author ? `&member=${author}` : ""}${famKindParam}${famVisParam}${qParam}`}
               defaults={{ kind: "message", visibility: "family" }}
-              accept={(p) => p.visibility === "family"}
+              promptSignal={promptSignal}
+              canCompose={!me.isVirtualAdmin}
+              canInteract={!me.isVirtualAdmin}
+              onPostsChanged={() => setDiaryRefresh((n) => n + 1)}
+              header={
+                <>
+                  <DiaryTracker
+                    me={me}
+                    refreshKey={diaryRefresh}
+                    onWriteToday={() => setTab("mine")}
+                  />
+                  <FamilyPulse
+                    onOpenBoard={() => setTab("board")}
+                    onPickPrompt={(text) => setPromptSignal({ text, seq: Date.now() })}
+                  />
+                </>
+              }
+              accept={(p) => me.isAdmin || p.visibility === "family" || p.kind === "diary"}
               onFirstLoad={markSeen}
               filters={
-                <div className="chips famFilter">
-                  <button type="button" className={`chip${!author ? " on" : ""}`} onClick={() => setAuthor(0)}>
-                    모두
-                  </button>
-                  {members.map((m) => (
-                    <button key={m.id} type="button" className={`chip${author === m.id ? " on" : ""}`} onClick={() => setAuthor(m.id)}>
-                      {m.emoji} {m.name}
+                <div className="famFilterBar">
+                  <div className="chips famFilter">
+                    <button type="button" className={`chip${!author ? " on" : ""}`} onClick={() => setAuthor(0)}>
+                      모두
                     </button>
-                  ))}
+                    {members.map((m) => (
+                      <button key={m.id} type="button" className={`chip${author === m.id ? " on" : ""}`} onClick={() => setAuthor(m.id)}>
+                        {m.emoji} {m.name}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="famSubFilterRow">
+                    <div className="chips famFilter">
+                      {[
+                        ["", "전체 종류"],
+                        ["diary", "📔 일기"],
+                        ["message", "💬 메시지"],
+                      ].map(([id, label]) => (
+                        <button key={id} type="button" className={`chip${familyKind === id ? " on" : ""}`} onClick={() => setFamilyKind(id)}>
+                          {label}
+                        </button>
+                      ))}
+                      {me.isAdmin ? (
+                        <button
+                          type="button"
+                          className={`chip${familyVisibility === "private" ? " on" : ""}`}
+                          onClick={() => setFamilyVisibility((v) => (v === "private" ? "" : "private"))}
+                        >
+                          🔒 비공개 글만 (👑 관리자)
+                        </button>
+                      ) : null}
+                    </div>
+                    <div className="famSearchWrap">
+                      <input
+                        type="search"
+                        className="input famSearchInput"
+                        placeholder="🔍 지난 이야기 검색…"
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        aria-label="가족 이야기 검색"
+                      />
+                    </div>
+                  </div>
                 </div>
               }
               empty={
                 <div className="empty">
-                  <span className="emoji">💌</span>
-                  <b>아직 가족 공개 글이 없어요</b>
-                  <span>첫 메시지를 남겨 보세요.</span>
+                  <span className="emoji">{searchText.trim() ? "🔍" : "💌"}</span>
+                  <b>{searchText.trim() ? `"${searchText.trim()}" 검색 결과가 없어요` : "아직 표시할 글이 없어요"}</b>
+                  <span>{searchText.trim() ? "다른 검색어로 찾아보세요." : "첫 메시지나 일기를 남겨 보세요."}</span>
                 </div>
               }
             />
           ) : tab === "mine" ? (
             <Feed
               key="mine"
-              query={`scope=mine${kind ? `&kind=${kind}` : ""}`}
+              query={`scope=mine${kind ? `&kind=${kind}` : ""}${qParam}`}
               defaults={{ kind: "diary", visibility: "private" }}
+              canCompose={!me.isVirtualAdmin}
+              canInteract={!me.isVirtualAdmin}
+              onPostsChanged={() => setDiaryRefresh((n) => n + 1)}
+              header={
+                <DiaryTracker
+                  me={me}
+                  refreshKey={diaryRefresh}
+                />
+              }
               onFirstLoad={markSeen}
               filters={
-                <div className="chips famFilter">
-                  {[
-                    ["", "전체"],
-                    ["diary", "📔 일기"],
-                    ["message", "💬 메시지"],
-                  ].map(([id, label]) => (
-                    <button key={id} type="button" className={`chip${kind === id ? " on" : ""}`} onClick={() => setKind(id)}>
-                      {label}
-                    </button>
-                  ))}
+                <div className="famFilterBar">
+                  <div className="chips famFilter">
+                    {[
+                      ["", "전체"],
+                      ["diary", "📔 일기"],
+                      ["message", "💬 메시지"],
+                    ].map(([id, label]) => (
+                      <button key={id} type="button" className={`chip${kind === id ? " on" : ""}`} onClick={() => setKind(id)}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="famSearchWrap">
+                    <input
+                      type="search"
+                      className="input famSearchInput"
+                      placeholder="🔍 내 일기·글 검색…"
+                      value={searchText}
+                      onChange={(e) => setSearchText(e.target.value)}
+                      aria-label="내 글 검색"
+                    />
+                  </div>
                 </div>
               }
               empty={
                 <div className="empty">
-                  <span className="emoji">📔</span>
-                  <b>내 공간이 비어 있어요</b>
-                  <span>'나만 보기'로 쓴 일기는 나만, '가족 공개' 글은 가족 모두가 볼 수 있어요.</span>
+                  <span className="emoji">{searchText.trim() ? "🔍" : "📔"}</span>
+                  <b>{searchText.trim() ? `"${searchText.trim()}" 검색 결과가 없어요` : "내 공간이 비어 있어요"}</b>
+                  <span>{searchText.trim() ? "다른 단어로 검색해 보세요." : "'나만 보기'로 쓴 일기는 본인과 관리자만 내용을 볼 수 있고, 다른 가족에게는 일기 작성 여부만 표시돼요."}</span>
                 </div>
               }
             />

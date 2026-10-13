@@ -136,7 +136,7 @@ function Comments({ post, onChange }) {
   );
 }
 
-export default function PostCard({ post, onChange, onDelete }) {
+export default function PostCard({ post, onChange, onDelete, canInteract = true }) {
   const [editing, setEditing] = useState(false);
 
   if (editing) {
@@ -145,7 +145,7 @@ export default function PostCard({ post, onChange, onDelete }) {
         post={post}
         defaults={post}
         onSaved={(p) => {
-          onChange(p);
+          onChange?.(p);
           setEditing(false);
         }}
         onCancel={() => setEditing(false)}
@@ -156,7 +156,41 @@ export default function PostCard({ post, onChange, onDelete }) {
   async function remove() {
     if (!confirm("이 글을 지울까요? 댓글과 첨부 파일도 함께 지워져요.")) return;
     await api(`/api/family/posts/${post.id}`, { method: "DELETE" });
-    onDelete(post.id);
+    onDelete?.(post.id);
+  }
+
+  if (post.masked) {
+    return (
+      <article className="panel famPost diary masked" style={{ "--m": post.author?.color }}>
+        <header className="famPostHead">
+          <Avatar member={post.author} />
+          <div className="famPostWho">
+            <b>{post.author?.name || "알 수 없음"}</b>
+            <span className="muted">{timeAgo(post.createdAt)}</span>
+          </div>
+          <div className="famPostTags">
+            {post.isNew ? <span className="famNew">NEW</span> : null}
+            <span className="famTag">🔒 비공개 일기</span>
+            <span className="famTag">📔 일기</span>
+          </div>
+        </header>
+
+        <div className="famDiaryHead">
+          {post.mood ? <span className="famMood">{post.mood}</span> : <span className="famMood">📔</span>}
+          <b>{formatDay(post.diaryDay)}</b>
+          <span className="famDiaryDoneBadge">✓ 일기 작성 완료</span>
+        </div>
+
+        <div className="famMaskedNotice">
+          <span>
+            🔒 <b>{post.author?.name || "구성원"}</b>님이 <b>{formatDay(post.diaryDay)}</b> 일기를 기록했어요.
+          </span>
+          <span className="muted">비공개 일기라 본문 내용은 작성자와 관리자만 열람할 수 있어요.</span>
+        </div>
+
+        {canInteract && onChange ? <Reactions post={post} onChange={onChange} /> : null}
+      </article>
+    );
   }
 
   return (
@@ -172,7 +206,11 @@ export default function PostCard({ post, onChange, onDelete }) {
         </div>
         <div className="famPostTags">
           {post.isNew ? <span className="famNew">NEW</span> : null}
-          {post.visibility === "private" ? <span className="famTag">🔒 나만 보기</span> : null}
+          {post.visibility === "private" ? (
+            <span className={`famTag${post.adminView ? " admin" : ""}`}>
+              {post.adminView ? "🔒 나만 보기 · 👑 관리자 열람" : "🔒 나만 보기"}
+            </span>
+          ) : null}
           <span className="famTag">{post.kind === "diary" ? "📔 일기" : "💬 메시지"}</span>
         </div>
       </header>
@@ -181,14 +219,15 @@ export default function PostCard({ post, onChange, onDelete }) {
         <div className="famDiaryHead">
           {post.mood ? <span className="famMood">{post.mood}</span> : null}
           <b>{formatDay(post.diaryDay)}</b>
+          <span className="famDiaryDoneBadge">✓ 작성 완료</span>
         </div>
       ) : null}
 
       {post.body ? <p className="famBody">{post.body}</p> : null}
       {post.files.length ? <Media files={post.files} author={post.author} /> : null}
 
-      <Reactions post={post} onChange={onChange} />
-      {post.mine ? (
+      {canInteract && onChange ? <Reactions post={post} onChange={onChange} /> : null}
+      {post.mine && onDelete ? (
         <div className="famPostActions">
           <button type="button" onClick={() => setEditing(true)}>
             고치기
@@ -198,7 +237,7 @@ export default function PostCard({ post, onChange, onDelete }) {
           </button>
         </div>
       ) : null}
-      <Comments post={post} onChange={onChange} />
+      {canInteract && onChange ? <Comments post={post} onChange={onChange} /> : null}
     </article>
   );
 }
