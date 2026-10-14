@@ -135,20 +135,30 @@ test("private posts stay with their author; family members see daily diary compl
   assert.equal(diary.status, 200);
   const msg = await call(env, "/api/family/posts", { method: "POST", cookie: momC, body: { kind: "message", visibility: "family", body: "저녁 먹자" } });
 
-  // 다른 일반 구성원(아빠)은 엄마의 비공개 일기 내용은 볼 수 없지만(body === "", masked: true), 일기를 썼다는 사실은 피드와 출석부에서 확인할 수 있다
+  // 기본 가족 피드(/api/family/posts)에서는 관리자라 하더라도 일기가 바로 보이지 않고 가족 공개 메시지만 보인다
   const dadFeed = await call(env, "/api/family/posts", { cookie: dadC });
-  assert.equal(dadFeed.data.posts.length, 2);
-  assert.equal(dadFeed.data.posts[0].body, "저녁 먹자");
-  assert.equal(dadFeed.data.posts[0].masked, false);
+  assert.deepEqual(dadFeed.data.posts.map((p) => p.body), ["저녁 먹자"]);
   assert.equal(dadFeed.data.posts[0].isNew, true);
-  assert.equal(dadFeed.data.posts[1].kind, "diary");
-  assert.equal(dadFeed.data.posts[1].masked, true);
-  assert.equal(dadFeed.data.posts[1].body, "");
-  assert.equal(dadFeed.data.posts[1].diaryDay, "2026-09-27");
-  assert.equal(dadFeed.data.posts[1].mood, "😊");
+  const garamDefaultFeed = await call(env, "/api/family/posts", { cookie: garamC });
+  assert.deepEqual(garamDefaultFeed.data.posts.map((p) => p.body), ["저녁 먹자"]);
+
+  // 일기 탭(?kind=diary)을 눌렀을 때 비로소 일기가 보이며, 일반 구성원은 작성 여부만(masked: true), 관리자는 본문까지 볼 수 있다
+  const dadDiaryTab = await call(env, "/api/family/posts?kind=diary", { cookie: dadC });
+  assert.equal(dadDiaryTab.data.posts.length, 1);
+  assert.equal(dadDiaryTab.data.posts[0].kind, "diary");
+  assert.equal(dadDiaryTab.data.posts[0].masked, true);
+  assert.equal(dadDiaryTab.data.posts[0].body, "");
+  assert.equal(dadDiaryTab.data.posts[0].diaryDay, "2026-09-27");
+  assert.equal(dadDiaryTab.data.posts[0].mood, "😊");
+
+  const garamDiaryTab = await call(env, "/api/family/posts?kind=diary", { cookie: garamC });
+  assert.equal(garamDiaryTab.data.posts.length, 1);
+  assert.equal(garamDiaryTab.data.posts[0].masked, false);
+  assert.equal(garamDiaryTab.data.posts[0].body, "비밀 일기");
+  assert.equal(garamDiaryTab.data.posts[0].adminView, true);
 
   // 일반 구성원이 비공개 일기 본문 단어로 검색해도 노출되지 않는다
-  const dadSearchSecret = await call(env, "/api/family/posts?q=비밀", { cookie: dadC });
+  const dadSearchSecret = await call(env, "/api/family/posts?kind=diary&q=비밀", { cookie: dadC });
   assert.equal(dadSearchSecret.data.posts.length, 0);
 
   // 일기 출석부(/api/family/diaries)에서 일반 구성원은 작성 여부만 확인하고, 관리자는 본문까지 열람한다
@@ -193,11 +203,11 @@ test("private posts stay with their author; family members see daily diary compl
   await call(env, "/api/family/seen", { method: "POST", cookie: momC });
   assert.equal((await call(env, "/api/me", { cookie: momC })).data.family.unread, 0);
 
-  // 일반 메시지를 비공개로 바꾸면 아빠 피드에서는 사라지고(마스킹된 일기만 남음), 관리자 피드에서는 보인다
+  // 비공개로 바꾸면 기본 피드에서 사라진다
   const edited = await call(env, `/api/family/posts/${msg.data.post.id}`, { method: "PATCH", cookie: momC, body: { visibility: "private" } });
   assert.ok(edited.data.post.editedAt);
-  assert.equal((await call(env, "/api/family/posts", { cookie: dadC })).data.posts.filter((p) => !p.masked).length, 0);
-  assert.equal((await call(env, "/api/family/posts", { cookie: garamC })).data.posts.length, 2);
+  assert.equal((await call(env, "/api/family/posts", { cookie: dadC })).data.posts.length, 0);
+  assert.equal((await call(env, "/api/family/posts", { cookie: garamC })).data.posts.length, 0);
 
   const del = await call(env, `/api/family/posts/${msg.data.post.id}`, { method: "DELETE", cookie: momC });
   assert.equal(del.status, 200);

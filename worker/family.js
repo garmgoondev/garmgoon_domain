@@ -475,16 +475,17 @@ async function listPosts(env, me, url, isAdmin = false) {
   if (scope === "mine") {
     where.push("member_id = ?");
     binds.push(me.id);
-  } else if (isAdmin) {
-    if (visibility) {
+  } else if (kind === "diary") {
+    // 일기 탭(kind=diary)을 눌렀을 때만 일기를 보여 준다 (관리자는 비공개 본문 열람, 일반 구성원은 마스킹된 작성 완료 카드)
+    if (isAdmin && visibility) {
       where.push("visibility = ?");
       binds.push(visibility);
     } else {
       where.push("1 = 1");
     }
   } else {
-    // 일반 구성원도 다른 가족이 매일 일기를 썼는지는(내용은 비공개로 가린 채) 확인할 수 있다
-    where.push("(visibility = 'family' OR kind = 'diary')");
+    // 기본 상태에서는 관리자라 하더라도 일기가 바로 보이지 않고 가족 공개 메시지만 보여 준다
+    where.push("visibility = 'family' AND kind = 'message'");
   }
   if (scope === "family" && author) where.push("member_id = ?"), binds.push(author);
   if (kind) where.push("kind = ?"), binds.push(kind);

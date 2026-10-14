@@ -105,11 +105,10 @@ export default function FamilyPage() {
   const [members, setMembers] = useState(null);
   const [tab, setTab] = useState("family");
   const [author, setAuthor] = useState(0);
-  const [familyKind, setFamilyKind] = useState("");
+  const [familyKind, setFamilyKind] = useState("message");
   const [familyVisibility, setFamilyVisibility] = useState("");
   const [kind, setKind] = useState("");
   const [searchText, setSearchText] = useState("");
-  const [promptSignal, setPromptSignal] = useState(null);
   const [diaryRefresh, setDiaryRefresh] = useState(0);
   const [settings, setSettings] = useState(false);
   const [switchingProfile, setSwitchingProfile] = useState(false);
@@ -149,8 +148,8 @@ export default function FamilyPage() {
   if (!session || !members) return <div className="skeleton" style={{ height: 360 }} />;
   const me = session.family;
   const qParam = searchText.trim() ? `&q=${encodeURIComponent(searchText.trim())}` : "";
-  const famKindParam = familyKind ? `&kind=${familyKind}` : "";
-  const famVisParam = me?.isAdmin && familyVisibility ? `&visibility=${familyVisibility}` : "";
+  const famKindParam = `&kind=${familyKind || "message"}`;
+  const famVisParam = me?.isAdmin && familyKind === "diary" && familyVisibility ? `&visibility=${familyVisibility}` : "";
 
   return (
     <div className="famPage">
@@ -223,25 +222,25 @@ export default function FamilyPage() {
             <Feed
               key="family"
               query={`scope=family${author ? `&member=${author}` : ""}${famKindParam}${famVisParam}${qParam}`}
-              defaults={{ kind: "message", visibility: "family" }}
-              promptSignal={promptSignal}
+              defaults={{ kind: familyKind === "diary" ? "diary" : "message", visibility: familyKind === "diary" ? "private" : "family" }}
               canCompose={!me.isVirtualAdmin}
               canInteract={!me.isVirtualAdmin}
               onPostsChanged={() => setDiaryRefresh((n) => n + 1)}
               header={
                 <>
+                  <FamilyPulse onOpenBoard={() => setTab("board")} />
                   <DiaryTracker
                     me={me}
                     refreshKey={diaryRefresh}
                     onWriteToday={() => setTab("mine")}
                   />
-                  <FamilyPulse
-                    onOpenBoard={() => setTab("board")}
-                    onPickPrompt={(text) => setPromptSignal({ text, seq: Date.now() })}
-                  />
                 </>
               }
-              accept={(p) => me.isAdmin || p.visibility === "family" || p.kind === "diary"}
+              accept={(p) =>
+                familyKind === "diary"
+                  ? p.kind === "diary"
+                  : p.visibility === "family" && p.kind === "message"
+              }
               onFirstLoad={markSeen}
               filters={
                 <div className="famFilterBar">
@@ -258,21 +257,28 @@ export default function FamilyPage() {
                   <div className="famSubFilterRow">
                     <div className="chips famFilter">
                       {[
-                        ["", "전체 종류"],
-                        ["diary", "📔 일기"],
                         ["message", "💬 메시지"],
+                        ["diary", "📔 일기"],
                       ].map(([id, label]) => (
-                        <button key={id} type="button" className={`chip${familyKind === id ? " on" : ""}`} onClick={() => setFamilyKind(id)}>
+                        <button
+                          key={id}
+                          type="button"
+                          className={`chip${familyKind === id ? " on" : ""}`}
+                          onClick={() => {
+                            setFamilyKind(id);
+                            if (id !== "diary") setFamilyVisibility("");
+                          }}
+                        >
                           {label}
                         </button>
                       ))}
-                      {me.isAdmin ? (
+                      {me.isAdmin && familyKind === "diary" ? (
                         <button
                           type="button"
                           className={`chip${familyVisibility === "private" ? " on" : ""}`}
                           onClick={() => setFamilyVisibility((v) => (v === "private" ? "" : "private"))}
                         >
-                          🔒 비공개 글만 (👑 관리자)
+                          🔒 비공개 일기만
                         </button>
                       ) : null}
                     </div>
@@ -291,9 +297,9 @@ export default function FamilyPage() {
               }
               empty={
                 <div className="empty">
-                  <span className="emoji">{searchText.trim() ? "🔍" : "💌"}</span>
-                  <b>{searchText.trim() ? `"${searchText.trim()}" 검색 결과가 없어요` : "아직 표시할 글이 없어요"}</b>
-                  <span>{searchText.trim() ? "다른 검색어로 찾아보세요." : "첫 메시지나 일기를 남겨 보세요."}</span>
+                  <span className="emoji">{searchText.trim() ? "🔍" : familyKind === "diary" ? "📔" : "💌"}</span>
+                  <b>{searchText.trim() ? `"${searchText.trim()}" 검색 결과가 없어요` : familyKind === "diary" ? "아직 작성된 일기가 없어요" : "아직 가족 공개 메시지가 없어요"}</b>
+                  <span>{searchText.trim() ? "다른 검색어로 찾아보세요." : "첫 이야기를 남겨 보세요."}</span>
                 </div>
               }
             />
