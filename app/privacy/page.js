@@ -1,6 +1,10 @@
 export const metadata = {
   title: "개인정보처리방침 · garmgoon",
-  description: "garmgoon.com과 OpenSEO(seo.garmgoon.com)의 개인정보처리방침",
+  description:
+    "garmgoon.com 및 OpenSEO 서비스의 개인정보처리방침입니다. Google OAuth 연동 데이터의 안전한 취급, 처리 목적, 제3자 제공 정책 및 데이터 보관 기간을 투명하게 안내합니다.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 const section = { marginTop: 28 };

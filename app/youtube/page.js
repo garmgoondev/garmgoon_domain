@@ -34,9 +34,11 @@ export default function YoutubePage() {
     <>
       <div className="pageHead">
         <div>
-          <div className="eyebrow">📺 YOUTUBE DIGEST</div>
-          <h1 className="pageTitle">유튜브 요약</h1>
-          <p className="pageDesc">구독하는 채널의 새 영상을 AI가 대신 보고 핵심만 정리했어요.</p>
+          <div className="eyebrow">📺 YOUTUBE DIGEST &amp; SUMMARY</div>
+          <h1 className="pageTitle">유튜브 핵심 요약</h1>
+          <p className="pageDesc">
+            구독 중인 비즈니스·테크·개발 유튜브 채널의 신규 영상을 AI가 심층 분석하여 3줄 핵심 포인트와 시간대별 타임라인으로 요약합니다. 긴 영상도 핵심 인사이트 위주로 빠르게 파악하세요.
+          </p>
         </div>
         {authed ? (
           <Link href="/settings" className="btn ghost small">

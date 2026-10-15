@@ -130,4 +130,50 @@ test("private pages redirect to login when unauthenticated", async (t) => {
   const statsRes = await worker.fetch(new Request("https://garmgoon.test/stats"), env);
   assert.equal(statsRes.status, 302);
   assert.equal(statsRes.headers.get("location"), "https://garmgoon.test/login?next=%2Fstats");
+
+  // 비공개 관리용 API도 비로그인 상태에서 401 반환
+  for (const apiPath of ["/api/automations/status", "/api/stats/summary", "/api/stats/ping?domain=mine98.com", "/api/stats/live-check"]) {
+    const res = await worker.fetch(new Request(`https://garmgoon.test${apiPath}`), env);
+    assert.equal(res.status, 401, `Expected 401 for unauthenticated ${apiPath}`);
+  }
 });
+
+test("admin login rejects cross-origin requests and locks out after 5 failed attempts", async (t) => {
+  const env = setup(t);
+
+  // 타 도메인 Origin 차단
+  const csrfRes = await worker.fetch(
+    new Request("https://garmgoon.test/api/login", {
+      method: "POST",
+      headers: { "content-type": "application/json", origin: "https://evil.example" },
+      body: JSON.stringify({ password: "localtest" }),
+    }),
+    env
+  );
+  assert.equal(csrfRes.status, 403);
+
+  // 5회 연속 실패 시 잠금
+  for (let i = 1; i <= 5; i++) {
+    const failRes = await worker.fetch(
+      new Request("https://garmgoon.test/api/login", {
+        method: "POST",
+        headers: { "content-type": "application/json", "cf-connecting-ip": "198.51.100.77" },
+        body: JSON.stringify({ password: "wrong" }),
+      }),
+      env
+    );
+    assert.equal(failRes.status, 401);
+  }
+
+  // 6번째 시도는 올바른 비밀번호라도 429 반환
+  const lockedRes = await worker.fetch(
+    new Request("https://garmgoon.test/api/login", {
+      method: "POST",
+      headers: { "content-type": "application/json", "cf-connecting-ip": "198.51.100.77" },
+      body: JSON.stringify({ password: "localtest" }),
+    }),
+    env
+  );
+  assert.equal(lockedRes.status, 429);
+});
+

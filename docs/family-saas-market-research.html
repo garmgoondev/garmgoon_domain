@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>가족 전용 프라이빗 SaaS 글로벌 시장 조사 및 경쟁사 벤치마크 리포트</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(22, 28, 45, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary: #f97316;
+      --primary-light: #fb923c;
+      --accent: #38bdf8;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --green: #10b981;
+      --red: #f43f5e;
+      --purple: #a855f7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Pretendard', 'Plus Jakarta Sans', -apple-system, sans-serif;
+      line-height: 1.6;
+      padding: 0;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(249, 115, 22, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 65%, rgba(56, 189, 248, 0.07) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 40px 24px 100px;
+    }
+    header {
+      margin-bottom: 48px;
+      text-align: center;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(249, 115, 22, 0.15);
+      color: #fb923c;
+      border: 1px solid rgba(249, 115, 22, 0.3);
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff 40%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .lead {
+      color: var(--text-muted);
+      font-size: 1.15rem;
+      max-width: 840px;
+      margin: 0 auto 32px;
+      line-height: 1.7;
+    }
+
+    /* Summary KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 56px;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(12px);
+    }
+    .kpi-title {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .kpi-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .kpi-desc {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    /* Section Styles */
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-sub {
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      font-size: 1rem;
+    }
+
+    /* Competitor Cards Grid */
+    .apps-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+      margin-bottom: 64px;
+    }
+    .app-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+      transition: border-color 0.2s;
+    }
+    .app-card:hover {
+      border-color: rgba(249, 115, 22, 0.4);
+    }
+    .app-header {
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(255, 255, 255, 0.02);
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .app-identity {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .app-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      object-fit: cover;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .app-title-group h2 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .app-category {
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 500;
+      margin-top: 4px;
+    }
+    .app-meta {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+    .rating-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .review-count {
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      font-weight: 400;
+    }
+
+    /* App Card Body */
+    .app-body {
+      padding: 32px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 32px;
+    }
+    @media (max-width: 1024px) {
+      .app-body { grid-template-columns: 1fr; }
+    }
+    .detail-block {
+      margin-bottom: 24px;
+    }
+    .detail-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .feature-list {
+      list-style: none;
+    }
+    .feature-list li {
+      position: relative;
+      padding-left: 24px;
+      margin-bottom: 8px;
+      font-size: 0.94rem;
+      color: #e2e8f0;
+    }
+    .feature-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-weight: bold;
+    }
+    .usecase-list li::before {
+      content: '🎯';
+      position: absolute;
+      left: 0;
+      font-size: 0.8rem;
+    }
+
+    /* Pricing Box */
+    .pricing-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 12px;
+    }
+    .pricing-type {
+      font-size: 0.85rem;
+      color: var(--primary-light);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .free-tier {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed rgba(255,255,255,0.1);
+    }
+    .paid-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.92rem;
+    }
+    .paid-name { font-weight: 600; color: #fff; }
+    .paid-price { color: var(--green); font-weight: 700; font-family: monospace; }
+    .paid-desc { font-size: 0.82rem; color: var(--text-dim); margin-bottom: 10px; }
+
+    /* Pros & Cons */
+    .pros-cons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .pro-box, .con-box {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .pro-box {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: #a7f3d0;
+    }
+    .con-box {
+      background: rgba(244, 63, 94, 0.08);
+      border: 1px solid rgba(244, 63, 94, 0.2);
+      color: #fecdd3;
+    }
+
+    /* Screenshot Gallery */
+    .gallery-section {
+      padding: 24px 32px 32px;
+      border-top: 1px solid var(--card-border);
+      background: rgba(10, 15, 26, 0.5);
+    }
+    .gallery-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .gallery-scroll {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 16px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.2) transparent;
+    }
+    .gallery-scroll::-webkit-scrollbar {
+      height: 8px;
+    }
+    .gallery-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+    }
+    .screenshot-thumb {
+      flex: 0 0 200px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      background: #000;
+      position: relative;
+      aspect-ratio: 9/16;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .screenshot-thumb:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.6);
+      border-color: var(--primary);
+    }
+    .screenshot-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Comparison Table */
+    .table-container {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      overflow-x: auto;
+      margin-bottom: 64px;
+      backdrop-filter: blur(16px);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.92rem;
+    }
+    th, td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    th {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .table-app-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .table-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+    .tag-yes { color: var(--green); font-weight: bold; }
+    .tag-no { color: var(--text-dim); }
+    .tag-partial { color: #fbbf24; }
+
+    /* Strategic Takeaway */
+    .strategy-card {
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.1) 0%, rgba(56, 189, 248, 0.08) 100%);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+      border-radius: 20px;
+      padding: 40px;
+      margin-top: 48px;
+    }
+    .strategy-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .strategy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
+    }
+    .strategy-item {
+      background: rgba(15, 23, 42, 0.6);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+    }
+    .strategy-item h4 {
+      color: var(--primary-light);
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+    }
+    .strategy-item p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      margin-top: 60px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="badge">🚀 Global Market Research & Benchmark</div>
+    <h1>가족 전용 프라이빗 SaaS 경쟁사 심층 분석</h1>
+    <p class="lead">
+      미국 및 글로벌 시장에서 수천만 가정이 매일 사용하는 상위 6대 패밀리 테크(Family Tech) 서비스의 핵심 기능, 실사용 사례, 과금 체계 및 실제 UI 스크린샷 벤치마크 리포트입니다.
+    </p>
+  </header>
+
+  <!-- Key Market Stats -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-title">Global Family Tech Market</div>
+      <div class="kpi-value">$20B+</div>
+      <div class="kpi-desc">스마트 홈, 패밀리 오거나이저, 웰빙 구독 시장</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Top App User Base</div>
+      <div class="kpi-value">20M+ ~ 75M</div>
+      <div class="kpi-desc">Cozi, FamilyAlbum, TimeTree 누적 가입자 규모</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Average ARPU (연간)</div>
+      <div class="kpi-value">$39 ~ $79</div>
+      <div class="kpi-desc">가구당 연간 유료 구독 지불 용의(WTP)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Core Retention Driver</div>
+      <div class="kpi-value">Daily Routine</div>
+      <div class="kpi-desc">Chores(집안일) + 캘린더 + 감성 사진의 결합</div>
+    </div>
+  </div>
+
+  <!-- Detailed Competitor Breakdown -->
+  <h2 class="section-title">🏆 6대 핵심 서비스 정밀 딥다이브</h2>
+  <p class="section-sub">각 앱의 실제 인터페이스 스크린샷과 비즈니스 모델을 상세히 대조합니다.</p>
+
+  <div class="apps-grid">
+    
+      <div class="app-card" id="familyalbum">
+        <div class="app-header">
+          <div class="app-identity">
+            <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/6a/7f/5c/6a7f5c9c-bed5-3bdc-e6ee-7857eac6e914/AppIcon-0-0-1x_U007epad-0-1-0-sRGB-85-220.png/512x512bb.jpg" alt="FamilyAlbum Icon" class="app-icon">
+            <div class="app-title-group">
+              <h2>FamilyAlbum <span style="font-size:0.95rem; font-weight:400; color:var(--text-muted);">MIXI, Inc.</span></h2>
+              <div class="app-category">프라이빗 소셜 & 영유아 아카이브 · 일본 (MIXI) / 글로벌 2,000만+ 가구</div>
+            </div>
+          </div>
+          <div class="app-meta">
+            <div class="rating-badge">
+              ★ 4.9
+              <span class="review-count">(376,270 리뷰)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-body">
+          <!-- Left Column: Features & Use Cases -->
+          <div>
+            <div class="detail-block">
+              <div class="detail-title">⚡ 핵심 기능 (Key Features)</div>
+              <ul class="feature-list">
+                <li>무제한 고화질 사진 및 동영상(기본 3분) 무료 업로드</li><li>자동 월별 타임라인 및 아이 개월 수별 자동 정렬</li><li>가족 구성원 전용 코멘트 & 감성 이모지 리액션</li><li>3개월마다 자동 생성되는 1초 동영상 모음 (1s Movies)</li><li>실물 포토북 및 DVD 자동 편집 & 정기 배송 연계</li>
+              </ul>
+            </div>
+
+            <div class="detail-block">
+              <div class="detail-title">🎯 주요 사용 용도 (Main Use Cases)</div>
+              <ul class="feature-list usecase-list">
+                <li>조부모 및 친척들에게 손주 성장 과정 실시간 비공개 공유</li><li>아이의 첫 걸음마, 첫 단어 등 인생 마일스톤 영구 보관</li><li>공개 SNS(인스타/페이스북)의 사생활 노출을 꺼리는 밀레니얼 부모의 안식처</li>
+              </ul>
+            </div>
+
+            <div class="pros-cons-grid">
+              <div class="pro-box">
+                <strong>👍 핵심 강점</strong><br>저장 용량 무제한으로 진입 장벽 제로, 조부모 친화적 초간단 UI, 1초 영상의 강력한 감성 락인(Lock-in)
+              </div>
+              <div class="con-box">
+                <strong>⚠️ 유저 불만 / 약점</strong><br>캘린더, 집안일(Chores), 가족 메모 등 생활 관리 기능이 전무함
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Monetization & Pricing -->
+          <div>
+            <div class="detail-title">💳 과금 체계 및 가격 정책 (Monetization)</div>
+            <div class="pricing-box">
+              <div class="pricing-type">과금 모델: Freemium + 인쇄 커머스</div>
+              <div class="free-tier">
+                <strong>무료 제공 범위:</strong><br>사진/동영상 무제한 저장 (동영상 3분 제한), 무료 사용자 포토북 월 1권 무료(배송비 $4.50 별도)
+              </div>
+              <div>
+                <strong>유료 플랜 구성:</strong>
+                
+                  <div style="margin-top:12px;">
+                    <div class="paid-item">
+                      <span class="paid-name">Premium One (개인용)</span>
+                      <span class="paid-price">$2.99 / 월</span>
+                    </div>
+                    <div class="paid-desc">개인용 추가 기능</div>
+                  </div>
+                
+                  <div style="margin-top:12px;">
+                    <div class="paid-item">
+                      <span class="paid-name">Premium Family (가족 전체)</span>
+                      <span class="paid-price">$5.99 / 월 ($59 / 년)</span>
+                    </div>
+                    <div class="paid-desc">온 가족 혜택 적용, 최대 10분 동영상, PC 웹 업로드, 아이별 얼굴 인식 자동 분류, 포토북 배송비 무료 쿠폰</div>
+                  </div>
+                
+                  <div style="margin-top:12px;">
+                    <div class="paid-item">
+                      <span class="paid-name">Premium Family Pro</span>
+                      <span class="paid-price">$10.99 / 월 ($109 / 년)</span>
+                    </div>
+                    <div class="paid-desc">고화질 다운로드 지원 및 프로 혜택</div>
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screenshots Horizontal Gallery -->
+        <div class="gallery-section">
+          <div class="gallery-title">
+            <span>📱 실제 앱 인터페이스 스크린샷 (Apple App Store CDN)</span>
+            <span style="font-size:0.8rem; color:var(--text-dim);">가로로 스크롤하여 더 보기 →</span>
+          </div>
+          <div class="gallery-scroll">
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/93/8f/10/938f1091-5c87-8421-82f5-66a6180f4858/0_APP_IPHONE_67_0.jpg/320x480bb.jpg" alt="FamilyAlbum Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/cb/5a/d4/cb5ad475-5093-a7b2-d4b8-c56ce1d78025/1_APP_IPHONE_67_1.jpg/320x480bb.jpg" alt="FamilyAlbum Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/87/10/5a/87105ab6-4143-4066-b1da-a66745b6aed1/2_APP_IPHONE_67_2.jpg/320x480bb.jpg" alt="FamilyAlbum Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/c5/4d/1b/c54d1b98-139f-f47b-a4e6-7cfe5bfa77eb/3_APP_IPHONE_67_3.jpg/320x480bb.jpg" alt="FamilyAlbum Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/2d/a6/97/2da69730-da7f-f56f-8b58-0cc31bafc496/4_APP_IPHONE_67_4.jpg/320x480bb.jpg" alt="FamilyAlbum Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/00/63/24/0063247f-105b-ad30-92f2-967bd895f585/5_APP_IPHONE_67_5.jpg/320x480bb.jpg" alt="FamilyAlbum Screenshot" loading="lazy">
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    
+      <div class="app-card" id="cozi">
+        <div class="app-header">
+          <div class="app-identity">
+            <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/51/73/e6/5173e6c3-87d6-7d73-830e-ab5289823c03/AppIcon-iPhone-0-0-1x_U007emarketing-0-0-0-8-0-0-85-220.png/512x512bb.jpg" alt="Cozi Icon" class="app-icon">
+            <div class="app-title-group">
+              <h2>Cozi <span style="font-size:0.95rem; font-weight:400; color:var(--text-muted);">Cozi</span></h2>
+              <div class="app-category">미국 1위 패밀리 오거나이저 (캘린더/할일) · 미국 (Dotdash Meredith) / 2,000만+ 등록 유저</div>
+            </div>
+          </div>
+          <div class="app-meta">
+            <div class="rating-badge">
+              ★ 4.8
+              <span class="review-count">(400,657 리뷰)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-body">
+          <!-- Left Column: Features & Use Cases -->
+          <div>
+            <div class="detail-block">
+              <div class="detail-title">⚡ 핵심 기능 (Key Features)</div>
+              <ul class="feature-list">
+                <li>가족 구성원별 색상 코딩된 온 가족 통합 공유 캘린더</li><li>실시간 동기화되는 마트 장보기 목록(Grocery) & 투두 리스트</li><li>패밀리 레시피 박스 & 주간 식단 플래너</li><li>일일/주간 일정 다이제스트 이메일 자동 발송</li>
+              </ul>
+            </div>
+
+            <div class="detail-block">
+              <div class="detail-title">🎯 주요 사용 용도 (Main Use Cases)</div>
+              <ul class="feature-list usecase-list">
+                <li>맞벌이 부부의 복잡한 자녀 라이딩(Carpool) 및 방과 후 학원 일정 조율</li><li>부부간 마트 장보기 품목 실시간 체크 및 분담</li><li>가족 구성원별 주간 반복 집안일(Chores) 체크</li>
+              </ul>
+            </div>
+
+            <div class="pros-cons-grid">
+              <div class="pro-box">
+                <strong>👍 핵심 강점</strong><br>미국에서 20년간 검증된 인지도와 신뢰성, 실용적인 식단/장보기 결합
+              </div>
+              <div class="con-box">
+                <strong>⚠️ 유저 불만 / 약점</strong><br>2024년 이후 과도한 광고 및 무료 제한으로 유저 대이탈 중, 사진/일기 등 감성 소셜 기능 없음
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Monetization & Pricing -->
+          <div>
+            <div class="detail-title">💳 과금 체계 및 가격 정책 (Monetization)</div>
+            <div class="pricing-box">
+              <div class="pricing-type">과금 모델: Ad-Supported Freemium + Subscription</div>
+              <div class="free-tier">
+                <strong>무료 제공 범위:</strong><br>전면 광고 노출, 캘린더 30일 조회 제한 (2024년 5월 변경 이후 유저 불만 급증)
+              </div>
+              <div>
+                <strong>유료 플랜 구성:</strong>
+                
+                  <div style="margin-top:12px;">
+                    <div class="paid-item">
+                      <span class="paid-name">Cozi Gold</span>
+                      <span class="paid-price">$39.00 / 년</span>
+                    </div>
+                    <div class="paid-desc">광고 완전 제거, 캘린더 월간 뷰, 생일/기념일 트래커, 공유 연락처, 캘린더 다중 알림, 캘린더 검색</div>
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screenshots Horizontal Gallery -->
+        <div class="gallery-section">
+          <div class="gallery-title">
+            <span>📱 실제 앱 인터페이스 스크린샷 (Apple App Store CDN)</span>
+            <span style="font-size:0.8rem; color:var(--text-dim);">가로로 스크롤하여 더 보기 →</span>
+          </div>
+          <div class="gallery-scroll">
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/25/99/dc/2599dcb2-cfc2-20a9-314a-e81362851caa/Panel1.png/320x480bb.jpg" alt="Cozi Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/53/58/f2/5358f2dc-2b4d-77d7-a301-5a15b3f626d5/Panel1-1.png/320x480bb.jpg" alt="Cozi Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/70/7f/c4/707fc4d2-d214-51b4-2a63-f97cfde91c00/Panel1-3.png/320x480bb.jpg" alt="Cozi Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/c3/fa/8a/c3fa8aa4-1f69-46dd-12d3-b8eb423cfca3/Panel1-4.png/320x480bb.jpg" alt="Cozi Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/92/25/11/922511de-cb30-4a6c-a7cf-ebf8dda5a852/Panel1-2.png/320x480bb.jpg" alt="Cozi Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/96/58/59/965859ba-472c-97e0-dd37-40748c85c189/Panel1-5.png/320x480bb.jpg" alt="Cozi Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/16/43/e3/1643e3d1-b10a-4426-cf77-2209bddfffed/Panel1-6.png/320x480bb.jpg" alt="Cozi Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/79/a3/7e/79a37e61-6976-93ed-4d52-097d41ba9760/Panel1-7.png/320x480bb.jpg" alt="Cozi Screenshot" loading="lazy">
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    
+      <div class="app-card" id="familywall">
+        <div class="app-header">
+          <div class="app-identity">
+            <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/15/ed/e7/15ede7e6-76e9-15bb-93df-84006f8fa134/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg" alt="FamilyWall Icon" class="app-icon">
+            <div class="app-title-group">
+              <h2>FamilyWall <span style="font-size:0.95rem; font-weight:400; color:var(--text-muted);">Family & Co</span></h2>
+              <div class="app-category">올인원 패밀리 허브 (스케줄 + 보안 + 가계부) · 프랑스/미국 (Family & Co) / 500만+ 다운로드</div>
+            </div>
+          </div>
+          <div class="app-meta">
+            <div class="rating-badge">
+              ★ 4.8
+              <span class="review-count">(24,109 리뷰)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-body">
+          <!-- Left Column: Features & Use Cases -->
+          <div>
+            <div class="detail-block">
+              <div class="detail-title">⚡ 핵심 기능 (Key Features)</div>
+              <ul class="feature-list">
+                <li>공유 캘린더, 투두, 쇼핑리스트, 식단 플래너</li><li>가족 실시간 위치 공유 & 안전 구역 안심 알림 (Geofencing)</li><li>가족 공용 가계부 & 지출 예산 관리</li><li>비상 연락처, 중요 문서 보관함 (여권, 보험, 의료 기록)</li><li>가족 내부 프라이빗 메신저 및 사진 갤러리</li>
+              </ul>
+            </div>
+
+            <div class="detail-block">
+              <div class="detail-title">🎯 주요 사용 용도 (Main Use Cases)</div>
+              <ul class="feature-list usecase-list">
+                <li>자녀의 등하교 실시간 안전 확인 및 안심 위치 트래킹</li><li>일정, 집안일, 예산 지출을 한 앱에서 모두 끝내고 싶은 다자녀 가정</li><li>집안 비상 연락처 및 중요 가족 서류 통합 보관</li>
+              </ul>
+            </div>
+
+            <div class="pros-cons-grid">
+              <div class="pro-box">
+                <strong>👍 핵심 강점</strong><br>가족에게 필요한 모든 기능이 총망라된 전천후 올인원
+              </div>
+              <div class="con-box">
+                <strong>⚠️ 유저 불만 / 약점</strong><br>기능이 너무 방대해 앱이 무겁고 복잡함, 조부모나 어린 자녀가 다루기에 진입 장벽 존재
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Monetization & Pricing -->
+          <div>
+            <div class="detail-title">💳 과금 체계 및 가격 정책 (Monetization)</div>
+            <div class="pricing-box">
+              <div class="pricing-type">과금 모델: Freemium + Subscription</div>
+              <div class="free-tier">
+                <strong>무료 제공 범위:</strong><br>기본 캘린더, 리스트, 100MB 사진 보관
+              </div>
+              <div>
+                <strong>유료 플랜 구성:</strong>
+                
+                  <div style="margin-top:12px;">
+                    <div class="paid-item">
+                      <span class="paid-name">FamilyWall Premium</span>
+                      <span class="paid-price">$4.99~$7.99 / 월 ($44.99 / 년)</span>
+                    </div>
+                    <div class="paid-desc">실시간 위치 추적 & 안심존 알림, 가계부/예산 기능, 25GB 저장 공간, 식단 플래너, 구글/아웃룩 캘린더 연동</div>
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screenshots Horizontal Gallery -->
+        <div class="gallery-section">
+          <div class="gallery-title">
+            <span>📱 실제 앱 인터페이스 스크린샷 (Apple App Store CDN)</span>
+            <span style="font-size:0.8rem; color:var(--text-dim);">가로로 스크롤하여 더 보기 →</span>
+          </div>
+          <div class="gallery-scroll">
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/7a/39/47/7a3947c2-3a6c-3b3e-e7c7-58cd0435c381/8b5b3d65-5492-4c55-a2cb-29701498d197_1.Store_Screenshot_5.5_LaunchPad_EN.png/392x696bb.png" alt="FamilyWall Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/da/62/49/da6249c0-97fc-bebf-beda-9c64e69f002d/4a70751e-0361-48d9-b7c4-6e07a0339dfd_2.Store_Screenshot_5.5_Calendar_EN.png/392x696bb.png" alt="FamilyWall Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/73/ea/55/73ea55a1-8200-aad1-0bd8-68923eb1e4cd/72bae932-5847-4b6f-b42c-9ae8ec2e778f_3.Store_Screenshot_5.5_Lists_EN.png/392x696bb.png" alt="FamilyWall Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/8b/9e/e1/8b9ee103-c304-21b1-f5eb-7cfb97bb288d/62264e0d-74fd-4725-874a-16404d4b15da_4.Store_Screenshot_5.5_Documents_EN.png/392x696bb.png" alt="FamilyWall Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/ec/fd/a1/ecfda12b-6877-cdd4-e65f-02bc77ef8095/9baefe89-9468-42a4-9a7b-2cbbba0563c6_5.Store_Screenshot_5.5_Budget_EN.png/392x696bb.png" alt="FamilyWall Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/d6/6b/49/d66b4998-05da-d768-947b-8054d60315bc/9dec8483-38f6-49b2-87d3-f7479fcd39fe_6.Store_Screenshot_5.5_MealPlanner_EN.png/392x696bb.png" alt="FamilyWall Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/c7/fa/6c/c7fa6c7a-95ed-0dd0-4689-69870064c86f/5bc28310-28be-4110-ba8b-f60eeb26c5e0_7.Store_Screenshot_5.5_Recipes_EN.png/392x696bb.png" alt="FamilyWall Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/43/49/53/434953bb-b15e-6032-b005-68cd67f6d368/91d40f99-30ed-43d2-916d-ffa006ce3dda_8.Store_Screenshot_5.5_Timetable_EN.png/392x696bb.png" alt="FamilyWall Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/b7/2a/e6/b72ae6b8-c4c6-3b87-117e-2834d8dc3eda/7e03a57b-730f-474e-abd6-2875af891751_9.Store_Screenshot_5.5_Locator_EN.png/392x696bb.png" alt="FamilyWall Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/89/99/65/89996522-4d79-59ad-56fd-b109b6acd974/975a133c-d697-4579-901f-6350bfaca3b6_10.Store_Screenshot_5.5_Messages_EN.png/392x696bb.png" alt="FamilyWall Screenshot" loading="lazy">
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    
+      <div class="app-card" id="timetree">
+        <div class="app-header">
+          <div class="app-identity">
+            <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/33/d1/3f/33d13f43-967f-e785-9944-e297e4ee2b51/AppIcon-0-0-1x_U007ephone-0-1-0-sRGB-85-220.png/512x512bb.jpg" alt="TimeTree Icon" class="app-icon">
+            <div class="app-title-group">
+              <h2>TimeTree <span style="font-size:0.95rem; font-weight:400; color:var(--text-muted);">TimeTree, Inc.</span></h2>
+              <div class="app-category">글로벌 1위 공유 캘린더 (7,500만 유저) · 일본/한국 (TimeTree, Inc.) / 글로벌 7,500만 다운로드</div>
+            </div>
+          </div>
+          <div class="app-meta">
+            <div class="rating-badge">
+              ★ 4.9
+              <span class="review-count">(92,456 리뷰)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-body">
+          <!-- Left Column: Features & Use Cases -->
+          <div>
+            <div class="detail-block">
+              <div class="detail-title">⚡ 핵심 기능 (Key Features)</div>
+              <ul class="feature-list">
+                <li>그룹별 다중 캘린더 생성 (가족용, 부부용, 개인용, 동아리용)</li><li>일정별 개별 채팅 및 사진 3장 첨부</li><li>일정 변경 시 실시간 푸시 알림</li><li>위젯 및 애플워치 완벽 지원</li>
+              </ul>
+            </div>
+
+            <div class="detail-block">
+              <div class="detail-title">🎯 주요 사용 용도 (Main Use Cases)</div>
+              <ul class="feature-list usecase-list">
+                <li>부부간 야근/회식/출장 일정 실시간 공유</li><li>가족 공통 행사(생일, 명절, 제사) 사전 조율</li>
+              </ul>
+            </div>
+
+            <div class="pros-cons-grid">
+              <div class="pro-box">
+                <strong>👍 핵심 강점</strong><br>세계 최고 수준의 일정 공유 속도와 완성도, 높은 대중성
+              </div>
+              <div class="con-box">
+                <strong>⚠️ 유저 불만 / 약점</strong><br>캘린더 전용 툴이라 사진 피드, 가족 일기, 일상 생활 메모는 담기 어려움
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Monetization & Pricing -->
+          <div>
+            <div class="detail-title">💳 과금 체계 및 가격 정책 (Monetization)</div>
+            <div class="pricing-box">
+              <div class="pricing-type">과금 모델: Freemium + Subscription</div>
+              <div class="free-tier">
+                <strong>무료 제공 범위:</strong><br>대부분의 공유 캘린더 기능 무료 (하단 배너 광고 지원)
+              </div>
+              <div>
+                <strong>유료 플랜 구성:</strong>
+                
+                  <div style="margin-top:12px;">
+                    <div class="paid-item">
+                      <span class="paid-name">TimeTree Premium</span>
+                      <span class="paid-price">$4.49 / 월 ($44.99 / 년)</span>
+                    </div>
+                    <div class="paid-desc">광고 완전 제거, 일정에 파일 대용량 첨부, 세로형 캘린더 뷰, 캘린더 전용 테마/색상</div>
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screenshots Horizontal Gallery -->
+        <div class="gallery-section">
+          <div class="gallery-title">
+            <span>📱 실제 앱 인터페이스 스크린샷 (Apple App Store CDN)</span>
+            <span style="font-size:0.8rem; color:var(--text-dim);">가로로 스크롤하여 더 보기 →</span>
+          </div>
+          <div class="gallery-scroll">
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/df/62/29/df62296e-716e-8100-d835-21eceb350b7c/2601_ASO_U82f1_U8a9e_Uff08_U30a2_U30e1_U30ea_U30ab_Uff09_TimeTree_1p.png/320x480bb.jpg" alt="TimeTree Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/3b/2d/f9/3b2df912-0d3c-fbb8-be85-e2cd69aa3d2c/2601_ASO_U82f1_U8a9e_Uff08_U30a2_U30e1_U30ea_U30ab_Uff09_TimeTree_2p.png/320x480bb.jpg" alt="TimeTree Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/ee/56/b4/ee56b441-f350-e708-ca43-f0586e59167b/2601_ASO_U82f1_U8a9e_Uff08_U30a2_U30e1_U30ea_U30ab_Uff09_TimeTree_3p.png/320x480bb.jpg" alt="TimeTree Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/18/cf/22/18cf2237-f769-71cb-18f0-5f568d164894/2601_ASO_U82f1_U8a9e_Uff08_U30a2_U30e1_U30ea_U30ab_Uff09_TimeTree__Uff14p.png/320x480bb.jpg" alt="TimeTree Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/57/4d/74/574d741d-93fb-3337-087a-8750d8f1b3f1/2601_ASO_U82f1_U8a9e_Uff08_U30a2_U30e1_U30ea_U30ab_Uff09_TimeTree__Uff15p.png/320x480bb.jpg" alt="TimeTree Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/69/e6/7d/69e67d3e-c607-5d90-f964-1b39f1d30b68/2601_ASO_U82f1_U8a9e_Uff08_U30a2_U30e1_U30ea_U30ab_Uff09_TimeTree__Uff16p.png/320x480bb.jpg" alt="TimeTree Screenshot" loading="lazy">
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    
+      <div class="app-card" id="tinybeans">
+        <div class="app-header">
+          <div class="app-identity">
+            <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/e7/1d/3e/e71d3e72-e9a7-3053-72fd-36dcc4596f34/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg" alt="Tinybeans Icon" class="app-icon">
+            <div class="app-title-group">
+              <h2>Tinybeans <span style="font-size:0.95rem; font-weight:400; color:var(--text-muted);">Tinybeans USA Ltd</span></h2>
+              <div class="app-category">프라이빗 영유아 저널 & 마일스톤 · 미국/호주 (Tinybeans Ltd) / 500만+ 부모</div>
+            </div>
+          </div>
+          <div class="app-meta">
+            <div class="rating-badge">
+              ★ 4.9
+              <span class="review-count">(104,230 리뷰)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-body">
+          <!-- Left Column: Features & Use Cases -->
+          <div>
+            <div class="detail-block">
+              <div class="detail-title">⚡ 핵심 기능 (Key Features)</div>
+              <ul class="feature-list">
+                <li>하루 1장 사진/영상 캘린더 뷰 (달력 형태 저널)</li><li>신체 발달, 첫 옹알이 등 육아 마일스톤 기록</li><li>조부모를 위한 일일 이메일 다이제스트 자동 발송</li><li>가족 전용 반응 및 감성 코멘트</li>
+              </ul>
+            </div>
+
+            <div class="detail-block">
+              <div class="detail-title">🎯 주요 사용 용도 (Main Use Cases)</div>
+              <ul class="feature-list usecase-list">
+                <li>신생아~유아기 자녀의 매일매일 변화를 달력 한 칸씩 채워나가는 아카이빙</li><li>앱을 켜지 못하는 조부모님께 매일 아침 손주 사진 이메일 전달</li>
+              </ul>
+            </div>
+
+            <div class="pros-cons-grid">
+              <div class="pro-box">
+                <strong>👍 핵심 강점</strong><br>달력 날짜별로 사진이 딱딱 채워지는 아기자기한 만족감
+              </div>
+              <div class="con-box">
+                <strong>⚠️ 유저 불만 / 약점</strong><br>최근 구독료가 과도하게 인상되어 유저 반발 심함, 유아기 지나면 활용도 급감
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Monetization & Pricing -->
+          <div>
+            <div class="detail-title">💳 과금 체계 및 가격 정책 (Monetization)</div>
+            <div class="pricing-box">
+              <div class="pricing-type">과금 모델: Subscription Heavy Freemium</div>
+              <div class="free-tier">
+                <strong>무료 제공 범위:</strong><br>저화질, 제한된 업로드 및 광고 노출
+              </div>
+              <div>
+                <strong>유료 플랜 구성:</strong>
+                
+                  <div style="margin-top:12px;">
+                    <div class="paid-item">
+                      <span class="paid-name">Tinybeans+</span>
+                      <span class="paid-price">$7.99 / 월 ($74.99 / 년)</span>
+                    </div>
+                    <div class="paid-desc">광고 제거, 고화질 원본 사진/동영상(최대 5분), 무제한 가족 초대, 포토북 제작 20% 할인</div>
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screenshots Horizontal Gallery -->
+        <div class="gallery-section">
+          <div class="gallery-title">
+            <span>📱 실제 앱 인터페이스 스크린샷 (Apple App Store CDN)</span>
+            <span style="font-size:0.8rem; color:var(--text-dim);">가로로 스크롤하여 더 보기 →</span>
+          </div>
+          <div class="gallery-scroll">
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/d1/3d/9c/d13d9ccc-c70a-dc74-9e92-77c5c980afb1/IOS_6.7_S1.png/320x480bb.jpg" alt="Tinybeans Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/b6/ec/db/b6ecdb53-7cde-4d17-33f7-175b04f86886/IOS_6.7_S2.png/320x480bb.jpg" alt="Tinybeans Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/f4/3a/f0/f43af005-b333-1cf2-332a-dd91805e3e60/IOS_6.7_S3.png/320x480bb.jpg" alt="Tinybeans Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/5e/27/59/5e275902-5f0c-718d-b7bd-aaf2852f7255/IOS_6.7_S4.png/320x480bb.jpg" alt="Tinybeans Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/5e/fa/2d/5efa2d7e-2f4d-550c-ea3b-159b0e1e61d5/IOS_6.7_S5.png/320x480bb.jpg" alt="Tinybeans Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/1e/74/74/1e74741d-0a53-d018-fb90-c6974e4bd547/IOS_6.7_S6.png/320x480bb.jpg" alt="Tinybeans Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/b6/b7/4e/b6b74ed2-023a-c0b4-7531-9f25b420f18a/IOS_6.7_S7.png/320x480bb.jpg" alt="Tinybeans Screenshot" loading="lazy">
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    
+      <div class="app-card" id="skylight">
+        <div class="app-header">
+          <div class="app-identity">
+            <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/ee/fe/be/eefebe83-2a33-0a54-542d-ed7e233140fb/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg" alt="Skylight Icon" class="app-icon">
+            <div class="app-title-group">
+              <h2>Skylight <span style="font-size:0.95rem; font-weight:400; color:var(--text-muted);">Glimpse LLC.</span></h2>
+              <div class="app-category">스마트 하드웨어 디스플레이 + 패밀리 OS · 미국 (Glimpse LLC) / 150만+ 기기 판매, 500만+ 유저</div>
+            </div>
+          </div>
+          <div class="app-meta">
+            <div class="rating-badge">
+              ★ 4.8
+              <span class="review-count">(52,273 리뷰)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-body">
+          <!-- Left Column: Features & Use Cases -->
+          <div>
+            <div class="detail-block">
+              <div class="detail-title">⚡ 핵심 기능 (Key Features)</div>
+              <ul class="feature-list">
+                <li>주방 카운터/벽면 거치형 10인치/15인치 상시 켜짐 터치스크린</li><li>구글/애플/아웃룩 캘린더 자동 동기화 및 컬러 코딩</li><li>자녀별 시각적 Chores(집안일) 완료 인터랙션 및 보상</li><li>대기 화면에서 가족 사진/동영상 슬라이드쇼 재생 (디지털 액자 겸용)</li><li>모바일 앱에서 원격으로 일정, 사진, 식단 전송</li>
+              </ul>
+            </div>
+
+            <div class="detail-block">
+              <div class="detail-title">🎯 주요 사용 용도 (Main Use Cases)</div>
+              <ul class="feature-list usecase-list">
+                <li>폰을 보지 않는 아이들에게 오늘 할 일/일정을 시각적으로 안내</li><li>주방 냉장고 마그넷 보드를 대체하는 디지털 패밀리 커맨드 센터</li><li>아이들이 스스로 자기 할 일을 터치해서 별점을 모으는 루틴 형성</li>
+              </ul>
+            </div>
+
+            <div class="pros-cons-grid">
+              <div class="pro-box">
+                <strong>👍 핵심 강점</strong><br>주방에 실물 화면이 상시 켜져 있어 가족 전원의 참여율 압도적 1위
+              </div>
+              <div class="con-box">
+                <strong>⚠️ 유저 불만 / 약점</strong><br>초기 기기 구매 비용($150~$300)과 연 $79라는 높은 구독료 부담
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Monetization & Pricing -->
+          <div>
+            <div class="detail-title">💳 과금 체계 및 가격 정책 (Monetization)</div>
+            <div class="pricing-box">
+              <div class="pricing-type">과금 모델: Hardware Upfront + Subscription</div>
+              <div class="free-tier">
+                <strong>무료 제공 범위:</strong><br>하드웨어 구매 시 기본 캘린더 동기화 지원
+              </div>
+              <div>
+                <strong>유료 플랜 구성:</strong>
+                
+                  <div style="margin-top:12px;">
+                    <div class="paid-item">
+                      <span class="paid-name">하드웨어 기기</span>
+                      <span class="paid-price">$159 (10인치) ~ $319 (15인치 Max)</span>
+                    </div>
+                    <div class="paid-desc">전용 터치스크린 하드웨어</div>
+                  </div>
+                
+                  <div style="margin-top:12px;">
+                    <div class="paid-item">
+                      <span class="paid-name">Skylight Plus</span>
+                      <span class="paid-price">$79.00 / 년</span>
+                    </div>
+                    <div class="paid-desc">동영상 전송(비디오 클립), 포토 앨범 무제한 클라우드 백업, 매직 스크린샷 임포트, 고급 할일 위젯</div>
+                  </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screenshots Horizontal Gallery -->
+        <div class="gallery-section">
+          <div class="gallery-title">
+            <span>📱 실제 앱 인터페이스 스크린샷 (Apple App Store CDN)</span>
+            <span style="font-size:0.8rem; color:var(--text-dim);">가로로 스크롤하여 더 보기 →</span>
+          </div>
+          <div class="gallery-scroll">
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/ea/07/9c/ea079c4e-f7d9-440a-6db2-02b6fa04beeb/Apple_iPhone_Preview_Frame_01.jpg/320x480bb.jpg" alt="Skylight Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/c6/dc/38/c6dc3801-66ac-795b-4a05-7bdeda15225e/Apple_iPhone_Preview_Frame_02.jpg/320x480bb.jpg" alt="Skylight Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/c3/ac/72/c3ac729a-592a-d223-57e4-53f6ef08431c/Apple_iPhone_Preview_Frame_03.jpg/320x480bb.jpg" alt="Skylight Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/36/f1/2e/36f12e56-f40d-be3d-8e1f-0ca0b15ce14c/Apple_iPhone_Preview_Frame_04.jpg/320x480bb.jpg" alt="Skylight Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/57/3c/91/573c913b-1aca-95b1-103c-3ba6c6d3a4ed/Apple_iPhone_Preview_Frame_05.jpg/320x480bb.jpg" alt="Skylight Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/79/16/cb/7916cb91-a9aa-aae2-afdf-6ed182b150ca/Apple_iPhone_Preview_Frame_06.jpg/320x480bb.jpg" alt="Skylight Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/24/0a/f8/240af899-7518-4523-69d5-ee44ba50fd12/Apple_iPhone_Preview_Frame_13_NO_PRICE.jpg/320x480bb.jpg" alt="Skylight Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/4b/69/32/4b693296-0c6c-05b6-376c-fc2756e870ac/Apple_iPhone_Preview_Frame_12_NO_PRICE.jpg/320x480bb.jpg" alt="Skylight Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/48/ec/f4/48ecf470-5ccd-b3b1-cb6e-d32c6e687774/Apple_iPhone_Preview_Frame_11_NO_PRICE.jpg/320x480bb.jpg" alt="Skylight Screenshot" loading="lazy">
+              </div>
+            
+              <div class="screenshot-thumb">
+                <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/a2/7c/9f/a27c9f0a-91b3-edc6-cf2a-280537421638/Apple_iPhone_Preview_Frame_10.jpg/320x480bb.jpg" alt="Skylight Screenshot" loading="lazy">
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    
+  </div>
+
+  <!-- Comparison Matrix Table -->
+  <h2 class="section-title">📊 6개 서비스 기능 및 포지셔닝 비교 매트릭스</h2>
+  <p class="section-sub">카테고리별 지원 기능과 과금 정책을 한눈에 비교합니다.</p>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>서비스명</th>
+          <th>카테고리</th>
+          <th>사진/영상 피드</th>
+          <th>공유 캘린더</th>
+          <th>Chores (집안일)</th>
+          <th>가족 메모/규칙</th>
+          <th>D-Day / 기념일</th>
+          <th>무료 티어 관대함</th>
+          <th>유료 구독료</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="table-app-cell"><img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/6a/7f/5c/6a7f5c9c-bed5-3bdc-e6ee-7857eac6e914/AppIcon-0-0-1x_U007epad-0-1-0-sRGB-85-220.png/512x512bb.jpg" class="table-icon"> FamilyAlbum</div></td>
+          <td>사진/소셜</td>
+          <td class="tag-yes">최상 (무제한)</td>
+          <td class="tag-no">지원 안 함</td>
+          <td class="tag-no">지원 안 함</td>
+          <td class="tag-no">지원 안 함</td>
+          <td class="tag-partial">생일 자동</td>
+          <td class="tag-yes">매우 높음 (무제한)</td>
+          <td>월 $5.99 / 연 $59</td>
+        </tr>
+        <tr>
+          <td><div class="table-app-cell"><img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/51/73/e6/5173e6c3-87d6-7d73-830e-ab5289823c03/AppIcon-iPhone-0-0-1x_U007emarketing-0-0-0-8-0-0-85-220.png/512x512bb.jpg" class="table-icon"> Cozi</div></td>
+          <td>오거나이저</td>
+          <td class="tag-no">지원 안 함</td>
+          <td class="tag-yes">지원 (핵심)</td>
+          <td class="tag-yes">지원 (투두)</td>
+          <td class="tag-partial">레시피 중심</td>
+          <td class="tag-partial">유료 전용</td>
+          <td class="tag-no">매우 낮음 (광고+30일)</td>
+          <td>연 $39.00</td>
+        </tr>
+        <tr>
+          <td><div class="table-app-cell"><img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/15/ed/e7/15ede7e6-76e9-15bb-93df-84006f8fa134/AppIcon-0-0-1x_U007epad-0-1-0-85-220.png/512x512bb.jpg" class="table-icon"> FamilyWall</div></td>
+          <td>올인원 허브</td>
+          <td class="tag-partial">100MB 제한</td>
+          <td class="tag-yes">지원 (핵심)</td>
+          <td class="tag-yes">지원</td>
+          <td class="tag-yes">문서/연락처</td>
+          <td class="tag-partial">일반 일정</td>
+          <td class="tag-partial">보통 (용량 제한)</td>
+          <td>월 $4.99~$7.99 / 연 $44.99</td>
+        </tr>
+        <tr>
+          <td><div class="table-app-cell"><img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/33/d1/3f/33d13f43-967f-e785-9944-e297e4ee2b51/AppIcon-0-0-1x_U007ephone-0-1-0-sRGB-85-220.png/512x512bb.jpg" class="table-icon"> TimeTree</div></td>
+          <td>공유 캘린더</td>
+          <td class="tag-partial">일정당 3장</td>
+          <td class="tag-yes">최상 (핵심)</td>
+          <td class="tag-partial">메모 라벨</td>
+          <td class="tag-partial">간이 메모</td>
+          <td class="tag-partial">일정 반복</td>
+          <td class="tag-yes">높음 (광고 기반)</td>
+          <td>월 $4.49 / 연 $44.99</td>
+        </tr>
+        <tr>
+          <td><div class="table-app-cell"><img src="https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/e7/1d/3e/e71d3e72-e9a7-3053-72fd-36dcc4596f34/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg" class="table-icon"> Tinybeans</div></td>
+          <td>영유아 저널</td>
+          <td class="tag-yes">달력형 뷰</td>
+          <td class="tag-no">지원 안 함</td>
+          <td class="tag-no">지원 안 함</td>
+          <td class="tag-no">지원 안 함</td>
+          <td class="tag-yes">마일스톤</td>
+          <td class="tag-no">낮음 (유료 유도)</td>
+          <td>월 $7.99 / 연 $74.99</td>
+        </tr>
+        <tr>
+          <td><div class="table-app-cell"><img src="https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/ee/fe/be/eefebe83-2a33-0a54-542d-ed7e233140fb/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg" class="table-icon"> Skylight</div></td>
+          <td>하드웨어+OS</td>
+          <td class="tag-yes">디지털 액자 슬라이드</td>
+          <td class="tag-yes">지원 (월동기화)</td>
+          <td class="tag-yes">시각적 터치 완료</td>
+          <td class="tag-partial">식단 위젯</td>
+          <td class="tag-partial">일정 기반</td>
+          <td class="tag-no">기기 구매 필수</td>
+          <td>기기 $159~$319 + 연 $79</td>
+        </tr>
+        <tr style="background: rgba(249, 115, 22, 0.08); font-weight: bold;">
+          <td><div class="table-app-cell"><span style="font-size:1.4rem;">🌟</span> 우리 서비스 (기획)</div></td>
+          <td>소셜 + 보드 융합</td>
+          <td class="tag-yes">고화질 WebP 피드</td>
+          <td class="tag-yes">주간 태스크/보드</td>
+          <td class="tag-yes">WeekTasks 기본</td>
+          <td class="tag-yes">카테고리별 메모</td>
+          <td class="tag-yes">D-Day 카운트</td>
+          <td class="tag-yes">10GB 무료 (R2)</td>
+          <td class="tag-yes">월 $3.99 / 연 $39</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Strategic Opportunities for Our SaaS -->
+  <div class="strategy-card">
+    <h3>💡 신규 SaaS 런칭을 위한 핵심 기회 요인 (Strategic White Space)</h3>
+    <div style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.7;">
+      현재 시장의 거대 플레이어들은 <strong>"사진만 있거나(FamilyAlbum)"</strong> 혹은 <strong>"일정/기능만 무겁거나(Cozi, FamilyWall)"</strong>로 극단적으로 갈려 있습니다. 또한 Cozi가 과도한 광고와 30일 제한을 도입하면서 <strong>미국 부모들의 대탈출</strong>이 발생하고 있습니다.
+    </div>
+
+    <div class="strategy-grid">
+      <div class="strategy-item">
+        <h4>1. 감성 소셜 + 일상 보드의 유기적 결합</h4>
+        <p>사진 피드만 있으면 한 달에 몇 번 안 들어오지만, Chores(집안일), D-Day, 비상 연락처가 함께 있으면 매일 아침 접속합니다. 두 기능의 결합이 최강의 리텐션을 만듭니다.</p>
+      </div>
+      <div class="strategy-item">
+        <h4>2. 앱 설치 없는 웹(PWA) + 스마트 디스플레이 모드</h4>
+        <p>$300짜리 Skylight 기기를 살 필요 없이, 집에 있는 낡은 아이패드를 주방 냉장고에 붙여놓고 브라우저 전체화면으로 띄워두는 '무료 스마트 패밀리 디스플레이' 포지셔닝.</p>
+      </div>
+      <div class="strategy-item">
+        <h4>3. Cloudflare 기반 압도적 인프라 마진</h4>
+        <p>Egress(트래픽 전송료) $0인 Cloudflare R2와 Workers 덕분에, 타사가 수천 달러씩 내는 동영상/사진 전송 비용을 0원으로 방어하여 월 $3.99의 파괴적 가격에도 90% 이상 마진 유지 가능.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>가족 전용 프라이빗 SaaS 시장 조사 보고서 · Antigravity AI Strategy Hub · 2026</p>
+  </footer>
+</div>
+
+</body>
+</html>

@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { SITES_METRICS, PERIODS, getAggregatedStats } from "../../lib/stats-data";
+import { SITES_METRICS, SEO_SYNC_META, PERIODS, getAggregatedStats } from "../../lib/stats-data";
 import { useApi, api } from "../../lib/api";
 import "./stats.css";
 
 export default function StatsPage() {
   const { data: apiData, loading, reload } = useApi("/api/stats/summary");
   const sites = apiData?.sites || SITES_METRICS;
+  const syncMeta = apiData?.syncMeta || SEO_SYNC_META;
 
   const [activeSiteId, setActiveSiteId] = useState("all");
   const [period, setPeriod] = useState("28d");
@@ -300,7 +301,15 @@ export default function StatsPage() {
                 <small>명</small>
               </div>
               <div className="stMetricFoot">
-                <span>Utah Says(D1 88명) · EverydayTutor(GA4 2명) 실측</span>
+                <span>
+                  {sites
+                    .map((s) => ({ name: s.shortName, u: getSitePeriodData(s, period).users }))
+                    .filter((x) => x.u > 0)
+                    .sort((a, b) => b.u - a.u)
+                    .slice(0, 3)
+                    .map((x) => `${x.name}(${x.u}명)`)
+                    .join(" · ") || "실측 집계 중"}
+                </span>
               </div>
             </div>
 
@@ -329,7 +338,17 @@ export default function StatsPage() {
                 <small>건</small>
               </div>
               <div className="stMetricFoot">
-                <span>Utah Says 실측 투표 29건 (애드블록 미차단 D1 팩트)</span>
+                <span>
+                  {sites
+                    .map((s) => ({
+                      name: s.shortName,
+                      c: getSitePeriodData(s, period).conversions,
+                      unit: s.overview?.conversions?.unit ?? "건",
+                    }))
+                    .filter((x) => x.c > 0)
+                    .map((x) => `${x.name} ${x.c}${x.unit}`)
+                    .join(" · ") || "애드블록 미차단 D1 팩트"}
+                </span>
               </div>
             </div>
           </div>
@@ -342,7 +361,9 @@ export default function StatsPage() {
                 <span>전 사이트 실측 성과 및 인프라 매트릭스 ({periodLabel})</span>
               </h2>
               <span style={{ fontSize: "var(--fs-sm)", color: "var(--text-3)", fontWeight: 500 }}>
-                가상 데이터를 일절 배제한 100% 실측 지표입니다
+                {syncMeta?.latestReportDate
+                  ? `주간 리포트(${syncMeta.latestReportDate}) 및 실시간 D1 비콘 연동됨`
+                  : "가상 데이터를 일절 배제한 100% 실측 지표입니다"}
               </span>
             </div>
 
@@ -376,7 +397,7 @@ export default function StatsPage() {
                             <div>
                               <div className="stSiteName">{s.name}</div>
                               <div className="stSiteCategory">
-                                {s.dataStatus === "new" ? "오늘 신규 런칭" : s.badge}
+                                {s.dataStatus === "new" ? "신규 런칭" : s.badge}
                               </div>
                             </div>
                           </div>
@@ -410,10 +431,22 @@ export default function StatsPage() {
                         </td>
                         <td>
                           <span
-                            className={`stTag ${s.id === "utahsays" ? "ok" : s.integrations.gsc.connected ? "brand" : ""}`}
+                            className={`stTag ${
+                              s.integrations.gsc.connected && s.integrations.ga4.connected
+                                ? "ok"
+                                : s.integrations.gsc.connected
+                                ? "brand"
+                                : ""
+                            }`}
                             style={{ fontSize: "11px" }}
                           >
-                            {s.id === "utahsays" ? "D1 엣지 실측" : s.integrations.gsc.connected ? "GSC + GA4" : "배포 초기"}
+                            {s.integrations.gsc.connected && s.integrations.ga4.connected
+                              ? "GSC + GA4 + D1"
+                              : s.integrations.gsc.connected
+                              ? "GSC + D1 비콘"
+                              : s.dataStatus === "staging"
+                              ? "전환 대기"
+                              : "D1 1st-Party"}
                           </span>
                         </td>
                         <td style={{ fontWeight: 800 }}>
@@ -431,9 +464,9 @@ export default function StatsPage() {
                           ) : pData.users > 0 ? (
                             <>
                               <span>{pData.users}명</span>
-                              {s.id === "utahsays" && (
+                              {s.telemetrySource?.includes("D1") && (
                                 <span style={{ display: "block", fontSize: "10px", color: "var(--st-ok-text)", fontWeight: 600 }}>
-                                  (D1 실측)
+                                  ({s.integrations.ga4.connected ? "GA4/D1 실측" : "D1 실측"})
                                 </span>
                               )}
                             </>
@@ -481,50 +514,66 @@ export default function StatsPage() {
             </div>
           </div>
 
-          {/* 중앙 관제 우선 과제 패널 */}
+          {/* 중앙 관제 우선 과제 패널 (웹사이트·서비스별 핵심 3대 과제) */}
           <div className="stActionPanel">
-            <div className="stActionPanelHeader">
-              <span>🎯</span>
-              <h3>중앙 SEO Hub 관제 우선 과제 (Action Plan)</h3>
+            <div className="stActionPanelHeader" style={{ justifyContent: "space-between", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span>🎯</span>
+                <h3>중앙 SEO Hub 관제 우선 과제 (Action Plan · 서비스별 3대 핵심 작업)</h3>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                {syncMeta?.latestReportDate && (
+                  <span className="stTag ok">
+                    주간 리포트 연동: {syncMeta.latestReportDate}
+                  </span>
+                )}
+                <span className="stTag brand">
+                  총 {sites.reduce((acc, s) => acc + (s.actionItems?.length || 0), 0)}개 실행 과제
+                </span>
+              </div>
             </div>
-            <ul className="stActionList">
-              <li className="stActionItem">
-                <span className="stActionBullet">1</span>
-                <div>
-                  <b>[EverydayTutor]</b> 대만 실측 검색어 <code>高中英文家教行情</code> (현재 25.3위)의 1페이지(5위 이내) 진입을 위해 기 작성된 메타 디스크립션 및 본문 H2/H3 리라이팅 가이드 적용
-                </div>
-              </li>
-              <li className="stActionItem">
-                <span className="stActionBullet">2</span>
-                <div>
-                  <b>[WebOmok]</b> 오늘 신규 배포 완료에 따라 구글 서치 콘솔 속성 등록 및 네이버 검색광고 실측 월 7,710회(경쟁도 낮음)인 <code>오목게임</code> 온페이지 최적화
-                </div>
-              </li>
-              <li className="stActionItem">
-                <span className="stActionBullet">3</span>
-                <div>
-                  <b>[PW Studio]</b> 신규 GA4(G-B2EWMRBHTN) 연동 완료에 따른 소상공인 전문 웹사이트 제작 키워드 갭 블로그 포스트 발행
-                </div>
-              </li>
-              <li className="stActionItem">
-                <span className="stActionBullet">4</span>
-                <div>
-                  <b>[EcoCarpet Utah]</b> 신규 Cloudflare Pages 구축 완료에 따른 본 도메인(ecocarpetutah.com) 정식 DNS 이전 준비
-                </div>
-              </li>
-              <li className="stActionItem">
-                <span className="stActionBullet">5</span>
-                <div>
-                  <b>[웹지뢰찾기]</b> 국내 월 43.6만 건 검색량 공략을 위한 온페이지 타이틀 및 보스 키(ESC 엑셀 위장) 메타 디스크립션 최적화 &amp; 구글 서치 콘솔 색인 제출
-                </div>
-              </li>
-              <li className="stActionItem">
-                <span className="stActionBullet">6</span>
-                <div>
-                  <b>[KimEdit]</b> 영상 크리에이터 및 프리랜서 영상 편집자 커뮤니티 초기 베타 런칭 안내 및 Supabase/R2 세션 모니터링
-                </div>
-              </li>
-            </ul>
+
+            <div className="stActionGrid">
+              {sites.map((s) => {
+                const pData = getSitePeriodData(s, period);
+                return (
+                  <div key={s.id} className="stActionSiteCard">
+                    <div className="stActionSiteHead">
+                      <div className="stSiteCell">
+                        <div className="stSiteIcon">{s.icon}</div>
+                        <div>
+                          <div className="stSiteName">{s.name}</div>
+                          <div className="stSiteCategory">{s.domain}</div>
+                        </div>
+                      </div>
+                      <div className="stActionSiteMeta">
+                        <span className={`stTag ${s.dataStatus === "real" ? "ok" : "brand"}`}>
+                          {s.dataStatus === "staging"
+                            ? "본 도메인 전환 대기"
+                            : `노출 ${pData.impressions} · 방문 ${pData.users}명`}
+                        </span>
+                        <button
+                          type="button"
+                          className="stBtn"
+                          style={{ height: "28px", padding: "0 10px", fontSize: "11px" }}
+                          onClick={() => setActiveSiteId(s.id)}
+                        >
+                          상세 →
+                        </button>
+                      </div>
+                    </div>
+                    <ul className="stActionList">
+                      {(s.actionItems || []).map((item, idx) => (
+                        <li key={idx} className="stActionItem">
+                          <span className="stActionBullet">{idx + 1}</span>
+                          <div>{item}</div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </>
       ) : (

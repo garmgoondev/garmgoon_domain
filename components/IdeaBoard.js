@@ -19,12 +19,18 @@ export default function IdeaBoard({ view = "feed", initialDay = null }) {
   const [kind, setKind] = useState("전체");
   const [sort, setSort] = useState("recommend");
   const [hideDisliked, setHideDisliked] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [globalQuery, setGlobalQuery] = useState("");
 
   useEffect(() => setDay(initialDay), [initialDay]);
 
   const params = new URLSearchParams();
-  if (day) params.set("day", day);
-  if (all) params.set("view", "all");
+  if (globalQuery) {
+    params.set("q", globalQuery);
+  } else {
+    if (day) params.set("day", day);
+    if (all) params.set("view", "all");
+  }
   const qs = params.toString();
   const ideas = useApi(`/api/ideas${qs ? `?${qs}` : ""}`);
   const kw = useApi(authed ? "/api/p/keywords" : null);
@@ -32,6 +38,7 @@ export default function IdeaBoard({ view = "feed", initialDay = null }) {
   const [votes, setVote] = useVotes(ideas.data?.votes);
 
   const pickDay = (d) => {
+    setGlobalQuery("");
     setDay(d);
     if (all) window.history.replaceState(null, "", `?day=${d}`);
   };
@@ -39,8 +46,17 @@ export default function IdeaBoard({ view = "feed", initialDay = null }) {
   const data = ideas.data;
   const cards = useMemo(() => {
     const list = data?.cards || [];
-    return all && sort === "recommend" ? [...list].sort((a, b) => b.feedScore - a.feedScore) : list;
-  }, [data, all, sort]);
+    const sorted = (all || globalQuery) && sort === "recommend" ? [...list].sort((a, b) => b.feedScore - a.feedScore) : list;
+    const term = searchInput.trim().toLowerCase();
+    if (!term || term === globalQuery.toLowerCase()) return sorted;
+    return sorted.filter((c) =>
+      [c.headline, c.title, ...(c.summary || []), c.point, ...(c.tags || []), c.sourceLabel, c.category]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(term),
+    );
+  }, [data, all, globalQuery, sort, searchInput]);
   const keywords = kw.data?.keywords || [];
   const cardKeywords = useMemo(
     () => new Map(cards.map((c) => [c.id, matchKeywords([c.headline, c.title, ...c.summary, c.point, ...c.tags].join(" "), keywords)])),
@@ -62,9 +78,9 @@ export default function IdeaBoard({ view = "feed", initialDay = null }) {
   );
   const alerts = visible.filter((c) => cardKeywords.get(c.id)?.length);
   const shownDay = data?.day || todayLocal();
-  const hiddenCount = (data?.total || 0) - cards.length;
+  const hiddenCount = globalQuery ? 0 : (data?.total || 0) - (data?.cards?.length || 0);
   // 가장 최근 수집분(4시간 이내)에 새로 추가된 카드
-  const latestBatch = Math.max(0, ...cards.map((c) => c.collectedAt || 0));
+  const latestBatch = Math.max(0, ...(data?.cards || []).map((c) => c.collectedAt || 0));
   const isNew = (c) => c.collectedAt === latestBatch && Date.now() - latestBatch < 4 * 3600 * 1000;
   const prefs = data?.prefs;
 
@@ -72,15 +88,30 @@ export default function IdeaBoard({ view = "feed", initialDay = null }) {
     <>
       <div className="pageHead">
         <div>
-          <div className="eyebrow">{all ? "🗂️" : "☀️"} {formatDay(shownDay)}</div>
-          <h1 className="pageTitle">{all ? "전체 카드" : "오늘의 비즈니스 카드"}</h1>
+          <div className="eyebrow">{globalQuery ? "🔍 전체 날짜 검색" : `${all ? "🗂️" : "☀️"} ${formatDay(shownDay)}`}</div>
+          <h1 className="pageTitle">
+            {globalQuery ? `“${globalQuery}” 검색 결과` : all ? "비즈니스 아이디어 전체 아카이브" : "오늘의 비즈니스 카드뉴스"}
+          </h1>
           <p className="pageDesc">
-            {all
-              ? `그날 만든 카드 ${data?.total ?? 0}장을 모두 보여줘요. 피드에는 추천 상위 ${data?.feedSize ?? 30}장만 올라가요.`
-              : "니치 수익 사례, 새로운 사업 형태, 호응 큰 아이디어 검증 글을 AI가 4시간마다 골라 요약해요. 카드를 누르면 원문이 열려요."}
+            {globalQuery
+              ? `최근 보관된 모든 비즈니스 카드 중 “${globalQuery}” 관련 카드 ${data?.total ?? 0}장을 찾았어요.`
+              : all
+                ? "수집 및 큐레이션된 전체 비즈니스 아이디어 카드 아카이브입니다. 날짜별 카드 전체 내역을 열람하거나 상단 검색창을 통해 원하는 키워드를 실시간으로 탐색할 수 있습니다."
+                : "글로벌 니치 수익 사례, 최신 SaaS 사업 모델, 검증된 창업 아이디어를 AI가 4시간마다 수집하고 요약합니다. 카드를 클릭하면 상세 내용과 원문을 확인할 수 있습니다."}
           </p>
         </div>
-        {all ? (
+        {globalQuery ? (
+          <button
+            type="button"
+            className="btn small ghost"
+            onClick={() => {
+              setGlobalQuery("");
+              setSearchInput("");
+            }}
+          >
+            ← 오늘 피드로 돌아가기
+          </button>
+        ) : all ? (
           <Link href="/" className="moreLink">
             ← 피드로
           </Link>
@@ -102,7 +133,45 @@ export default function IdeaBoard({ view = "feed", initialDay = null }) {
         </p>
       ) : null}
 
-      {data?.days?.length > 1 ? (
+      <form
+        className="row"
+        style={{ marginBottom: 12 }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          setGlobalQuery(searchInput.trim());
+        }}
+      >
+        <input
+          type="search"
+          className="input"
+          placeholder="🔍 카드 제목·요약·태그 검색 (Enter를 누르면 전체 날짜에서 통합 검색해요)"
+          value={searchInput}
+          onChange={(e) => {
+            setSearchInput(e.target.value);
+            if (!e.target.value.trim() && globalQuery) setGlobalQuery("");
+          }}
+          aria-label="비즈니스 카드 검색"
+        />
+        {searchInput.trim() && searchInput.trim() !== globalQuery ? (
+          <button type="submit" className="btn small">
+            전체 날짜 검색
+          </button>
+        ) : null}
+        {(searchInput || globalQuery) ? (
+          <button
+            type="button"
+            className="btn small ghost"
+            onClick={() => {
+              setSearchInput("");
+              setGlobalQuery("");
+            }}
+          >
+            초기화
+          </button>
+        ) : null}
+      </form>
+
+      {data?.days?.length > 1 && !globalQuery ? (
         <div className="chips" style={{ marginBottom: 10 }}>
           {data.days.map((d) => {
             const s = shortDay(d.day);
@@ -122,7 +191,7 @@ export default function IdeaBoard({ view = "feed", initialDay = null }) {
         <div className="kindTabs" role="tablist" aria-label="카드 유형">
           <button type="button" role="tab" aria-selected={kind === "전체"} className={kind === "전체" ? "on" : ""} onClick={() => { setKind("전체"); setCategory("전체"); }}>
             <b>전체 {cards.length}</b>
-            <small>{all ? "그날 만든 모든 카드" : "추천 상위 카드"}</small>
+            <small>{globalQuery ? "통합 검색 결과" : all ? "그날 만든 모든 카드" : "추천 상위 카드"}</small>
           </button>
           {KIND_NAMES.map((k) => (
             <button
@@ -157,7 +226,7 @@ export default function IdeaBoard({ view = "feed", initialDay = null }) {
         </div>
       ) : null}
 
-      {all && cards.length ? (
+      {(all || globalQuery) && cards.length ? (
         <div className="chips" style={{ marginBottom: 18 }}>
           {Object.entries(SORTS).map(([key, label]) => (
             <button key={key} type="button" className={`chip${sort === key ? " on" : ""}`} onClick={() => setSort(key)}>

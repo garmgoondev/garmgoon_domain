@@ -67,9 +67,29 @@ function ScrapItem({ s, onDelete, onNote }) {
 function Scraps({ onNote }) {
   const { data, loading, error, setData } = useApi("/api/p/scraps");
   const [filter, setFilter] = useState("all");
+  const [query, setQuery] = useState("");
   if (loading && !data) return <div className="skeleton" style={{ height: 300 }} />;
   if (error) return <p className="error">{error.message}</p>;
-  const list = data.scraps.filter((s) => filter === "all" || s.kind === filter);
+  const term = query.trim().toLowerCase();
+  const list = data.scraps.filter((s) => {
+    if (filter !== "all" && s.kind !== filter) return false;
+    if (!term) return true;
+    const text = [
+      s.note,
+      s.item?.headline,
+      s.item?.title,
+      ...(s.item?.summary || []),
+      ...(s.item?.tags || []),
+      s.item?.category,
+      s.video?.title,
+      s.video?.oneLiner,
+      s.video?.channelTitle,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    return text.includes(term);
+  });
 
   async function remove(id) {
     if (!confirm("스크랩을 삭제할까요?")) return;
@@ -79,16 +99,27 @@ function Scraps({ onNote }) {
 
   return (
     <>
-      <div className="chips" style={{ marginBottom: 16 }}>
-        {[
-          ["all", "전체"],
-          ["item", "🗞️ 카드"],
-          ["video", "📺 영상"],
-        ].map(([id, label]) => (
-          <button key={id} type="button" className={`chip${filter === id ? " on" : ""}`} onClick={() => setFilter(id)}>
-            {label} <span className="count">{id === "all" ? data.scraps.length : data.scraps.filter((s) => s.kind === id).length}</span>
-          </button>
-        ))}
+      <div className="row" style={{ flexWrap: "wrap", justifyContent: "space-between", marginBottom: 16 }}>
+        <div className="chips">
+          {[
+            ["all", "전체"],
+            ["item", "🗞️ 카드"],
+            ["video", "📺 영상"],
+          ].map(([id, label]) => (
+            <button key={id} type="button" className={`chip${filter === id ? " on" : ""}`} onClick={() => setFilter(id)}>
+              {label} <span className="count">{id === "all" ? data.scraps.length : data.scraps.filter((s) => s.kind === id).length}</span>
+            </button>
+          ))}
+        </div>
+        <input
+          type="search"
+          className="input"
+          style={{ maxWidth: 260, height: 36 }}
+          placeholder="🔍 스크랩·메모 검색…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          aria-label="스크랩 검색"
+        />
       </div>
       {list.length ? (
         <div className="scrapList">
@@ -98,9 +129,9 @@ function Scraps({ onNote }) {
         </div>
       ) : (
         <div className="empty">
-          <span className="emoji">☆</span>
-          <b>스크랩한 카드가 없어요</b>
-          <span>카드뉴스의 마지막 장이나 영상 카드에서 ☆를 눌러 보관하세요.</span>
+          <span className="emoji">{term ? "🔍" : "☆"}</span>
+          <b>{term ? `"${query.trim()}" 검색 결과가 없어요` : "스크랩한 카드가 없어요"}</b>
+          <span>{term ? "다른 검색어를 입력해 보세요." : "카드뉴스의 마지막 장이나 영상 카드에서 ☆를 눌러 보관하세요."}</span>
         </div>
       )}
     </>
@@ -183,6 +214,7 @@ function NoteCard({ note, onChange, onDelete }) {
 function Notes({ prefill, onPrefillUsed }) {
   const { data, loading, error, setData } = useApi("/api/p/notes");
   const [filter, setFilter] = useState("all");
+  const [query, setQuery] = useState("");
   const [form, setForm] = useState({ title: "", body: "", tags: "" });
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
@@ -220,7 +252,12 @@ function Notes({ prefill, onPrefillUsed }) {
     setData((d) => ({ ...d, notes: d.notes.filter((n) => n.id !== id) }));
   }
 
-  const notes = data.notes.filter((n) => filter === "all" || n.status === filter);
+  const term = query.trim().toLowerCase();
+  const notes = data.notes.filter((n) => {
+    if (filter !== "all" && n.status !== filter) return false;
+    if (!term) return true;
+    return [n.title, n.body, ...(n.tags || []), n.link].filter(Boolean).join(" ").toLowerCase().includes(term);
+  });
 
   return (
     <>
@@ -237,15 +274,26 @@ function Notes({ prefill, onPrefillUsed }) {
         {msg ? <p className="error">{msg}</p> : null}
       </form>
 
-      <div className="chips" style={{ marginBottom: 16 }}>
-        <button type="button" className={`chip${filter === "all" ? " on" : ""}`} onClick={() => setFilter("all")}>
-          전체 <span className="count">{data.notes.length}</span>
-        </button>
-        {STATUSES.map((s) => (
-          <button key={s.id} type="button" className={`chip${filter === s.id ? " on" : ""}`} onClick={() => setFilter(s.id)}>
-            {s.label} <span className="count">{data.notes.filter((n) => n.status === s.id).length}</span>
+      <div className="row" style={{ flexWrap: "wrap", justifyContent: "space-between", marginBottom: 16 }}>
+        <div className="chips">
+          <button type="button" className={`chip${filter === "all" ? " on" : ""}`} onClick={() => setFilter("all")}>
+            전체 <span className="count">{data.notes.length}</span>
           </button>
-        ))}
+          {STATUSES.map((s) => (
+            <button key={s.id} type="button" className={`chip${filter === s.id ? " on" : ""}`} onClick={() => setFilter(s.id)}>
+              {s.label} <span className="count">{data.notes.filter((n) => n.status === s.id).length}</span>
+            </button>
+          ))}
+        </div>
+        <input
+          type="search"
+          className="input"
+          style={{ maxWidth: 260, height: 36 }}
+          placeholder="🔍 아이디어 노트 검색…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          aria-label="아이디어 노트 검색"
+        />
       </div>
 
       {notes.length ? (
@@ -261,9 +309,9 @@ function Notes({ prefill, onPrefillUsed }) {
         </div>
       ) : (
         <div className="empty">
-          <span className="emoji">💡</span>
-          <b>아직 노트가 없어요</b>
-          <span>떠오른 아이디어를 적어 두고, 검토 → 실행으로 옮겨 보세요.</span>
+          <span className="emoji">{term ? "🔍" : "💡"}</span>
+          <b>{term ? `"${query.trim()}" 검색 결과가 없어요` : "아직 노트가 없어요"}</b>
+          <span>{term ? "다른 단어로 검색해 보세요." : "떠오른 아이디어를 적어 두고, 검토 → 실행으로 옮겨 보세요."}</span>
         </div>
       )}
     </>
@@ -279,9 +327,11 @@ export default function ScrapPage() {
     <>
       <div className="pageHead">
         <div>
-          <div className="eyebrow">📌 MY ARCHIVE</div>
-          <h1 className="pageTitle">스크랩 · 아이디어 노트</h1>
-          <p className="pageDesc">마음에 든 카드와 영상을 모으고, 내 아이디어로 발전시키는 곳이에요.</p>
+          <div className="eyebrow">📌 MY ARCHIVE &amp; NOTES</div>
+          <h1 className="pageTitle">스크랩 · 아이디어 노트 보관함</h1>
+          <p className="pageDesc">
+            비즈니스 아이디어 카드뉴스와 유튜브 핵심 요약에서 영감을 얻은 콘텐츠를 북마크하고, 이를 발전시킬 나만의 개인 메모와 실행 계획 노트를 체계적으로 기록하고 관리하는 공간입니다.
+          </p>
         </div>
       </div>
       <div className="tabs" role="tablist">

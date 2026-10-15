@@ -149,7 +149,8 @@ ${SUMMARY_FORMAT}`,
 
 async function fetchTranscriptHub(env, videoId) {
   const baseUrl = env.HUB_BASE_URL || "https://hub.garmgoon.com";
-  const key = env.HUB_API_KEY || "Dbt3AYTcoPx9jR0EyNC8mhwIzvQiqJdk";
+  const key = (env.HUB_API_KEY || "").trim();
+  if (!key) return null;
   try {
     const res = await fetch(`${baseUrl}/v1/youtube/transcript?v=${encodeURIComponent(videoId)}`, {
       headers: { "X-Hub-Key": key },

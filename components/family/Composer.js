@@ -8,7 +8,7 @@ import { todayLocal } from "../../lib/format";
 let seq = 0;
 
 // 새 글 쓰기와 글 고치기를 함께 맡는다. 파일은 고르는 즉시 올리고, 저장할 때 글에 붙인다.
-export default function Composer({ post, defaults, onSaved, onCancel }) {
+export default function Composer({ post, defaults, promptSignal, onSaved, onCancel }) {
   const [kind, setKind] = useState(post?.kind || defaults.kind);
   const [visibility, setVisibility] = useState(post?.visibility || defaults.visibility);
   const [diaryDay, setDiaryDay] = useState(post?.diaryDay || todayLocal());
@@ -29,10 +29,26 @@ export default function Composer({ post, defaults, onSaved, onCancel }) {
   const [error, setError] = useState("");
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef(null);
+  const textRef = useRef(null);
   const saved = useRef(false);
   const itemsRef = useRef(items);
   itemsRef.current = items;
   const originalIds = new Set((post?.files || []).map((f) => f.id));
+
+  useEffect(() => {
+    if (!promptSignal?.seq) return;
+    setBody((prev) => {
+      const clean = prev.replace(/^Q\.\s*[^\n]+\n\n/, "");
+      return `${promptSignal.text}${clean}`;
+    });
+    setTimeout(() => {
+      if (textRef.current) {
+        textRef.current.focus();
+        const len = textRef.current.value.length;
+        textRef.current.setSelectionRange(len, len);
+      }
+    }, 20);
+  }, [promptSignal?.seq]);
 
   // 저장하지 않고 닫으면 새로 올린 파일을 지운다 (남은 것은 서버가 하루 뒤 정리)
   useEffect(
@@ -167,6 +183,7 @@ export default function Composer({ post, defaults, onSaved, onCancel }) {
       ) : null}
 
       <textarea
+        ref={textRef}
         className="textarea"
         rows={kind === "diary" ? 5 : 3}
         placeholder={kind === "diary" ? "오늘 하루는 어땠나요?" : "가족에게 남길 말을 적어 주세요"}

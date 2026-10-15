@@ -78,6 +78,13 @@ test("feed shows only the top cards without dislikes; the all view keeps every c
   assert.equal(everything.data.cards.length, 5);
   assert.equal(everything.data.votes[ids[0]], -1);
   assert.equal(everything.data.prefs.dislikes, 1);
+
+  // 다른 날짜의 카드도 ?q= 통합 검색으로 찾을 수 있다
+  const otherDayId = addItem(env, { day: "2026-09-20", pick: 8 });
+  const searched = await call(env, `/api/ideas?q=${encodeURIComponent(`카드 ${otherDayId}`)}`);
+  assert.equal(searched.data.query, `카드 ${otherDayId}`);
+  assert.equal(searched.data.cards.length, 1);
+  assert.equal(searched.data.cards[0].id, otherDayId);
 });
 
 test("preferences need a few votes, then boost liked sources and categories within bounds", async (t) => {

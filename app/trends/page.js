@@ -98,9 +98,11 @@ export default function TrendsPage() {
     <>
       <div className="pageHead">
         <div>
-          <div className="eyebrow">📈 WEEKLY TREND</div>
-          <h1 className="pageTitle">주간 트렌드 리포트</h1>
-          <p className="pageDesc">매주 일요일 저녁, 한 주 동안 모인 카드와 영상을 한 장으로 정리해요.</p>
+          <div className="eyebrow">📈 WEEKLY TREND &amp; INSIGHTS</div>
+          <h1 className="pageTitle">실시간 트렌드 분석 &amp; 주간 리포트</h1>
+          <p className="pageDesc">
+            매주 일요일 저녁, 한 주 동안 누적된 글로벌 비즈니스 아이디어 카드와 유튜브 영상 데이터를 AI가 종합 분석하여 유망 산업 분야, 급상승 핵심 키워드, 카테고리별 비중 및 차주 주목할 동향을 한눈에 정리합니다.
+          </p>
         </div>
       </div>
       {loading && !data ? (

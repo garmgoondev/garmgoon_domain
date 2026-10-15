@@ -10,7 +10,7 @@ import { DAY, getState, httpError, json, localDay, localParts, localWeekStart, p
 import { addChannel, videoFromRow } from "./youtube.js";
 import { redditMode } from "./reddit.js";
 import { loadPreferences, preferenceBoost, preferenceSummary } from "./prefs.js";
-import { getStatsSummaryApi, pingDomainApi, pingAllDomainsApi } from "./stats.js";
+import { getStatsSummaryApi, pingDomainApi, pingAllDomainsApi, syncStatsSnapshotApi } from "./stats.js";
 import { handleTelemetry, handleTelemetryScript, handleTelemetryOptions } from "./telemetry.js";
 
 const PRIVATE_PAGES = /^\/(tools|scrap|settings|automations|stats)(\/|\.html|\.txt|$)/;
@@ -506,6 +506,10 @@ async function handleApi(request, env, url, ctx) {
   if (path === "/api/stats/live-check") {
     if (!isAuthorizedForHeartbeat(request, env, authed)) return httpError(401, "로그인이 필요해요.");
     return pingAllDomainsApi(env);
+  }
+  if (path === "/api/stats/sync" && request.method === "POST") {
+    if (!isAuthorizedForHeartbeat(request, env, authed)) return httpError(401, "인증 토큰이 유효하지 않습니다.");
+    return syncStatsSnapshotApi(env, request);
   }
 
   const m = path.match(/^\/api\/p\/([a-z]+)(?:\/([^/]+))?$/);

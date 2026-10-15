@@ -1,5 +1,5 @@
-import { SITES_METRICS, getAggregatedStats, getAllPeriodTotals, PERIODS } from "../lib/stats-data.js";
-import { json, httpError } from "./util.js";
+import { SITES_METRICS, SEO_SYNC_META, getAggregatedStats, getAllPeriodTotals, PERIODS } from "../lib/stats-data.js";
+import { json, httpError, getState, setState, parseJSON } from "./util.js";
 
 const ALLOWED_DOMAINS = new Set([
   "everydaytutor.net",
@@ -123,16 +123,52 @@ export async function pingAllDomainsApi(env) {
 }
 
 /**
+ * SEO Hub 주간 리포트 발행 시 최신 통계 및 사이트별 Action Plan 스냅샷을 D1 state에 동기화한다.
+ */
+export async function syncStatsSnapshotApi(env, request) {
+  if (!env || !env.DB) return httpError(500, "DB 바인딩이 없습니다.");
+  const body = await request.json().catch(() => null);
+  if (!body || !Array.isArray(body.sites) || body.sites.length === 0) {
+    return httpError(400, "유효한 sites 배열이 필요합니다.");
+  }
+  const syncMeta = {
+    lastSyncedAt: new Date().toISOString(),
+    ...(body.syncMeta || {}),
+  };
+  await setState(env, "seo_hub:stats_snapshot", JSON.stringify({ syncMeta, sites: body.sites }));
+  return json({
+    ok: true,
+    syncedSites: body.sites.length,
+    syncMeta,
+  });
+}
+
+/**
  * 통계 요약 및 사이트별 지표 데이터를 반환한다. (7d, 28d, 90d 기간 지원)
- * D1 엣지 실측 텔레메트리 테이블(telemetry_visitors)을 조회하여
- * mine98, webomok, pwstudio, kimedit, everydaytutor의 실시간 실측 방문자수를 합산 반환한다.
+ * D1 state(seo_hub:stats_snapshot)와 실시간 D1 텔레메트리(telemetry_visitors, telemetry_events)를 병합 반환한다.
  */
 export async function getStatsSummaryApi(env, url) {
   const period = (url.searchParams.get("period") || "28d").toLowerCase();
   const validPeriod = ["7d", "28d", "90d"].includes(period) ? period : "28d";
 
+  let baseSites = SITES_METRICS;
+  let syncMeta = SEO_SYNC_META;
+
+  if (env && env.DB) {
+    try {
+      const rawSnap = await getState(env, "seo_hub:stats_snapshot");
+      const snap = parseJSON(rawSnap, null);
+      if (snap && Array.isArray(snap.sites) && snap.sites.length > 0) {
+        baseSites = snap.sites;
+        if (snap.syncMeta) syncMeta = snap.syncMeta;
+      }
+    } catch (e) {
+      console.error("Failed to read seo_hub:stats_snapshot:", e);
+    }
+  }
+
   // 깊은 복사본 생성하여 런타임 변조 격리
-  const sites = JSON.parse(JSON.stringify(SITES_METRICS));
+  const sites = JSON.parse(JSON.stringify(baseSites));
 
   if (env && env.DB) {
     try {
@@ -157,13 +193,13 @@ export async function getStatsSummaryApi(env, url) {
         `).bind(day7, day28, day90, day28).all(),
         env.DB.prepare(`
           SELECT site_id,
-                 COUNT(*) as events_28d,
                  COUNT(CASE WHEN day >= ? THEN 1 END) as events_7d,
+                 COUNT(CASE WHEN day >= ? THEN 1 END) as events_28d,
                  COUNT(CASE WHEN day >= ? THEN 1 END) as events_90d
           FROM telemetry_events
           WHERE day >= ?
           GROUP BY site_id
-        `).bind(day7, day90, day90).all().catch(() => ({ results: [] })),
+        `).bind(day7, day28, day90, day90).all().catch(() => ({ results: [] })),
       ]);
 
       const visitorMap = new Map((visitorsRes?.results || []).map((r) => [r.site_id, r]));
@@ -174,49 +210,52 @@ export async function getStatsSummaryApi(env, url) {
         const ev = eventMap.get(s.id);
 
         if (s.id === "utahsays") {
-          // Utah Says는 자체 D1 실측 88명 베이스 + 중앙 비콘 실측치
-          const extra7 = v ? v.uv_7d : 0;
-          const extra28 = v ? v.uv_28d : 0;
-          const extra90 = v ? v.uv_90d : 0;
-          if (s.overview?.periods) {
-            s.overview.periods["7d"].users = Math.max(s.overview.periods["7d"].users || 0, extra7);
-            s.overview.periods["28d"].users = Math.max(s.overview.periods["28d"].users || 88, 88 + extra28);
-            s.overview.periods["90d"].users = Math.max(s.overview.periods["90d"].users || 88, 88 + extra90);
-            s.overview.users28d = s.overview.periods["28d"].users;
-          }
-          s.telemetrySource = "D1 엣지 실측 비콘 (1st-Party)";
-        } else if (s.id === "everydaytutor") {
-          // EverydayTutor는 GA4 28일 실측 2명 베이스 + D1 실측 비콘 합산
           const uv7 = v ? v.uv_7d : 0;
           const uv28 = v ? v.uv_28d : 0;
           const uv90 = v ? v.uv_90d : 0;
           if (s.overview?.periods) {
-            s.overview.periods["7d"].users = uv7;
-            s.overview.periods["28d"].users = Math.max(2, uv28);
-            s.overview.periods["90d"].users = Math.max(2, uv90);
+            s.overview.periods["7d"].users = Math.max(s.overview.periods["7d"].users || 0, uv7);
+            s.overview.periods["28d"].users = Math.max(s.overview.periods["28d"].users || 0, uv28);
+            s.overview.periods["90d"].users = Math.max(s.overview.periods["90d"].users || 0, uv90);
+            s.overview.users28d = s.overview.periods["28d"].users;
+          }
+          if (ev && ev.events_90d > 0 && s.overview?.periods) {
+            s.overview.periods["7d"].conversions = Math.max(s.overview.periods["7d"].conversions || 0, ev.events_7d);
+            s.overview.periods["28d"].conversions = Math.max(s.overview.periods["28d"].conversions || 0, ev.events_28d);
+            s.overview.periods["90d"].conversions = Math.max(s.overview.periods["90d"].conversions || 0, ev.events_90d);
+          }
+          s.telemetrySource = "D1 엣지 실측 비콘 (1st-Party)";
+        } else if (s.id === "everydaytutor" || s.id === "pwstudio") {
+          const uv7 = v ? v.uv_7d : 0;
+          const uv28 = v ? v.uv_28d : 0;
+          const uv90 = v ? v.uv_90d : 0;
+          if (s.overview?.periods) {
+            s.overview.periods["7d"].users = Math.max(s.overview.periods["7d"].users || 0, uv7);
+            s.overview.periods["28d"].users = Math.max(s.overview.periods["28d"].users || 0, uv28);
+            s.overview.periods["90d"].users = Math.max(s.overview.periods["90d"].users || 0, uv90);
             s.overview.users28d = s.overview.periods["28d"].users;
           }
           s.dataStatus = "real";
           s.telemetrySource = "D1 엣지 실측 비콘 + GSC/GA4";
-        } else if (["mine98", "webomok", "pwstudio", "kimedit"].includes(s.id)) {
+        } else if (["mine98", "webomok", "kimedit"].includes(s.id)) {
           const uv7 = v ? v.uv_7d : 0;
           const uv28 = v ? v.uv_28d : 0;
           const uv90 = v ? v.uv_90d : 0;
 
           if (s.overview?.periods) {
-            s.overview.periods["7d"].users = uv7;
-            s.overview.periods["28d"].users = uv28;
-            s.overview.periods["90d"].users = uv90;
-            s.overview.users28d = uv28;
+            s.overview.periods["7d"].users = Math.max(s.overview.periods["7d"].users || 0, uv7);
+            s.overview.periods["28d"].users = Math.max(s.overview.periods["28d"].users || 0, uv28);
+            s.overview.periods["90d"].users = Math.max(s.overview.periods["90d"].users || 0, uv90);
+            s.overview.users28d = s.overview.periods["28d"].users;
           }
 
-          if (ev && ev.events_28d > 0 && s.overview?.periods) {
-            s.overview.periods["7d"].conversions = ev.events_7d;
-            s.overview.periods["28d"].conversions = ev.events_28d;
-            s.overview.periods["90d"].conversions = ev.events_90d;
+          if (ev && ev.events_90d > 0 && s.overview?.periods) {
+            s.overview.periods["7d"].conversions = Math.max(s.overview.periods["7d"].conversions || 0, ev.events_7d);
+            s.overview.periods["28d"].conversions = Math.max(s.overview.periods["28d"].conversions || 0, ev.events_28d);
+            s.overview.periods["90d"].conversions = Math.max(s.overview.periods["90d"].conversions || 0, ev.events_90d);
           }
 
-          if (uv28 > 0) {
+          if (uv28 > 0 || uv90 > 0) {
             s.dataStatus = "real";
           }
           s.telemetrySource = "D1 엣지 실측 비콘 (1st-Party)";
@@ -233,6 +272,7 @@ export async function getStatsSummaryApi(env, url) {
   return json({
     ok: true,
     generatedAt: new Date().toISOString(),
+    syncMeta,
     selectedPeriod: validPeriod,
     periods: PERIODS,
     totals,
@@ -244,3 +284,4 @@ export async function getStatsSummaryApi(env, url) {
     },
   });
 }
+

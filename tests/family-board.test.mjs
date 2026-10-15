@@ -223,14 +223,19 @@ test("web push: encrypted payloads, VAPID signature, post and comment alerts", a
   const pub = await crypto.subtle.importKey("raw", fromB64u(k), { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
   assert.equal(await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, pub, fromB64u(s), enc.encode(`${h}.${p}`)), true);
 
-  // 엄마가 가족 글을 쓰면 아빠에게만, 비공개 글은 아무에게도 가지 않는다
-  const post = await call(env, "/api/family/posts", { method: "POST", cookie: mom.cookie, body: { kind: "message", visibility: "family", body: "오늘 저녁은 김치찌개" } });
+  // 엄마가 가족 글을 쓰면 아빠에게만, 비공개 글은 아무에게도 가지 않는다 (영문 소문자 's'와 줄바꿈 공백 정규화 검증)
+  const post = await call(env, "/api/family/posts", { method: "POST", cookie: mom.cookie, body: { kind: "message", visibility: "family", body: "오늘 저녁은 김치찌개\nToday's pasta is delicious" } });
   assert.equal(env.pushed.length, 1);
   const alert = await dadDevice.decrypt(env.pushed.pop().init.body);
-  assert.equal(alert.body, "오늘 저녁은 김치찌개");
+  assert.equal(alert.body, "오늘 저녁은 김치찌개 Today's pasta is delicious");
   assert.match(alert.title, /엄마 · 새 메시지/);
   await call(env, "/api/family/posts", { method: "POST", cookie: mom.cookie, body: { kind: "diary", visibility: "private", diaryDay: "2026-09-28", body: "비밀" } });
   assert.equal(env.pushed.length, 0);
+
+  // 검색 파라미터(?q=) 검증
+  const searched = await call(env, "/api/family/posts?scope=family&q=pasta", { cookie: dad.cookie });
+  assert.equal(searched.data.posts.length, 1);
+  assert.equal((await call(env, "/api/family/posts?scope=family&q=없는단어", { cookie: dad.cookie })).data.posts.length, 0);
 
   // 아빠 댓글 → 엄마에게
   await call(env, `/api/family/posts/${post.data.post.id}/comments`, { method: "POST", cookie: dad.cookie, body: { body: "좋아!" } });

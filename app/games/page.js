@@ -7,16 +7,16 @@ import { useGamesLang } from "../../lib/gamesLang";
 
 const TEXT = {
   ko: {
-    eyebrow: "🎮 게임",
-    title: "게임",
-    desc: "브라우저에서 바로 하는 작은 게임 모음",
+    eyebrow: "🎮 BROWSER GAMES",
+    title: "웹 브라우저 미니게임 모음",
+    desc: "별도의 설치 없이 PC와 모바일 브라우저에서 바로 즐길 수 있는 웹 미니게임 컬렉션입니다. 1버튼 리듬 액션, 실시간 타자 레이스 및 격투, 2인용 대전 배구를 무료로 플레이해 보세요.",
     soonTitle: "다음 게임 준비 중",
     soonDesc: "여기에 새 게임이 추가돼요.",
   },
   en: {
-    eyebrow: "🎮 Games",
-    title: "Games",
-    desc: "Small games you can play right in your browser",
+    eyebrow: "🎮 BROWSER GAMES",
+    title: "Web Browser Mini Games",
+    desc: "A collection of web mini-games you can play directly in your PC and mobile browser without any installation. Enjoy rhythm action, real-time typing race, and 2-player volleyball.",
     soonTitle: "More games coming",
     soonDesc: "New games will show up here.",
   },

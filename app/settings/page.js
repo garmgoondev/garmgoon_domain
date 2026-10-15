@@ -7,7 +7,7 @@ import { timeAgo } from "../../lib/format";
 const TICK_MINUTES = 10;
 const IDLE = "지금 처리할 작업이 없어요.";
 const MAX_AUTO_STEPS = 200;
-const BATCH_CARDS = 25;
+const BATCH_CARDS = 50;
 const SUMMARY_BATCH = 10;
 
 function collectHours(data) {

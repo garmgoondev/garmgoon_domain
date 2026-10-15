@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /login
+Disallow: /settings
+Disallow: /family
+Disallow: /scrap
+
+Sitemap: https://garmgoon.com/sitemap.xml

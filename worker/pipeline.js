@@ -73,6 +73,15 @@ export async function tick(env, { forceCollect = false } = {}) {
          AND CAST(id AS TEXT) NOT IN (SELECT ref_id FROM scraps WHERE kind = 'item')`,
       ).bind(now - RETENTION_DAYS * DAY).run();
 
+      // 3) 퍼스트파티 텔레메트리 및 로그인 잠금 상태 정리 (90일/180일 보관 주기)
+      const day90Ago = addDays(today, -90);
+      const day180Ago = addDays(today, -180);
+      await Promise.all([
+        env.DB.prepare("DELETE FROM telemetry_events WHERE day < ?").bind(day90Ago).run().catch(() => {}),
+        env.DB.prepare("DELETE FROM telemetry_visitors WHERE day < ?").bind(day180Ago).run().catch(() => {}),
+        env.DB.prepare("DELETE FROM state WHERE key LIKE 'admin_login_guard:%' AND updated_at < ?").bind(now - DAY).run().catch(() => {}),
+      ]);
+
       const totalDeleted = (skippedRes.meta.changes || 0) + (oldRes.meta.changes || 0);
       return totalDeleted ? `데이터 정리: 탈락 글 ${skippedRes.meta.changes || 0}건, 만료 글 ${oldRes.meta.changes || 0}건 삭제` : null;
     },
